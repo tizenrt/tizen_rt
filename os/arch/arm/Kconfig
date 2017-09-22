@@ -25,12 +25,23 @@ config ARCH_CHIP_S5J
 	select ARMV7R_MEMINIT
 	---help---
 		Samsung IoT SoC architectures (ARM Cortex R)
+
+config ARCH_CHIP_RDA5981
+        bool "RDA 5981"
+        select ARCH_CORTEXM4
+        select ARCH_HAVE_MPU
+        select ARCH_HAVE_TICKLESS
+        select ARM_HAVE_MPU_UNIFIED
+        ---help---
+                RDA IoT SoC chip (ARM Cortex M)
+
 endchoice
 
 config ARCH_CHIP
 	string
 	default "s5j"       if ARCH_CHIP_S5J
 	default "tiva"      if ARCH_CHIP_LM
+	default "rda5981"   if ARCH_CHIP_RDA5981
 
 comment "ARM Options"
 
@@ -167,6 +178,9 @@ source arch/arm/src/tiva/Kconfig
 endif
 if ARCH_CHIP_S5J
 source arch/arm/src/s5j/Kconfig
+endif
+if ARCH_CHIP_RDA5981
+source arch/arm/src/rda5981/Kconfig
 endif
 
 endif

@@ -1,0 +1,35 @@
+#
+# For a description of the syntax of this configuration file,
+# see kconfig-language at https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt
+#
+
+comment "RDA 5981 Chip Configuration Options"
+
+choice
+	prompt "RDA Chip Selection"
+	default ARCH_CHIP_RDA5981C
+
+config ARCH_CHIP_RDA5981C
+	bool "RDA5981C"
+	select ARCH_CORTEXM4
+    
+endchoice
+
+config RDA5981_GPIO
+	bool "RDA5981 GPIO support"
+    select rda5981_PINMAP
+	default n
+
+config RDA5981_RTC
+	bool "RDA5981 RTC support"
+	default n
+
+config RDA5981_UART
+	bool "RDA5981 UART support"
+	default n
+
+config RDA5981_PWR
+	bool "RDA5981 PWR support"
+	default n
+
+

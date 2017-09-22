@@ -35,6 +35,11 @@ config ARCH_BOARD_SIDK_S5JT200
 	select ARCH_HAVE_IRQBUTTONS
 	---help---
 		Samsung S5JT200 IoT wifi MCU
+
+config ARCH_BOARD_RDA5981
+	bool "RDA 5981 board"
+	depends on ARCH_CHIP_RDA5981
+
 endchoice
 
 config ARCH_BOARD
@@ -42,7 +47,8 @@ config ARCH_BOARD
 	default "artik053"           if ARCH_BOARD_ARTIK053
 	default "lm3s6965-ek"        if ARCH_BOARD_LM3S6965EK
 	default "sidk_s5jt200"       if ARCH_BOARD_SIDK_S5JT200
-
+	default "rda5981"            if ARCH_BOARD_RDA5981
+ 
 comment "Common Board Options"
 
 config ARCH_HAVE_LEDS
