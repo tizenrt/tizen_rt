@@ -157,7 +157,7 @@ CONFIG_RAM_SIZE=131072
 # Board Selection
 #
 CONFIG_ARCH_BOARD_RDA5981=y
-CONFIG_ARCH_BOARD="rda5981"
+CONFIG_ARCH_BOARD="rda5981_board"
 
 #
 # Common Board Options

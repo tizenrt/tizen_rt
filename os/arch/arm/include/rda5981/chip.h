@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /************************************************************************************
- * arch/arm/include/tiva/chip.h
+ * arch/arm/include/rda5981/chip.h
  *
  *   Copyright (C) 2009-2010, 2013-2014 Gregory Nutt. All rights reserved.
  *   Authors: Gregory Nutt <gnutt@nuttx.org>
@@ -52,8 +52,8 @@
  *
  ************************************************************************************/
 
-#ifndef __ARCH_ARM_INCLUDE_TIVA_CHIP_H
-#define __ARCH_ARM_INCLUDE_TIVA_CHIP_H
+#ifndef __ARCH_ARM_INCLUDE_RDA5981_CHIP_H
+#define __ARCH_ARM_INCLUDE_RDA5981_CHIP_H
 
 /************************************************************************************
  * Included Files
@@ -65,7 +65,6 @@
  * Pre-processor Definitions
  ************************************************************************************/
 
-/* Get customizations for each supported chip (only the LM3S6918 and 65 right now) */
 
 /* The TIVA/Stellaris only supports 8 priority levels.  The hardware priority
  * mechanism will only look at the upper N bits of the 8-bit priority level

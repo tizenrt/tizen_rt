@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /************************************************************************************
- * arch/arm/src/sidk_s5jt200/include/board.h
+ * arch/arm/src/rda5981_board/include/board.h
  *
  *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Authors: Gregory Nutt <gnutt@nuttx.org>
@@ -51,24 +51,21 @@
  *
  ************************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_SIDK_S5JT200_INCLUDE_BOARD_H
-#define __ARCH_ARM_SRC_SIDK_S5JT200_INCLUDE_BOARD_H
+#ifndef __ARCH_ARM_SRC_RDA5981_BOARD_INCLUDE_BOARD_H
+#define __ARCH_ARM_SRC_RDA5981_BOARD_INCLUDE_BOARD_H
 
 /************************************************************************************
  * Included Files
  ************************************************************************************/
 #include <tinyara/config.h>
 
+//Need to be modified
 #define SYSCLK_FREQUENCY	32768 /* RTC clock at 32768Hz */
 
 #ifndef __ASSEMBLY__
 
-extern void s5j_boardinitialize(void);
+extern void rda5981_boardinitialize(void);
 
-#ifdef CONFIG_SIDK_S5JT200_EEPROM
-extern struct spi_dev_s *eeprom_dev;
-extern void sidk_s5jt200_eeprom_init(void);
-#endif /* CONFIG_SIDK_S5JT200_EEPROM */
 
 #endif
-#endif /* __ARCH_ARM_SRC_SIDK_S5JT200_INCLUDE_BOARD_H */
+#endif /* __ARCH_ARM_SRC_RDA5981_BOARD_INCLUDE_BOARD_H */

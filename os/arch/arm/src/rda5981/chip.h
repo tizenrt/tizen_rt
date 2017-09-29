@@ -50,15 +50,15 @@
  *
  ************************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_TIVA_CHIP_H
-#define __ARCH_ARM_SRC_TIVA_CHIP_H
+#ifndef __ARCH_ARM_SRC_RDA5981_CHIP_H
+#define __ARCH_ARM_SRC_RDA5981_CHIP_H
 
 /************************************************************************************
  * Included Files
  ************************************************************************************/
 
 #include <tinyara/config.h>
-
+#include <arch/rda5981/chip.h>
 /* Then get all of the register definitions */
 
 
