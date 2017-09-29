@@ -60,7 +60,7 @@
 /************************************************************************************
  * Preprocessor Definitions
  ************************************************************************************/
-
+#define ARMV7M_PERIPHERAL_INTERRUPTS 55
 #define IDLE_STACK      ((unsigned)&_ebss+CONFIG_IDLETHREAD_STACKSIZE-4)
 
 #ifndef ARMV7M_PERIPHERAL_INTERRUPTS

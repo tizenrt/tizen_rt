@@ -81,7 +81,6 @@ static void tash_register_cmds(void)
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
@@ -103,7 +102,7 @@ int preapp_start(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_SYSTEM_INFORMATION
-	sysinfo();
+	//sysinfo();
 #endif
 
 #ifdef CONFIG_LIB_USRWORK
@@ -121,7 +120,7 @@ int preapp_start(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_TASH
-	tash_register_cmds();
+//	tash_register_cmds();
 
 	pid = tash_start();
 	if (pid <= 0) {

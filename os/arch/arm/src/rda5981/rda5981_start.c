@@ -108,7 +108,7 @@ volatile uint32_t *current_regs;
 
 void SystemInit (void)
 {
-    __asm__ __volatile__ ("cpsie i" :::"memory");
+    __asm__ __volatile__ ("cpsie i" ::: "memory");
 
 }
 
@@ -122,27 +122,7 @@ void up_serialinit(void)
 #define RDA_UART0_BASE        (RDA_AHB0_BASE + 0x12000)
 #define UART_TXH 0x0
 
-void uart_send_byte(char ch)
-{
-   putreg32(ch, RDA_UART0_BASE + UART_TXH); 
 
-}
-
-int up_putc(int ch)
-{
-    uart_send_byte(ch);
-    return 0;
-
-}
-
-void rda_printf(char *s)
-{
-    while(*s)
-    {
-        uart_send_byte(*s);
-        s++;
-    }
-}
 
 void board_initialize(void)
 {
@@ -160,16 +140,6 @@ int up_rtc_getdatetime(FAR struct tm *tp)
     return 0;
 }
 
-void up_irqinitialize(void)
-{
-
-}
-
-void up_timer_initialize(void)
-{
-
-}
-
 int up_rtc_settime(FAR const struct timespec *tp)
 {
     return 0;
@@ -181,8 +151,9 @@ void __start(void)
 {
   uint32_t *dest;
   
-  rda_printf("TizenRT");
- 
+  rda_printf("===TizenRT Entry point===\n");
+
+  SystemInit();
   /* Configure the uart so that we can get debug output as soon as possible */
 
  // nuc_clockconfig();

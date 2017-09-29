@@ -524,6 +524,7 @@ void os_start(void)
 
 	lib_initialize();
 
+
 	/* IDLE Group Initialization **********************************************/
 #ifdef HAVE_TASK_GROUP
 	/* Allocate the IDLE group */
@@ -550,13 +551,15 @@ void os_start(void)
 
 	/* Bring Up the System ****************************************************/
 	/* Create initial tasks and bring-up the system */
+    rda_printf("===idle task :: launch tash ===\n");
+    
+    DEBUGVERIFY(os_bringup());
 
-	DEBUGVERIFY(os_bringup());
-
+    rda_printf("===idle task :: after launch tash===\n");
 	/* The IDLE Loop **********************************************************/
 	/* When control is return to this point, the system is idle. */
 
-	svdbg("Beginning Idle Loop\n");
+	//svdbg("Beginning Idle Loop\n");
 	for (;;) {
 		/* Perform garbage collection (if it is not being done by the worker
 		 * thread).  This cleans-up memory de-allocations that were queued

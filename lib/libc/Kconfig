@@ -204,7 +204,7 @@ config LIBC_MAX_TMPFILE
 
 config ARCH_LOWPUTC
 	bool "Low-level console output"
-	default "y"
+	default "n"
 	---help---
 		architecture supports low-level, boot time console output
 

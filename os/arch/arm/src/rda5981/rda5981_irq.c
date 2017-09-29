@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2016 Samsung Electronics All Rights Reserved.
+ * Copyright 2017 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * drivers/serial/lowconsole.c
+ * arch/arm/src/tiva/tiva_timerisr.c
  *
- *   Copyright (C) 2008-2009, 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,93 +56,110 @@
 
 #include <tinyara/config.h>
 
-#include <sys/types.h>
-#include <errno.h>
+#include <stdint.h>
+#include <time.h>
 #include <debug.h>
-
 #include <tinyara/arch.h>
-#include <tinyara/fs/fs.h>
+#include <arch/board/board.h>
+
+#include "nvic.h"
+#include "clock/clock.h"
+#include "up_internal.h"
+#include "up_arch.h"
+
+#include "chip.h"
+
+
+#define NVIC_SYSH_PRIORITY_MIN     0xe0 /* Bits [5:7] set in minimum priority */
+#define NVIC_SYSH_PRIORITY_DEFAULT 0x80 /* Midpoint is the default */
+#define NVIC_SYSH_PRIORITY_MAX     0x00 /* Zero is maximum priority */
+#define NVIC_SYSH_PRIORITY_STEP    0x20 /* Three bits of interrupt priority used */
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/* The architecture must provide up_putc for this driver */
+/* The desired timer interrupt frequency is provided by the definition
+ * CLK_TCK (see include/time.h).  CLK_TCK defines the desired number of
+ * system clock ticks per second.  That value is a user configurable setting
+ * that defaults to 100 (100 ticks per second = 10 MS interval).
+ *
+ * The timer counts at the rate SYSCLK_FREQUENCY as defined in the board.h
+ * header file.
+ */
 
-//#ifndef CONFIG_ARCH_LOWPUTC
-//#error "Architecture must provide up_putc() for this driver"
-//#endif
+#define SYSTICK_RELOAD ((SYSCLK_FREQUENCY / CLK_TCK) - 1)
+
+/* The size of the reload field is 24 bits.  Verify taht the reload value
+ * will fit in the reload register.
+ */
+
+#if SYSTICK_RELOAD > 0x00ffffff
+#error SYSTICK_RELOAD exceeds the range of the RELOAD register
+#endif
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static ssize_t lowconsole_read(struct file *filep, char *buffer, size_t buflen);
-static ssize_t lowconsole_write(struct file *filep, const char *buffer, size_t buflen);
-static int lowconsole_ioctl(struct file *filep, int cmd, unsigned long arg);
-
 /****************************************************************************
- * Private Variables
- ****************************************************************************/
-
-static const struct file_operations g_consoleops = {
-	0,							/* open */
-	0,							/* close */
-	lowconsole_read,			/* read */
-	lowconsole_write,			/* write */
-	0,							/* seek */
-	lowconsole_ioctl			/* ioctl */
-#ifndef CONFIG_DISABLE_POLL
-	, 0						/* poll */
-#endif
-};
-
-/****************************************************************************
- * Private Functions
+ * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: lowconsole_ioctl
+ * Function:  up_timerisr
+ *
+ * Description:
+ *   The timer ISR will perform a variety of services for various portions
+ *   of the systems.
+ *
  ****************************************************************************/
 
-static int lowconsole_ioctl(struct file *filep, int cmd, unsigned long arg)
+int up_timerisr(int irq, uint32_t *regs)
 {
-	return -ENOTTY;
-}
-
-/****************************************************************************
- * Name: lowconsole_read
- ****************************************************************************/
-
-static ssize_t lowconsole_read(struct file *filep, char *buffer, size_t buflen)
-{
+	/* Process timer interrupt */
+	sched_process_timer();
 	return 0;
 }
 
 /****************************************************************************
- * Name: lowconsole_write
+ * Function:  up_timer_initialize
+ *
+ * Description:
+ *   This function is called during start-up to initialize
+ *   the timer interrupt.
+ *
  ****************************************************************************/
 
-static ssize_t lowconsole_write(struct file *filep, const char *buffer, size_t buflen)
+void up_timer_initialize(void)
 {
-	ssize_t ret = buflen;
+	uint32_t regval;
 
-	for (; buflen; buflen--) {
-		up_putc(*buffer++);
-	}
+	/* Set the SysTick interrupt to the default priority */
 
-	return ret;
-}
+	regval = getreg32(NVIC_SYSH12_15_PRIORITY);
+	regval &= ~NVIC_SYSH_PRIORITY_PR15_MASK;
+	regval |= (NVIC_SYSH_PRIORITY_DEFAULT << NVIC_SYSH_PRIORITY_PR15_SHIFT);
+	putreg32(regval, NVIC_SYSH12_15_PRIORITY);
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+	/* Configure SysTick to interrupt at the requested rate */
 
-/****************************************************************************
- * Name: lowconsole_init
-****************************************************************************/
+	putreg32(SYSTICK_RELOAD, NVIC_SYSTICK_RELOAD);
 
-void lowconsole_init(void)
-{
-	(void)register_driver("/dev/console", &g_consoleops, 0666, NULL);
+	/* Attach the timer interrupt vector */
+
+	(void)irq_attach(TIVA_IRQ_SYSTICK, (xcpt_t) up_timerisr, NULL);
+
+	/* Enable SysTick interrupts */
+
+	putreg32((NVIC_SYSTICK_CTRL_CLKSOURCE | NVIC_SYSTICK_CTRL_TICKINT | NVIC_SYSTICK_CTRL_ENABLE), NVIC_SYSTICK_CTRL);
+
+	/* And enable the timer interrupt */
+
+	up_enable_irq(TIVA_IRQ_SYSTICK);
+
 }

@@ -290,15 +290,18 @@ int tash_cmd_install(const char *str, TASH_CMD_CALLBACK cb, int thread_exec)
 	pthread_mutex_lock(&tash_cmds_info.tmutex);
 
 	/* CHeck if cmd is already installed */
-	for (cmd_idx = 0; cmd_idx < tash_cmds_info.count; cmd_idx++) {
+	
+    for (cmd_idx = 0; cmd_idx < tash_cmds_info.count; cmd_idx++) {
 		if (strncmp(str, tash_cmds_info.cmd[cmd_idx].str, TASH_CMD_MAXSTRLENGTH - 1) == 0) {
 			pthread_mutex_unlock(&tash_cmds_info.tmutex);
+
 			return -2;			/* CMD already installed */
 		}
 	}
 
 	/* store command string - no need of explicit NULL termination */
 	strncpy(tash_cmds_info.cmd[tash_cmds_info.count].str, str, TASH_CMD_MAXSTRLENGTH - 1);
+    
 	/* store callback */
 	tash_cmds_info.cmd[tash_cmds_info.count].cb = cb;
 	/* store thread_exec flags */
@@ -333,6 +336,10 @@ void tash_cmdlist_install(const tash_cmdlist_t list[])
 
 void tash_register_basic_cmds(void)
 {
+    //reset count value
+    tash_cmds_info.count = 0;
+    pthread_mutex_init(&tash_cmds_info.tmutex, NULL);
+
 	tash_cmdlist_install(tash_basic_cmds);
 }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * Copyright 2016 Samsung Electronics All Rights Reserved.
+ * Copyright 2017 Samsung Electronics All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  * language governing permissions and limitations under the License.
  *
  ****************************************************************************/
-/****************************************************************************
- * arch/arm/src/s5j/chip.h
+/************************************************************************************
+ * arch/arm/src/tiva/chip.h
  *
- *   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009-2010 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,26 +48,34 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ****************************************************************************/
-#ifndef __ARCH_ARM_SRC_S5J_CHIP_H
-#define __ARCH_ARM_SRC_S5J_CHIP_H
+ ************************************************************************************/
 
-/****************************************************************************
+#ifndef __ARCH_ARM_SRC_TIVA_CHIP_H
+#define __ARCH_ARM_SRC_TIVA_CHIP_H
+
+/************************************************************************************
  * Included Files
- ****************************************************************************/
+ ************************************************************************************/
 
 #include <tinyara/config.h>
 
-#define ARMV7M_PERIPHERAL_INTERRUPTS 32
-
 /* Then get all of the register definitions */
-//#include "chip/s5j_memorymap.h"
+
+
+/************************************************************************************
+ * Pre-processor Definitions
+ ************************************************************************************/
+
+/************************************************************************************
+ * Public Types
+ ************************************************************************************/
+
+/************************************************************************************
+ * Public Data
+ ************************************************************************************/
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Function Prototypes
  ****************************************************************************/
 
-/* Interrupt Controller Address */
-//#define CHIP_MPCORE_VBASE S5J_GIC_BASE
-
-#endif /* __ARCH_ARM_SRC_S5J_CHIP_H */
+#endif							/* __ARCH_ARM_SRC_TIVA_CHIP_H */

@@ -66,7 +66,7 @@ MEMORY
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(Reset_Handler)
+ENTRY(__start)
 SECTIONS
 {
     .text : {

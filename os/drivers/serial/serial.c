@@ -79,9 +79,9 @@
 
 /* The architecture must provide up_putc for this driver */
 
-#ifndef CONFIG_ARCH_LOWPUTC
-#error "Architecture must provide up_putc() for this driver"
-#endif
+//#ifndef CONFIG_ARCH_LOWPUTC
+//#error "Architecture must provide up_putc() for this driver"
+//#endif
 
 #define uart_putc(ch) up_putc(ch)
 
