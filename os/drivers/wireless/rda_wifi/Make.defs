@@ -16,16 +16,23 @@
 #
 ###########################################################################
 
+ifeq ($(CONFIG_RDA5981_WLAN),y)
+
+#Upper driver
 CSRCS += \
-	drivers.c \
-	driver_common.c \
-#ifdef CONFIG_DRIVER_T20	
-	driver_t20.c
-#endif
-#ifdef CONFIG_DRIVER_RDA
-	driver_rda_wifi.c
-#endif	
+	netif.c \
 
-DEPPATH += --dep-path src/drivers
-VPATH += :src/drivers
+#RDA wifi ops
+CSRCS += \
+	rda_wifi_ops.c
 
+# TinyARA Wrappers
+CSRCS += \
+	tinyara_wrapper.c
+
+# Include wireless devices build support
+
+DEPPATH += --dep-path wireless$(DELIM)rda_wifi
+VPATH += :wireless$(DELIM)rda_wifi
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TOPDIR)$(DELIM)drivers$(DELIM)wireless$(DELIM)rda_wifi}
+endif
