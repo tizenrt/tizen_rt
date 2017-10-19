@@ -383,11 +383,7 @@ void up_assert(const uint8_t *filename, int lineno)
 {
 #ifdef CONFIG_PRINT_TASKNAME
 //	struct tcb_s *rtcb = this_task();
-#endif
-
-    rda_printf("myassert\n");
-    rda_printf(filename);
-    rda_printint(lineno);
+#endif	
 	board_led_on(LED_ASSERTION);
 
 #ifdef CONFIG_PRINT_TASKNAME

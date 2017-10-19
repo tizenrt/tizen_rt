@@ -178,32 +178,24 @@ static int tash_open_console(void)
  */
 static int tash_main(int argc, char *argv[])
 {
-//	char *line_buff;
-//	int fd;
-//	int nbytes;
+	char *line_buff;
+	int fd;
+	int nbytes;
 	int ret = OK;
 
-    rda_printf("=== tash main begin ===\n");	
     ret = tash_init();
 	if (ret == ERROR) {
 		exit(EXIT_FAILURE);
 	}
 
-    rda_printf("=== tash_init end ===\n");	
-
-#if 0
 	fd = tash_open_console();
 	if (fd < 0) {
 		exit(EXIT_FAILURE);
 	}
-#endif
 	tash_running = TRUE;
-
-    rda_printf(tash_prompt);
+	
 	do {
-    #if 0
 		nbytes = write(fd, tash_prompt, sizeof(tash_prompt));
-        rda_print(tash_prompt);
 
         if (nbytes <= 0) {
 			shdbg("TASH: prompt is not displayed (errno = %d)\n", get_errno());
@@ -217,10 +209,9 @@ static int tash_main(int argc, char *argv[])
 		ret = tash_execute_cmdline(line_buff);
 
 		tash_free(line_buff);
-#endif
 	} while (tash_running);
     
-   // (void)close(fd);
+   	(void)close(fd);
 	return 0;					/* TBD: For now, it always returns success */
 }
 

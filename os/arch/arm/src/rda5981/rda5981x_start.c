@@ -224,7 +224,7 @@ void __start(void)
   rda_clockconfig();
   rda_fpuconfig();
   rda_lowsetup();
-  showprogress('A');
+  //showprogress('A');
 
   /* Clear .bss.  We'll do this inline (vs. calling memset) just to be
    * certain that there are no issues with the state of global variables.
@@ -235,7 +235,7 @@ void __start(void)
       *dest++ = 0;
     }
 
-  showprogress('B');
+  //showprogress('B');
 
   /* Move the initialized data section from his temporary holding spot in
    * FLASH into the correct place in SRAM.  The correct place in SRAM is
@@ -248,14 +248,14 @@ void __start(void)
       *dest++ = *src++;
     }
 
-  showprogress('C');
+  //showprogress('C');
 
   /* Perform early serial initialization */
 
 #ifdef USE_EARLYSERIALINIT
   up_earlyserialinit();
 #endif
-  showprogress('D');
+  //showprogress('D');
 
   /* For the case of the separate user-/kernel-space build, perform whatever
    * platform specific initialization of the user memory is required.
@@ -271,7 +271,7 @@ void __start(void)
   /* Initialize onboard resources */
 
   board_initialize();
-  showprogress('F');
+ // showprogress('F');
 
   /* Then start NuttX */
 
