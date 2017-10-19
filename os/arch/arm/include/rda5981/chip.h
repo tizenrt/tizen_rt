@@ -72,6 +72,46 @@
  * performed in those bits.  The default priority level is set to the middle
  * value
  */
+#define RDA_CPU_CLK_FREQUENCY 40000000
+#define RDA_AHB_CLK_FREQUENCY 40000000
+
+/* Get customizations for each supported chip */
+
+#if defined(CONFIG_ARCH_CHIP_RDA5981A)
+#  define RDA5981x              1  /* RDA5981x family */
+#  define RDA_FLASH_SIZE        (1*1024*1024) /*   1Mb */
+#  define RDA_IRAM_SIZE         (128*1024)    /* 128Kb */
+#  define RDA_DRAM_SIZE         (64*1024)     /*  64Kb */
+#  define RDA_NETHCONTROLLERS   0  /* No Ethernet controller */
+#  define RDA_NUSBHOST          1  /* One USB host controller */
+#  define RDA_NUSBOTG           0  /* No USB OTG controller */
+#  define RDA_NUSBDEV           1  /* One USB device controller */
+#  define RDA_NI2S              1  /* One I2S modules */
+#elif defined(CONFIG_ARCH_CHIP_RDA5981AM)
+#  define RDA5981x              1  /* RDA5981x family */
+#  define RDA_FLASH_SIZE        (1*1024*1024) /*   1Mb */
+#  define RDA_IRAM_SIZE         (128*1024)    /* 128Kb */
+#  define RDA_DRAM_SIZE         (96*1024)     /*  96Kb */
+#  define RDA_NETHCONTROLLERS   0  /* No Ethernet controller */
+#  define RDA_NUSBHOST          1  /* One USB host controller */
+
+#  define RDA_NUSBOTG           0  /* No USB OTG controller */
+#  define RDA_NUSBDEV           1  /* One USB device controller */
+#  define RDA_NI2S              1  /* One I2S modules */
+#elif defined(CONFIG_ARCH_CHIP_RDA5981C)
+#  define RDA5981x              1  /* RDA5981x family */
+#  define RDA_FLASH_SIZE        (1*1024*1024) /*   1Mb */
+#  define RDA_IRAM_SIZE         (128*1024)    /* 128Kb */
+#  define RDA_DRAM_SIZE         (160*1024)    /* 160Kb */
+#  define RDA_NETHCONTROLLERS   0  /* No Ethernet controller */
+#  define RDA_NUSBHOST          1  /* One USB host controller */
+#  define RDA_NUSBOTG           0  /* No USB OTG controller */
+#  define RDA_NUSBDEV           1  /* One USB device controller */
+#  define RDA_NI2S              1  /* One I2S modules */
+#else
+#  error "Unsupported RDA5981x chip"
+#endif
+
 
 #define NVIC_SYSH_PRIORITY_MIN     0xe0	/* Bits [5:7] set in minimum priority */
 #define NVIC_SYSH_PRIORITY_DEFAULT 0x80	/* Midpoint is the default */

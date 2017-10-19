@@ -72,7 +72,7 @@ VPATH += :$(TOPDIR)/arch
 CSRCS += boardctl.c
 endif
 
-HEAD_ASRC  = rda5981_vectors.S
+HEAD_ASRC  = rda5981x_vectors.S
 
 CMN_ASRCS  = up_exception.S up_saveusercontext.S up_fullcontextrestore.S
 CMN_ASRCS += up_switchcontext.S vfork.S 
@@ -99,32 +99,21 @@ CMN_CSRCS += up_checkstack.c
 endif
 
 ifeq ($(CONFIG_DEBUG_FEATURES),y)
-CMN_CSRCS += up_dumpnvic.c
+#CMN_CSRCS += up_dumpnvic.c
 endif
 
 /*======================*/
-CMN_CSRCS += rda5981_start.c rda5981_irq.c  rda5981_timerisr.c 
+CMN_CSRCS += rda5981x_start.c rda5981x_irq.c  rda5981x_timerisr.c rda5981x_clockconfig.c 
 
 
 ifeq ($(CONFIG_RDA5981_UART),y)
-CHIP_CSRCS += rda5981_serial.c
+CHIP_CSRCS += rda5981x_serial.c rda5981x_lowputc.c
 endif
 
 ifeq ($(CONFIG_rda5981_GPIO),y)
-CHIP_CSRCS += rda5981_gpio.c rda5981_gpio_lowerhalf.c
+CHIP_CSRCS += rda5981x_gpio.c
 endif
 
-ifeq ($(CONFIG_rda5981_PINMAP),y)
-CHIP_CSRCS += rda5981_pinmap.c
-endif
-
-ifeq ($(CONFIG_rda5981_PWR),y)
-CHIP_CSRCS += rda5981_pwrcal.c
-endif
-
-ifeq ($(CONFIG_rda5981_RTC),y)
-CHIP_CSRCS += rda5981_rtc.c  rda5981_rtc_lowerhalf.c
-endif
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
 

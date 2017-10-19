@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/include/rda5981x/irq.h
+ * arch/rda5981x/rda5981x_irq.h
  *
  *   Copyright (C) 2010-2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,17 +37,12 @@
  * through nuttx/irq.h
  */
 
-#ifndef __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H
-#define __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H
+#ifndef __ARCH_ARM_INCLUDE_RDA5981X_RDA5981X_IRQ_H
+#define __ARCH_ARM_INCLUDE_RDA5981X_RDA5981X_IRQ_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
-#ifndef __ASSEMBLY__
-#  include <stdint.h>
-#endif
-#include <arch/rda5981/chip.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -57,36 +52,34 @@
  * memory in the IRQ to handle mapping tables.
  */
 
-/* Common Processor Exceptions (vectors 0-15) */
-
-#define RDA_IRQ_RESERVED        (0) /* Reserved vector (only used with CONFIG_DEBUG_FEATURES) */
-                                    /* Vector  0: Reset stack pointer value */
-                                    /* Vector  1: Reset (not handler as an IRQ) */
-#define RDA_IRQ_NMI             (2) /* Vector  2: Non-Maskable Interrupt (NMI) */
-#define RDA_IRQ_HARDFAULT       (3) /* Vector  3: Hard fault */
-#define RDA_IRQ_MEMFAULT        (4) /* Vector  4: Memory management (MPU) */
-#define RDA_IRQ_BUSFAULT        (5) /* Vector  5: Bus fault */
-#define RDA_IRQ_USAGEFAULT      (6) /* Vector  6: Usage fault */
-#define RDA_IRQ_SVCALL         (11) /* Vector 11: SVC call */
-#define RDA_IRQ_DBGMONITOR     (12) /* Vector 12: Debug Monitor */
-                                    /* Vector 13: Reserved */
-#define RDA_IRQ_PENDSV         (14) /* Vector 14: Pendable system service request */
-#define RDA_IRQ_SYSTICK        (15) /* Vector 15: System tick */
-
 /* External interrupts (vectors >= 16) */
 
-#define RDA_IRQ_EXTINT         (16) /* Vector number of the first external interrupt */
+#define RDA_IRQ_SPIFLASH        (RDA_IRQ_EXTINT +  0) /* SPI Flash Interrupt    */
+#define RDA_IRQ_PTA             (RDA_IRQ_EXTINT +  1) /* PTA Interrupt          */
+#define RDA_IRQ_SDIO            (RDA_IRQ_EXTINT +  2) /* SDIO Interrupt         */
+#define RDA_IRQ_USBDMA          (RDA_IRQ_EXTINT +  3) /* USBDMA Interrupt       */
+#define RDA_IRQ_USB             (RDA_IRQ_EXTINT +  4) /* USB Interrupt          */
+#define RDA_IRQ_GPIO            (RDA_IRQ_EXTINT +  5) /* GPIO Interrupt         */
+#define RDA_IRQ_TIMER           (RDA_IRQ_EXTINT +  6) /* Timer Interrupt        */
+#define RDA_IRQ_UART0           (RDA_IRQ_EXTINT +  7) /* UART0 Interrupt        */
+#define RDA_IRQ_MACHW           (RDA_IRQ_EXTINT +  8) /* MAC Hardware Interrupt */
+#define RDA_IRQ_UART1           (RDA_IRQ_EXTINT +  9) /* UART1 Interrupt        */
+#define RDA_IRQ_AHBDMA          (RDA_IRQ_EXTINT + 10) /* AHBDMA Interrupt       */
+#define RDA_IRQ_PSRAM           (RDA_IRQ_EXTINT + 11) /* PSRAM Interrupt        */
+#define RDA_IRQ_SDMMC           (RDA_IRQ_EXTINT + 12) /* SDMMC Interrupt        */
+#define RDA_IRQ_EXIF            (RDA_IRQ_EXTINT + 13) /* EXIF Interrupt         */
+#define RDA_IRQ_I2C             (RDA_IRQ_EXTINT + 14) /* I2C Interrupt          */
+#define RDA_IRQ_NEXTINT         (15)
+#define RDA_IRQ_NIRQS           (RDA_IRQ_EXTINT + RDA_IRQ_NEXTINT)
 
-/* Family Specfic Interrupts */
+/* Total number of IRQ numbers */
 
-#  include <arch/rda5981/rda5981x_irq.h>
+#define NR_VECTORS              RDA_IRQ_NIRQS
+#define NR_IRQS                 (RDA_IRQ_EXTINT + RDA_IRQ_NEXTINT)
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
-
-#ifndef __ASSEMBLY__
-typedef void (*vic_vector_t)(uint32_t *regs);
 
 /****************************************************************************
  * Inline functions
@@ -100,14 +93,5 @@ typedef void (*vic_vector_t)(uint32_t *regs);
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#endif /* __ARCH_ARM_INCLUDE_RDA5981X_RDA5981X_IRQ_H */
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* __ASSEMBLY__ */
-
-#endif /* __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H */

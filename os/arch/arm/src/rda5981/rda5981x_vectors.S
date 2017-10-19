@@ -1,24 +1,7 @@
-/****************************************************************************
+/************************************************************************************************
+ * arch/arm/src/rda5981x/rda5981x_vectors.S
  *
- * Copyright 2017 Samsung Electronics All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the License.
- *
- ****************************************************************************/
-/************************************************************************************
- * arch/arm/src/tiva/tiva_vectors.S
- *
- *   Copyright (C) 2009-2010, 2013-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2011, 2013-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,11 +31,11 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ************************************************************************************/
+ ************************************************************************************************/
 
-/************************************************************************************
+/************************************************************************************************
  * Included Files
- ************************************************************************************/
+ ************************************************************************************************/
 
 #include <tinyara/config.h>
 
@@ -61,36 +44,30 @@
 #include "chip.h"
 #include "exc_return.h"
 
-/************************************************************************************
- * Configuration
- ************************************************************************************/
-
-/************************************************************************************
- * Preprocessor Definitions
- ************************************************************************************/
-/* Configuration ********************************************************************/
+/************************************************************************************************
+ * Pre-processor Definitions
+ ************************************************************************************************/
+/* Configuration ********************************************************************************/
 
 #ifdef CONFIG_ARCH_HIPRI_INTERRUPT
-  /* In kernel mode without an interrupt stack, this interrupt handler will set the
-   * MSP to the stack pointer of the interrupted thread.  If the interrupted thread
-   * was a privileged thread, that will be the MSP otherwise it will be the PSP.  If
-   * the PSP is used, then the value of the MSP will be invalid when the interrupt
-   * handler returns because it will be a pointer to an old position in the
-   * unprivileged stack.  Then when the high priority interrupt occurs and uses this
-   * stale MSP, there will most likely be a system failure.
+  /* In kernel mode without an interrupt stack, this interrupt handler will set the MSP to the
+   * stack pointer of the interrupted thread.  If the interrupted thread was a privileged
+   * thread, that will be the MSP otherwise it will be the PSP.  If the PSP is used, then the
+   * value of the MSP will be invalid when the interrupt handler returns because it will be a
+   * pointer to an old position in the unprivileged stack.  Then when the high priority
+   * interrupt occurs and uses this stale MSP, there will most likely be a system failure.
    *
-   * If the interrupt stack is selected, on the other hand, then the interrupt
-   * handler will always set the the MSP to the interrupt stack.  So when the high
-   * priority interrupt occurs, it will either use the MSP of the last privileged
-   * thread to run or, in the case of the nested interrupt, the interrupt stack if
-   * no privileged task has run.
+   * If the interrupt stack is selected, on the other hand, then the interrupt handler will
+   * always set the MSP to the interrupt stack.  So when the high priority interrupt occurs,
+   * it will either use the MSP of the last privileged thread to run or, in the case of the
+   * nested interrupt, the interrupt stack if no privileged task has run.
    */
 
 #  if defined(CONFIG_BUILD_PROTECTED) && CONFIG_ARCH_INTERRUPTSTACK < 4
 #    error Interrupt stack must be used with high priority interrupts in kernel mode
 #  endif
 
-  /* Use the the BASEPRI to control interrupts is required if nested, high
+  /* Use the BASEPRI to control interrupts is required if nested, high
    * priority interrupts are supported.
    */
 
@@ -99,28 +76,29 @@
 #  endif
 #endif
 
-/* Memory Map ***********************************************************************/
+/* Memory Map ***********************************************************************************/
 /*
- * 0x0000:0000 - Beginning of FLASH. Address of vectors (if not using bootloader)
- * 0x0002:0000 - Address of vectors if using bootloader
- * 0x0003:ffff - End of flash
- * 0x2000:0000 - Start of SRAM and start of .data (_sdata)
- *             - End of .data (_edata) abd start of .bss (_sbss)
+ * 0x1800:1000 - Beginning of FLASH. Address of vectors
+ * 0x181F:4FFF - End of flash
+ * 0x0010:0000 - Start of I-SRAM and start of .data (_sdata)
+ *             - End of .data (_edata) and start of .bss (_sbss)
  *             - End of .bss (_ebss) and bottom of idle stack
- *             - _ebss + CONFIG_IDLETHREAD_STACKSIZE = end of idle stack, start of heap
- * 0x2000:ffff - End of SRAM and end of heap
+ *             - _ebss + CONFIG_IDLETHREAD_STACKSIZE = end of idle stack, start of heap. NOTE
+ *               that the ARM uses a decrement before store stack so that the correct initial
+ *               value is the end of the stack + 4;
+ * 0x1000:7fff - End of CPU SRAM and end of heap (1st region)
  */
 
 #define IDLE_STACK		(_ebss+CONFIG_IDLETHREAD_STACKSIZE-4)
 #define HEAP_BASE		(_ebss+CONFIG_IDLETHREAD_STACKSIZE)
 
-/************************************************************************************
- * Global Symbols
- ************************************************************************************/
+/************************************************************************************************
+ * Public Symbols
+ ************************************************************************************************/
 
 	.syntax		unified
 	.thumb
-	.file		"tiva_vectors.S"
+	.file		"rda5981x_vectors.S"
 
 /* Check if common ARMv7 interrupt vectoring is used (see arch/arm/src/armv7-m/up_vectors.S) */
 
@@ -128,9 +106,9 @@
 
 	.globl		__start
 
-/************************************************************************************
+/************************************************************************************************
  * Macros
- ************************************************************************************/
+ ************************************************************************************************/
 
 /* On entry into an IRQ, the hardware automatically saves the xPSR, PC, LR, R12, R0-R3
  * registers on the stack, then branches to an instantantiation of the following
@@ -145,9 +123,9 @@
 	b		exception_common
 	.endm
 
-/************************************************************************************
+/************************************************************************************************
  * Vectors
- ************************************************************************************/
+ ************************************************************************************************/
 
 	.section	.vectors, "ax"
 	.code		16
@@ -160,23 +138,21 @@ _vectors:
 /* Processor Exceptions */
 
 	.word	IDLE_STACK			/* Vector  0: Reset stack pointer */
-	.word	__start				/* Vector  1: Reset vector */
-	.word	tiva_nmi			/* Vector  2: Non-Maskable Interrupt (NMI) */
-	.word	tiva_hardfault		/* Vector  3: Hard fault */
-	.word	tiva_mpu			/* Vector  4: Memory management (MPU) */
-	.word	tiva_busfault		/* Vector  5: Bus fault */
-	.word	tiva_usagefault		/* Vector  6: Usage fault */
-	.word	tiva_reserved		/* Vector  7: Reserved */
-	.word	tiva_reserved		/* Vector  8: Reserved */
-	.word	tiva_reserved		/* Vector  9: Reserved */
-	.word	tiva_reserved		/* Vector 10: Reserved */
-	.word	tiva_svcall			/* Vector 11: SVC call */
-	.word	tiva_dbgmonitor		/* Vector 12: Debug monitor */
-	.word	tiva_reserved		/* Vector 13: Reserved */
-	.word	tiva_pendsv			/* Vector 14: Pendable system service request */
-	.word	tiva_systick		/* Vector 15: System tick */
-
-/* External Interrupts */
+	.word	Reset_Handler		/* Vector  1: Reset vector */
+	.word	rda_nmi				/* Vector  2: Non-Maskable Interrupt (NMI) */
+	.word	rda_hardfault		/* Vector  3: Hard fault */
+	.word	rda_mpu				/* Vector  4: Memory management (MPU) */
+	.word	rda_busfault		/* Vector  5: Bus fault */
+	.word	rda_usagefault		/* Vector  6: Usage fault */
+	.word	rda_reserved		/* Vector  7: Reserved */
+	.word	rda_reserved		/* Vector  8: Reserved */
+	.word	rda_reserved		/* Vector  9: Reserved */
+	.word	rda_reserved		/* Vector 10: Reserved */
+	.word	rda_svcall			/* Vector 11: SVC call */
+	.word	rda_dbgmonitor		/* Vector 12: Debug monitor */
+	.word	rda_reserved		/* Vector 13: Reserved */
+	.word	rda_pendsv			/* Vector 14: Pendable system service request */
+	.word	rda_systick			/* Vector 15: System tick */
 
 /* External Interrupts */
 
@@ -184,28 +160,47 @@ _vectors:
 #define VECTOR(l,i) .word l
 
 #undef UNUSED
-#define UNUSED(i) .word tiva_reserved
+#define UNUSED(i) .word rda_reserved
+
+#if defined(RDA5981x)
+#  include "chip/rda5981x_vectors.h"
+#else
+#  error "Unrecognized RDA5981x family"
+#endif
 
 	.size	_vectors, .-_vectors
 
-/************************************************************************************
+/************************************************************************************************
  * .text
- ************************************************************************************/
+ ************************************************************************************************/
 
 	.text
 	.type	handlers, function
 	.thumb_func
 handlers:
-	HANDLER	tiva_reserved, TIVA_IRQ_RESERVED		/* Unexpected/reserved vector */
-	HANDLER	tiva_nmi, TIVA_IRQ_NMI					/* Vector  2: Non-Maskable Interrupt (NMI) */
-	HANDLER	tiva_hardfault, TIVA_IRQ_HARDFAULT		/* Vector  3: Hard fault */
-	HANDLER	tiva_mpu, TIVA_IRQ_MEMFAULT				/* Vector  4: Memory management (MPU) */
-	HANDLER	tiva_busfault, TIVA_IRQ_BUSFAULT		/* Vector  5: Bus fault */
-	HANDLER	tiva_usagefault, TIVA_IRQ_USAGEFAULT	/* Vector  6: Usage fault */
-	HANDLER	tiva_svcall, TIVA_IRQ_SVCALL			/* Vector 11: SVC call */
-	HANDLER	tiva_dbgmonitor, TIVA_IRQ_DBGMONITOR	/* Vector 12: Debug Monitor */
-	HANDLER	tiva_pendsv, TIVA_IRQ_PENDSV			/* Vector 14: Penable system service request */
-	HANDLER	tiva_systick, TIVA_IRQ_SYSTICK			/* Vector 15: System tick */
+	HANDLER	rda_reserved, RDA_IRQ_RESERVED		/* Unexpected/reserved vector */
+	HANDLER	rda_nmi, RDA_IRQ_NMI				/* Vector  2: Non-Maskable Interrupt (NMI) */
+	HANDLER	rda_hardfault, RDA_IRQ_HARDFAULT	/* Vector  3: Hard fault */
+	HANDLER	rda_mpu, RDA_IRQ_MEMFAULT			/* Vector  4: Memory management (MPU) */
+	HANDLER	rda_busfault, RDA_IRQ_BUSFAULT		/* Vector  5: Bus fault */
+	HANDLER	rda_usagefault, RDA_IRQ_USAGEFAULT	/* Vector  6: Usage fault */
+	HANDLER	rda_svcall, RDA_IRQ_SVCALL			/* Vector 11: SVC call */
+	HANDLER	rda_dbgmonitor, RDA_IRQ_DBGMONITOR	/* Vector 12: Debug Monitor */
+	HANDLER	rda_pendsv, RDA_IRQ_PENDSV			/* Vector 14: Penable system service request */
+	HANDLER	rda_systick, RDA_IRQ_SYSTICK		/* Vector 15: System tick */
+
+/* Reset Handler */
+	.globl		Reset_Handler
+	.type		Reset_Handler, function
+Reset_Handler:
+	ldr		r0, =IDLE_STACK
+	msr		msp, r0
+	ldr		r0, =__start
+	bx		r0
+	.pool
+	.size Reset_Handler, .-Reset_Handler
+
+/* External Interrupts */
 
 #undef VECTOR
 #define VECTOR(l,i) HANDLER l, i
@@ -213,6 +208,11 @@ handlers:
 #undef UNUSED
 #define UNUSED(i)
 
+#if defined(RDA5981x)
+#  include "chip/rda5981x_vectors.h"
+#else
+#  error "Unrecognized RDA5981x family"
+#endif
 
 /* Common IRQ handling logic.  On entry here, the return stack is on either
  * the PSP or the MSP and looks like the following:
@@ -234,6 +234,7 @@ handlers:
 
 	.globl		exception_common
 	.type		exception_common, function
+
 exception_common:
 
 	/* Complete the context save */
@@ -252,7 +253,7 @@ exception_common:
 1:
 #endif
 
-	/* r1 holds the value of the stack pointer AFTER the excption handling logic
+	/* r1 holds the value of the stack pointer AFTER the exception handling logic
 	 * pushed the various registers onto the stack.  Get r2 = the value of the
 	 * stack pointer BEFORE the interrupt modified it.
 	 */
@@ -310,16 +311,17 @@ exception_common:
 
 	mov		r1, sp
 
-#if CONFIG_ARCH_INTERRUPTSTACK > 3
+	/* Also save the top of the stack in a preserved register */
+
+	mov		r4, sp
+
+#if CONFIG_ARCH_INTERRUPTSTACK > 7
 	/* If CONFIG_ARCH_INTERRUPTSTACK is defined, we will set the MSP to use
 	 * a special special interrupt stack pointer.  The way that this is done
 	 * here prohibits nested interrupts without some additional logic!
 	 */
 
 	ldr		sp, =g_intstackbase
-	str		r1, [sp, #-4]!			/* Save the MSP on the interrupt stack */
-	bl		up_doirq				/* R0=IRQ, R1=register save (msp) */
-	ldr		r1, [sp, #+4]!			/* Recover R1=main stack pointer */
 
 #else
 	/* Otherwise, we will re-use the interrupted thread's stack.  That may
@@ -327,9 +329,13 @@ exception_common:
 	 * kernel mode).
 	 */
 
-	bl		up_doirq				/* R0=IRQ, R1=register save (msp) */
-	mov		r1, sp					/* Recover R1=main stack pointer */
+	bic		r2, r4, #7				/* Get the stack pointer with 8-byte alignment */
+	mov		sp, r2					/* Instantiate the aligned stack */
+
 #endif
+
+	bl		up_doirq				/* R0=IRQ, R1=register save (msp) */
+	mov		r1, r4					/* Recover R1=main stack pointer */
 
 	/* On return from up_doirq, R0 will hold a pointer to register context
 	 * array to use for the interrupt return.  If that return value is the same
@@ -349,7 +355,7 @@ exception_common:
 	 *
 	 * Here:
 	 *   r0 = Address of the register save area
-
+	 *
 	 * NOTE: It is a requirement that up_restorefpu() preserve the value of
 	 * r0!
 	 */
@@ -455,29 +461,29 @@ exception_common:
 	bx		r14						/* And return */
 	.size	handlers, .-handlers
 
-/************************************************************************************
+/************************************************************************************************
  *  Name: g_intstackalloc/g_intstackbase
  *
  * Description:
  *   Shouldn't happen
  *
- ************************************************************************************/
+ ************************************************************************************************/
 
-#if CONFIG_ARCH_INTERRUPTSTACK > 3
+#if CONFIG_ARCH_INTERRUPTSTACK > 7
 	.bss
 	.global	g_intstackalloc
 	.global	g_intstackbase
-	.align	4
+	.align	8
 g_intstackalloc:
-	.skip	(CONFIG_ARCH_INTERRUPTSTACK & ~3)
+	.skip	((CONFIG_ARCH_INTERRUPTSTACK + 4) & ~7)
 g_intstackbase:
 	.size	g_intstackalloc, .-g_intstackalloc
 #endif
 #endif /* CONFIG_ARMV7M_CMNVECTOR */
 
-/************************************************************************************
+/************************************************************************************************
  * .rodata
- ************************************************************************************/
+ ************************************************************************************************/
 
 	.section	.rodata, "a"
 

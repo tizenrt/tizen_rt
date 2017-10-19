@@ -1,24 +1,7 @@
 /****************************************************************************
+ * arch/arm/src/rda5981x/rda5981x_timerisr.c
  *
- * Copyright 2017 Samsung Electronics All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the License.
- *
- ****************************************************************************/
-/****************************************************************************
- * arch/arm/src/tiva/tiva_timerisr.c
- *
- *   Copyright (C) 2009, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +42,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <debug.h>
+
 #include <tinyara/arch.h>
 #include <arch/board/board.h>
 
@@ -68,7 +52,8 @@
 #include "up_arch.h"
 
 #include "chip.h"
-#define NVIC_SYSH_PRIORITY_DEFAULT 0x80 /* Midpoint is the default */
+
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -78,34 +63,27 @@
  * system clock ticks per second.  That value is a user configurable setting
  * that defaults to 100 (100 ticks per second = 10 MS interval).
  *
- * The timer counts at the rate SYSCLK_FREQUENCY as defined in the board.h
- * header file.
+ * The Clock Source: Either the internal CCLK or external STCLK (P3.26) clock
+ * as the source in the STCTRL register.  This file alwyays configures the
+ * timer to use CCLK as its source.
  */
 
-#define SYSTICK_RELOAD ((SYSCLK_FREQUENCY / CLK_TCK) - 1)
+#define SYSTICK_RELOAD ((RDA_CPU_CLK_FREQUENCY / CLK_TCK) - 1)
 
-/* The size of the reload field is 24 bits.  Verify taht the reload value
+/* The size of the reload field is 24 bits.  Verify that the reload value
  * will fit in the reload register.
  */
 
 #if SYSTICK_RELOAD > 0x00ffffff
-#error SYSTICK_RELOAD exceeds the range of the RELOAD register
+#  error SYSTICK_RELOAD exceeds the range of the RELOAD register
 #endif
 
 /****************************************************************************
- * Private Types
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Global Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Function:  up_timerisr
+ * Function:  rda_timerisr
  *
  * Description:
  *   The timer ISR will perform a variety of services for various portions
@@ -113,16 +91,20 @@
  *
  ****************************************************************************/
 
-int up_timerisr(int irq, uint32_t *regs)
+static int rda_timerisr(int irq, uint32_t *regs, void *arg)
 {
-	/* Process timer interrupt */
+  /* Process timer interrupt */
 
-	sched_process_timer();
-	return 0;
+  sched_process_timer();
+  return 0;
 }
 
 /****************************************************************************
- * Function:  up_timer_initialize
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Function:  arm_timer_initialize
  *
  * Description:
  *   This function is called during start-up to initialize
@@ -132,29 +114,35 @@ int up_timerisr(int irq, uint32_t *regs)
 
 void up_timer_initialize(void)
 {
-	uint32_t regval;
+  uint32_t regval;
 
-	/* Set the SysTick interrupt to the default priority */
+  /* Set the SysTick interrupt to the default priority */
 
-	regval = getreg32(NVIC_SYSH12_15_PRIORITY);
-	regval &= ~NVIC_SYSH_PRIORITY_PR15_MASK;
-	regval |= (NVIC_SYSH_PRIORITY_DEFAULT << NVIC_SYSH_PRIORITY_PR15_SHIFT);
-	putreg32(regval, NVIC_SYSH12_15_PRIORITY);
+  regval = getreg32(NVIC_SYSH12_15_PRIORITY);
+  regval &= ~NVIC_SYSH_PRIORITY_PR15_MASK;
+  regval |= (NVIC_SYSH_PRIORITY_DEFAULT << NVIC_SYSH_PRIORITY_PR15_SHIFT);
+  putreg32(regval, NVIC_SYSH12_15_PRIORITY);
 
-	/* Configure SysTick to interrupt at the requested rate */
+  /* Make sure that the SYSTICK clock source is set to use the RDA5981x CPUCLK */
 
-	putreg32(SYSTICK_RELOAD, NVIC_SYSTICK_RELOAD);
+  regval = getreg32(NVIC_SYSTICK_CTRL);
+  regval |= NVIC_SYSTICK_CTRL_CLKSOURCE;
+  putreg32(regval, NVIC_SYSTICK_CTRL);
 
-	/* Attach the timer interrupt vector */
+  /* Configure SysTick to interrupt at the requested rate */
 
-	(void)irq_attach(TIVA_IRQ_SYSTICK, (xcpt_t) up_timerisr, NULL);
+  putreg32(SYSTICK_RELOAD, NVIC_SYSTICK_RELOAD);
 
-	/* Enable SysTick interrupts */
+  /* Attach the timer interrupt vector */
 
-	putreg32((NVIC_SYSTICK_CTRL_CLKSOURCE | NVIC_SYSTICK_CTRL_TICKINT | NVIC_SYSTICK_CTRL_ENABLE), NVIC_SYSTICK_CTRL);
+  (void)irq_attach(RDA_IRQ_SYSTICK, (xcpt_t)rda_timerisr, NULL);
 
-	/* And enable the timer interrupt */
+  /* Enable SysTick interrupts */
 
-	up_enable_irq(TIVA_IRQ_SYSTICK);
+  putreg32((NVIC_SYSTICK_CTRL_CLKSOURCE | NVIC_SYSTICK_CTRL_TICKINT |
+            NVIC_SYSTICK_CTRL_ENABLE), NVIC_SYSTICK_CTRL);
+
+  /* And enable the timer interrupt */
+
+  up_enable_irq(RDA_IRQ_SYSTICK);
 }
-

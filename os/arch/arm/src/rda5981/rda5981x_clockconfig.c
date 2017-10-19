@@ -1,7 +1,8 @@
 /****************************************************************************
- * arch/arm/include/rda5981x/irq.h
+ * arch/arm/src/rda5981x/rda5981x_clockconfig.c
+ * arch/arm/src/chip/rda5981x_clockconfig.c
  *
- *   Copyright (C) 2010-2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,81 +34,58 @@
  *
  ****************************************************************************/
 
-/* This file should never be included directed but, rather, only indirectly
- * through nuttx/irq.h
- */
-
-#ifndef __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H
-#define __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#ifndef __ASSEMBLY__
-#  include <stdint.h>
-#endif
-#include <arch/rda5981/chip.h>
+#include <tinyara/config.h>
+
+#include <stdint.h>
+#include <debug.h>
+
+#include <tinyara/arch.h>
+#include <arch/board/board.h>
+
+#include "up_arch.h"
+#include "up_internal.h"
+#include "rda5981x_clockconfig.h"
+#include "chip/rda5981x_syscon.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* IRQ numbers.  The IRQ number corresponds vector number and hence map
- * directly to bits in the NVIC.  This does, however, waste several words of
- * memory in the IRQ to handle mapping tables.
- */
 
-/* Common Processor Exceptions (vectors 0-15) */
-
-#define RDA_IRQ_RESERVED        (0) /* Reserved vector (only used with CONFIG_DEBUG_FEATURES) */
-                                    /* Vector  0: Reset stack pointer value */
-                                    /* Vector  1: Reset (not handler as an IRQ) */
-#define RDA_IRQ_NMI             (2) /* Vector  2: Non-Maskable Interrupt (NMI) */
-#define RDA_IRQ_HARDFAULT       (3) /* Vector  3: Hard fault */
-#define RDA_IRQ_MEMFAULT        (4) /* Vector  4: Memory management (MPU) */
-#define RDA_IRQ_BUSFAULT        (5) /* Vector  5: Bus fault */
-#define RDA_IRQ_USAGEFAULT      (6) /* Vector  6: Usage fault */
-#define RDA_IRQ_SVCALL         (11) /* Vector 11: SVC call */
-#define RDA_IRQ_DBGMONITOR     (12) /* Vector 12: Debug Monitor */
-                                    /* Vector 13: Reserved */
-#define RDA_IRQ_PENDSV         (14) /* Vector 14: Pendable system service request */
-#define RDA_IRQ_SYSTICK        (15) /* Vector 15: System tick */
-
-/* External interrupts (vectors >= 16) */
-
-#define RDA_IRQ_EXTINT         (16) /* Vector number of the first external interrupt */
-
-/* Family Specfic Interrupts */
-
-#  include <arch/rda5981/rda5981x_irq.h>
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-#ifndef __ASSEMBLY__
-typedef void (*vic_vector_t)(uint32_t *regs);
-
-/****************************************************************************
- * Inline functions
- ****************************************************************************/
+#ifndef RDA5981x
+#  error "The logic in this file applies only to the RDA5981x family"
+#endif
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
 /****************************************************************************
- * Public Function Prototypes
+ * Private Data
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/************************************************************************************
+ * Name: rda_clockconfig
+ *
+ * Description:
+ *   Called to initialize the RDA5981x.  This does whatever setup is needed to put the
+ *   SoC in a usable state.  This includes the initialization of clocking using the
+ *   settings in board.h.
+ *
+ ************************************************************************************/
+
+void rda_clockconfig(void)
 {
-#endif
-
-#ifdef __cplusplus
+  /* TBD */
 }
-#endif
-#endif /* __ASSEMBLY__ */
-
-#endif /* __ARCH_ARM_INCLUDE_RDA5981X_IRQ_H */

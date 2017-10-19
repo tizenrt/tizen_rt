@@ -1,8 +1,8 @@
 /****************************************************************************
- * arch/arm/src/nuc1xx/nuc_start.c
- * arch/arm/src/chip/nuc_start.c
+ * arch/arm/src/rda5981x/rda5981x_start.c
+ * arch/arm/src/chip/rda5981x_start.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010, 2012-2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,32 +49,26 @@
 
 #include "up_arch.h"
 #include "up_internal.h"
-volatile bool g_rtc_enabled = false;
-volatile uint32_t *current_regs;
+
+#include "rda5981x_clockconfig.h"
+#include "rda5981x_lowputc.h"
+//#include "rda5981x_userspace.h"
+
+#ifdef CONFIG_ARCH_FPU
+#  include "nvic.h"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Memory Map:
- *
- * 0x0000:0000 - Beginning of FLASH. Address of exception vectors.
- * 0x0001:ffff - End of flash (assuming 128KB of FLASH)
- * 0x2000:0000 - Start of SRAM and start of .data (_sdata)
- *             - End of .data (_edata) abd start of .bss (_sbss)
- *             - End of .bss (_ebss) and bottom of idle stack
- *             - _ebss + CONFIG_IDLETHREAD_STACKSIZE = end of idle stack,
- *               start of heap
- * 0x2000:3fff - End of SRAM and end of heap (assuming 16KB of SRAM)
- */
-
-#define IDLE_STACK ((uint32_t)&_ebss+CONFIG_IDLETHREAD_STACKSIZE-4)
-#define HEAP_BASE  ((uint32_t)&_ebss+CONFIG_IDLETHREAD_STACKSIZE)
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
-
 
 /****************************************************************************
  * Private Functions
@@ -88,10 +82,100 @@ volatile uint32_t *current_regs;
  *
  ****************************************************************************/
 
-#if defined(CONFIG_DEBUG_FEATURES) && defined(HAVE_SERIAL_CONSOLE)
-#  define showprogress(c) nuc_lowputc((uint32_t)c)
+#ifdef CONFIG_DEBUG_FEATURES
+#  define showprogress(c) up_lowputc(c)
 #else
 #  define showprogress(c)
+#endif
+
+/****************************************************************************
+ * Name: lpc17_fpuconfig
+ *
+ * Description:
+ *   Configure the FPU.  Relative bit settings:
+ *
+ *     CPACR:  Enables access to CP10 and CP11
+ *     CONTROL.FPCA: Determines whether the FP extension is active in the
+ *       current context:
+ *     FPCCR.ASPEN:  Enables automatic FP state preservation, then the
+ *       processor sets this bit to 1 on successful completion of any FP
+ *       instruction.
+ *     FPCCR.LSPEN:  Enables lazy context save of FP state. When this is
+ *       done, the processor reserves space on the stack for the FP state,
+ *       but does not save that state information to the stack.
+ *
+ *  Software must not change the value of the ASPEN bit or LSPEN bit while either:
+ *   - the CPACR permits access to CP10 and CP11, that give access to the FP
+ *     extension, or
+ *   - the CONTROL.FPCA bit is set to 1
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_ARCH_FPU
+#if defined(CONFIG_ARMV7M_CMNVECTOR) && !defined(CONFIG_ARMV7M_LAZYFPU)
+
+static inline void rda_fpuconfig(void)
+{
+  uint32_t regval;
+
+  /* Set CONTROL.FPCA so that we always get the extended context frame
+   * with the volatile FP registers stacked above the basic context.
+   */
+
+  regval = getcontrol();
+  regval |= (1 << 2);
+  setcontrol(regval);
+
+  /* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
+   * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
+   * are going to turn on CONTROL.FPCA for all contexts.
+   */
+
+  regval = getreg32(NVIC_FPCCR);
+  regval &= ~((1 << 31) | (1 << 30));
+  putreg32(regval, NVIC_FPCCR);
+
+  /* Enable full access to CP10 and CP11 */
+
+  regval = getreg32(NVIC_CPACR);
+  regval |= ((3 << (2*10)) | (3 << (2*11)));
+  putreg32(regval, NVIC_CPACR);
+}
+
+#else
+
+static inline void rda_fpuconfig(void)
+{
+  uint32_t regval;
+
+  /* Clear CONTROL.FPCA so that we do not get the extended context frame
+   * with the volatile FP registers stacked in the saved context.
+   */
+
+  regval = getcontrol();
+  regval &= ~(1 << 2);
+  setcontrol(regval);
+
+  /* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
+   * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
+   * are going to keep CONTROL.FPCA off for all contexts.
+   */
+
+  regval = getreg32(NVIC_FPCCR);
+  regval &= ~((1 << 31) | (1 << 30));
+  putreg32(regval, NVIC_FPCCR);
+
+  /* Enable full access to CP10 and CP11 */
+
+  regval = getreg32(NVIC_CPACR);
+  regval |= ((3 << (2*10)) | (3 << (2*11)));
+  putreg32(regval, NVIC_CPACR);
+}
+
+#endif
+
+#else
+#  define rda_fpuconfig()
 #endif
 
 /****************************************************************************
@@ -105,24 +189,7 @@ volatile uint32_t *current_regs;
  *   This is the reset entry point.
  *
  ****************************************************************************/
-
-void SystemInit (void)
-{
-    __asm__ __volatile__ ("cpsie i" ::: "memory");
-
-}
-
-void up_serialinit(void)
-{
-
-}
-
-
-#define RDA_AHB0_BASE         (0x40000000UL)
-#define RDA_UART0_BASE        (RDA_AHB0_BASE + 0x12000)
-#define UART_TXH 0x0
-
-
+/*add dummy function just for build no errro, place at right place then*/
 
 void board_initialize(void)
 {
@@ -149,16 +216,15 @@ int up_rtc_settime(FAR const struct timespec *tp)
 
 void __start(void)
 {
+  const uint32_t *src;
   uint32_t *dest;
-  
-  rda_printf("===TizenRT Entry point===\n");
 
-  SystemInit();
   /* Configure the uart so that we can get debug output as soon as possible */
 
- // nuc_clockconfig();
- // nuc_lowsetup();
- // showprogress('A');
+  rda_clockconfig();
+  rda_fpuconfig();
+  rda_lowsetup();
+  showprogress('A');
 
   /* Clear .bss.  We'll do this inline (vs. calling memset) just to be
    * certain that there are no issues with the state of global variables.
@@ -168,8 +234,8 @@ void __start(void)
     {
       *dest++ = 0;
     }
-  
-  //showprogress('B');
+
+  showprogress('B');
 
   /* Move the initialized data section from his temporary holding spot in
    * FLASH into the correct place in SRAM.  The correct place in SRAM is
@@ -177,18 +243,19 @@ void __start(void)
    * end of all of the other read-only data (.text, .rodata) at _eronly.
    */
 
-//  for (src = &_eronly, dest = &_sdata; dest < &_edata; )
-  //  {
-    //  *dest++ = *src++;
-   // }
- // showprogress('C');
+  for (src = &_eronly, dest = &_sdata; dest < &_edata; )
+    {
+      *dest++ = *src++;
+    }
+
+  showprogress('C');
 
   /* Perform early serial initialization */
 
 #ifdef USE_EARLYSERIALINIT
-//  up_earlyserialinit();
+  up_earlyserialinit();
 #endif
-  //showprogress('D');
+  showprogress('D');
 
   /* For the case of the separate user-/kernel-space build, perform whatever
    * platform specific initialization of the user memory is required.
@@ -197,22 +264,22 @@ void __start(void)
    */
 
 #ifdef CONFIG_BUILD_PROTECTED
-  nuc_userspace();
+  rda_userspace();
   showprogress('E');
 #endif
 
   /* Initialize onboard resources */
 
- // nuc_boardinitialize();
- // showprogress('F');
+  board_initialize();
+  showprogress('F');
 
   /* Then start NuttX */
 
-  //showprogress('\r');
-  //showprogress('\n');
+  showprogress('\r');
+  showprogress('\n');
   os_start();
 
-  /* Shoulnd't get here */
+  /* Shouldn't get here */
 
   for (; ; );
 }
