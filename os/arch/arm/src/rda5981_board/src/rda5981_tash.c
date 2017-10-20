@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/sidk_s5jt200/src/s5jt200_tash.c
+ * arch/arm/src/sidk_rda5981xt200/src/rda5981xt200_tash.c
  *
  *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -65,16 +65,16 @@
 #include <time.h>
 #include <chip.h>
 
-#include "s5j_rtc.h"
-#include "s5j_adc.h"
+#include "rda5981x_rtc.h"
+#include "rda5981x_adc.h"
 #include "up_internal.h"
 
 #include <apps/shell/tash.h>
 
 #include <tinyara/fs/mtd.h>
 
-#include "sidk_s5jt200.h"
-#include "s5j_mct.h"
+#include "sidk_rda5981xt200.h"
+#include "rda5981x_mct.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -83,9 +83,9 @@
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-extern void s5j_i2c_register(int bus);
+extern void rda5981x_i2c_register(int bus);
 
-char *s5j_get_binary_version(uint32_t baddr)
+char *rda5981x_get_binary_version(uint32_t baddr)
 {
 	static char version[13];
 	version[12] = '\0';
@@ -119,7 +119,7 @@ static void scsc_wpa_ctrl_iface_init(void)
 #endif
 }
 
-static void sidk_s5jt200_configure_partitions(void)
+static void sidk_rda5981xt200_configure_partitions(void)
 {
 #if defined(CONFIG_SIDK_S5JT200_FLASH_PART)
 	int partno;
@@ -214,13 +214,13 @@ static void sidk_s5jt200_configure_partitions(void)
 }
 
 /****************************************************************************
- * Name: sidk_s5jt200_adc_setup
+ * Name: sidk_rda5981xt200_adc_setup
  *
  * Description:
  *   Initialize ADC and register the ADC driver.
  *
  ****************************************************************************/
-int sidk_s5jt200_adc_setup(void)
+int sidk_rda5981xt200_adc_setup(void)
 {
 #ifdef CONFIG_S5J_ADC
 	int ret;
@@ -228,12 +228,10 @@ int sidk_s5jt200_adc_setup(void)
 	uint8_t chanlist[] = {
 		adc_channel_0,
 		adc_channel_1,
-		adc_channel_2,
-		adc_channel_3,
 	};
 
 	/* Get an instance of the ADC interface */
-	adc = s5j_adc_initialize(chanlist, sizeof(chanlist));
+	adc = rda5981x_adc_initialize(chanlist, sizeof(chanlist));
 	if (adc == NULL) {
 		return -ENODEV;
 	}
@@ -271,7 +269,7 @@ int board_app_initialize(void)
 	struct mtd_dev_s *mtd;
 #endif /* CONFIG_RAMMTD */
 
-	sidk_s5jt200_configure_partitions();
+	sidk_rda5981xt200_configure_partitions();
 
 #if defined(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS)
 	ret = mount(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS_DEVNAME,
@@ -350,8 +348,8 @@ int board_app_initialize(void)
 #endif /* CONFIG_RAMMTD */
 
 #ifdef CONFIG_S5J_I2C
-	s5j_i2c_register(0);
-	s5j_i2c_register(1);
+	rda5981x_i2c_register(0);
+	rda5981x_i2c_register(1);
 #endif
 
 #if defined(CONFIG_RTC)
@@ -369,7 +367,7 @@ int board_app_initialize(void)
 	{
 		struct rtc_lowerhalf_s *rtclower;
 
-		rtclower = s5j_rtc_lowerhalf();
+		rtclower = rda5981x_rtc_lowerhalf();
 		if (rtclower) {
 			ret = rtc_initialize(0, rtclower);
 			if (ret < 0) {
@@ -381,7 +379,7 @@ int board_app_initialize(void)
 #endif /* CONFIG_RTC_DRIVER */
 #endif /* CONFIG_RTC */
 
-	sidk_s5jt200_adc_setup();
+	sidk_rda5981xt200_adc_setup();
 
 	scsc_wpa_ctrl_iface_init();
 
@@ -392,7 +390,7 @@ int board_app_initialize(void)
 
 		for (i = 0; i < CONFIG_S5J_MCT_NUM; i++) {
 			snprintf(path, sizeof(path), "/dev/timer%d", i);
-			s5j_timer_initialize(path, i);
+			rda5981x_timer_initialize(path, i);
 		}
 	}
 #endif
