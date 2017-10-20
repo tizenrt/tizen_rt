@@ -69,9 +69,8 @@
 
 #include <sys/mount.h>
 
-#include "sidk_s5jt200.h"
-#include "s5j_gpio.h"
-#include "s5j_ppd42ns.h"
+#include "rda5981x_gpio.h"
+
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -105,30 +104,24 @@ static void board_gpio_initialize(void)
 	struct {
 		uint8_t  minor;
 		uint16_t pincfg;
-	} pins[] = {
-		{ 37, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN0 }, /* ARTIK_A053_XGPIO8 */
-		{ 38, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN1 }, /* ARTIK_A053_XGPIO9 */
-		{ 39, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN2 }, /* ARTIK_A053_XGPIO10 */
-		{ 40, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN3 }, /* ARTIK_A053_XGPIO11 */
-		{ 41, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN4 }, /* ARTIK_A053_XGPIO12 */
-		{ 42, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN5 }, /* ARTIK_A053_XGPIO13 */
-		{ 43, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN6 }, /* ARTIK_A053_XGPIO14 */
-		{ 44, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG1 | GPIO_PIN7 }, /* ARTIK_A053_XGPIO15 */
-		{ 45, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN0 }, /* ARTIK_A053_XGPIO16 */
-		{ 46, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN1 }, /* ARTIK_A053_XGPIO17 */
-		{ 47, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN2 }, /* ARTIK_A053_XGPIO18 */
-		{ 48, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN3 }, /* ARTIK_A053_XGPIO19 */
-		{ 49, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN4 }, /* ARTIK_A053_XGPIO20 */
-		{ 50, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN5 }, /* ARTIK_A053_XGPIO21 */
-		{ 51, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN6 }, /* ARTIK_A053_XGPIO22 */
-		{ 52, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTG2 | GPIO_PIN7 }, /* ARTIK_A053_XGPIO23 */
-		{ 57, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTA0 | GPIO_PIN0 }, /* ARTIK_A053_XEINT0 */
-		{ 58, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTA0 | GPIO_PIN1 }, /* ARTIK_A053_XEINT1 */
-		{ 59, GPIO_INPUT | GPIO_PULLDOWN | GPIO_PORTA0 | GPIO_PIN2 }, /* ARTIK_A053_XEINT2 */
+	} pins[] = {//Refer to rda5981x_pinconn.h, only define the pin only support GPIO function.
+		//Current we only keep the pin only for GPIO. In fact, we need to config the in as need.
+		//Port A
+		{ 37, GPIO_DIR_INPUT  | GPIO_ALT1 | GPIO_PORTA | GPIO_PIN9 }, 
+		//Port B
+		//Port C
+		{ 38, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN2 }, 
+		{ 39, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN3 }, 
+		{ 40, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN4 }, 
+		{ 41, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN5 }, 
+		{ 42, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN6 }, 
+		{ 43, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN7 }, 
+		{ 44, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN8 }, 
+		{ 45, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN9 }, 
 	};
 
 	for (i = 0; i < sizeof(pins) / sizeof(*pins); i++) {
-		lower = s5j_gpio_lowerhalf(pins[i].pincfg);
+		lower = (struct gpio_lowerhalf_s *)rda_gpio_lowerhalf(pins[i].pincfg);
 		gpio_register(pins[i].minor, lower);
 	}
 #endif /* CONFIG_GPIO */
@@ -214,31 +207,31 @@ void s5j_board_initialize(void)
 void board_initialize(void)
 {
 	/* Perform app-specific initialization here instead of from the TASH. */
-	board_app_initialize();
+	//board_app_initialize();
 
 #ifdef CONFIG_SCSC_WLAN
-	slldbg("Initialize SCSC driver\n");
-	slsi_driver_initialize();
+	//slldbg("Initialize SCSC driver\n");
+	//slsi_driver_initialize();
 #endif
 
 #ifdef CONFIG_S5J_PWM
-	board_pwm_setup();
+	//board_pwm_setup();
 #endif
 
 	board_gpio_initialize();
 
 #ifdef CONFIG_SIDK_S5JT200_TLC59116
-	tlc59116_initialize();
+	//tlc59116_initialize();
 #endif
 
 #ifdef CONFIG_SIDK_S5JT200_S8300
-	s5j_ledinitialize();
+	//s5j_ledinitialize();
 #endif
 
 #ifdef CONFIG_SIDK_S5JT200_EEPROM
-	sidk_s5jt200_eeprom_init();
+	//sidk_s5jt200_eeprom_init();
 #endif
 
-	board_sensor_initialize();
+	//board_sensor_initialize();
 }
 #endif /* CONFIG_BOARD_INITIALIZE */

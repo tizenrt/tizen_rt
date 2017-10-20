@@ -98,7 +98,7 @@
 /* Pin direction:  D */
 
 #define GPIO_DIR                (1 << 8)    /* Bit 8:  GPIO input/output direction */
-#define GPIO_DIR_INPUT          GPIO_VALUE
+#define GPIO_DIR_INPUT          GPIO_DIR
 #define GPIO_DIR_OUTPUT         (0)
 
 /* Port number:    PPP (0-4) */

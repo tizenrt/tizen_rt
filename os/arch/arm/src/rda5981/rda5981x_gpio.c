@@ -442,3 +442,43 @@ bool rda_gpioread(rda_pinset_t pinset)
 
   return false;
 }
+
+//Need Modify
+uint8_t rda_gpio_irqvector(uint32_t pincfg)
+{
+#if 0
+	uint8_t pin  = (pincfg & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+	uint8_t port = (pincfg & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
+
+	if (port == GPIO_PORTG1 >> GPIO_PORT_SHIFT) {
+		return IRQ_WEINT_GPG10 + pin;
+	} else if (port == GPIO_PORTG2 >> GPIO_PORT_SHIFT) {
+		return IRQ_WEINT_GPG20 + pin;
+	} else if (port == GPIO_PORTA0 >> GPIO_PORT_SHIFT) {
+		return IRQ_EINT0 + pin;
+	}
+#endif
+	return 0;
+}
+
+void rda_gpio_clear_pending(uint32_t pincfg)
+{
+#if 0
+	uint32_t regbase;
+	uint8_t pin  = (pincfg & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+	uint8_t port = (pincfg & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
+
+	if (port == GPIO_PORTG1 >> GPIO_PORT_SHIFT) {
+		regbase = S5J_GPIOINT_PEND_GPG1;
+	} else if (port == GPIO_PORTG2 >> GPIO_PORT_SHIFT) {
+		regbase = S5J_GPIOINT_PEND_GPG2;
+	} else if (port  == GPIO_PORTA0 >> GPIO_PORT_SHIFT) {
+		regbase = S5J_GPIOINT_PEND_GPA0;
+	} else {
+		return;
+	}
+
+	putreg32(1 << pin, regbase);
+	#endif
+}
+

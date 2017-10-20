@@ -53,6 +53,20 @@
 
 -include $(TOPDIR)/Make.defs
 
+DEPPATH = --dep-path .
+CFLAGS += -I$(TOPDIR)/sched
+ASRCS =
+CSRCS = rda5981_boot.c
+
+
+# boardctl support
+ifeq ($(CONFIG_LIB_BOARDCTL),y)
+DEPPATH += --dep-path $(TOPDIR)/arch
+VPATH += :$(TOPDIR)/arch
+CSRCS += boardctl.c
+endif
+
+
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS)
