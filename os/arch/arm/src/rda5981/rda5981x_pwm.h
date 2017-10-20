@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/sidk_rda5981xt200/src/rda5981xt200_pwm.c
+ * arch/arm/src/s5j/s5j_pwm.h
  *
  *   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -55,45 +55,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
+#ifndef	__ARCH_ARM_SRC_S5J_S5J_PWM_H
+#define	__ARCH_ARM_SRC_S5J_S5J_PWM_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 #include <tinyara/config.h>
-#include <sys/types.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <poll.h>
-#include <errno.h>
-#include <debug.h>
+
 #include <tinyara/pwm.h>
 
-#include "chip.h"
-#include "rda5981x_pwm.h"
+#include "chip/rda5981x_pwm.h"
 
-int board_pwm_setup(void)
-{
-#ifdef CONFIG_RDA5981X_PWM
-	struct pwm_lowerhalf_s *pwm;
-	char path[10];
-	int ret;
-	int i;
-	for (i = 0; i < CONFIG_SIDK_RDA5981XT200_PWM_CHNUM; i++) {
-		pwm = rda5981x_pwminitialize(i);
-		if (!pwm) {
-			lldbg("Failed to get the RDA5981X PWM lower half\n");
-			return -ENODEV;
-		}
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+FAR struct pwm_lowerhalf_s *rda5981x_pwminitialize(int timer);
 
-		/* Register the PWM driver at "/dev/pwmx" */
-		snprintf(path, sizeof(path), "/dev/pwm%d", i);
-		ret = pwm_register(path, pwm);
-		if (ret < 0) {
-			lldbg("pwm_register failed: %d\n", ret);
-			return ret;
-		}
-	}
-#endif
-
-	return OK;
-}
+#endif /* __ARCH_ARM_SRC_S5J_S5J_PWM_H */
