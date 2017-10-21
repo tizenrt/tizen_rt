@@ -190,13 +190,6 @@ static inline void rda_fpuconfig(void)
  *
  ****************************************************************************/
 /*add dummy function just for build no errro, place at right place then*/
-
-void board_initialize(void)
-{
-
-
-}
-
 void up_rtc_initialize(void)
 {
 
@@ -270,8 +263,8 @@ void __start(void)
 
   /* Initialize onboard resources */
 
-  board_initialize();
- // showprogress('F');
+  //board_initialize();
+  //showprogress('F');
 
   /* Then start NuttX */
 

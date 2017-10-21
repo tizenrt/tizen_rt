@@ -142,6 +142,10 @@ endif
 # Add library for Framework
 TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libframework$(LIBEXT)
 
+# Add Rda5981x hal library
+ifeq ($(CONFIG_ARCH_CHIP_RDA5981C),y)
+TINYARALIBS += $(LIBRARIES_DIR)$(DELIM)libhal$(LIBEXT)
+endif
 # Export all libraries
 
 EXPORTLIBS = $(TINYARALIBS)

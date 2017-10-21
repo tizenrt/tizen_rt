@@ -235,3 +235,9 @@ $(ARCH_SRC)$(DELIM)libarch$(LIBEXT): context
 
 $(LIBRARIES_DIR)$(DELIM)libarch$(LIBEXT): $(ARCH_SRC)$(DELIM)libarch$(LIBEXT)
 	$(Q) install $(ARCH_SRC)$(DELIM)libarch$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libarch$(LIBEXT)
+
+ifeq ($(CONFIG_ARCH_CHIP_RDA5981C),y)
+RDA_HAL_LIB_DIR=$(ARCH_SRC)$(DELIM)$(CONFIG_ARCH_CHIP)$(DELIM)thirdpartlib
+$(LIBRARIES_DIR)$(DELIM)libhal$(LIBEXT): $(RDA_HAL_LIB_DIR)$(DELIM)libhal$(LIBEXT)
+	$(Q) install $(RDA_HAL_LIB_DIR)$(DELIM)libhal$(LIBEXT) $(LIBRARIES_DIR)$(DELIM)libhal$(LIBEXT)
+endif

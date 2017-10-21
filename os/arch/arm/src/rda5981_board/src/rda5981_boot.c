@@ -107,7 +107,7 @@ static void board_gpio_initialize(void)
 	} pins[] = {//Refer to rda5981x_pinconn.h, only define the pin only support GPIO function.
 		//Current we only keep the pin only for GPIO. In fact, we need to config the in as need.
 		//Port A
-		{ 37, GPIO_DIR_INPUT  | GPIO_ALT1 | GPIO_PORTA | GPIO_PIN9 }, 
+		{ 37, GPIO_DIR_INPUT | GPIO_ALT1 | GPIO_PORTA | GPIO_PIN9 }, 
 		//Port B
 		//Port C
 		{ 38, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN2 }, 
@@ -124,6 +124,7 @@ static void board_gpio_initialize(void)
 		lower = (struct gpio_lowerhalf_s *)rda_gpio_lowerhalf(pins[i].pincfg);
 		gpio_register(pins[i].minor, lower);
 	}
+
 #endif /* CONFIG_GPIO */
 }
 

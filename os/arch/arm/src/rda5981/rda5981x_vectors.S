@@ -195,6 +195,8 @@ handlers:
 Reset_Handler:
 	ldr		r0, =IDLE_STACK
 	msr		msp, r0
+    	//ldr             r0, =rda_ccfg_boot
+    	//blx             r0
 	ldr		r0, =__start
 	bx		r0
 	.pool

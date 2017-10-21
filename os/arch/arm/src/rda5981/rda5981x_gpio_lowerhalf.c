@@ -181,13 +181,13 @@ static int rda_gpio_pull(FAR struct gpio_lowerhalf_s *lower, unsigned long arg)
 static int rda_gpio_enable(FAR struct gpio_lowerhalf_s *lower, int falling,
 						   int rising, gpio_handler_t handler)
 {
-	int irqvector;
+//	int irqvector;
 	struct rda_lowerhalf_s *priv = (struct rda_lowerhalf_s *)lower;
 
-	irqvector = rda_gpio_irqvector(priv->pincfg);
-	if (!irqvector) {
-		return -EINVAL;
-	}
+//	irqvector = rda_gpio_irqvector(priv->pincfg);
+//	if (!irqvector) {
+//		return -EINVAL;
+//	}
 
 	/* clear function mask */
 	priv->pincfg &= ~GPIO_FUNC_MASK;
@@ -205,7 +205,7 @@ static int rda_gpio_enable(FAR struct gpio_lowerhalf_s *lower, int falling,
 #endif
 
 	priv->pincfg |= GPIO_DIR_INPUT;
-
+#if 0
 	priv->handler = handler;
 	if (handler) {
 		irq_attach(irqvector, rda_gpio_interrupt, priv);
@@ -214,6 +214,7 @@ static int rda_gpio_enable(FAR struct gpio_lowerhalf_s *lower, int falling,
 		up_disable_irq(irqvector);
 		irq_detach(irqvector);
 	}
+#endif
 
 	return rda_configgpio(priv->pincfg);
 }
