@@ -47,6 +47,7 @@
  * Included Files
  ****************************************************************************/
 
+
 #include <tinyara/config.h>
 
 #include <sys/types.h>
@@ -57,9 +58,11 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <tinyara/i2c.h>
 #include <tinyara/arch.h>
 #include <tinyara/semaphore.h>
 #include <arch/board/board.h>
+
 
 #include "chip.h"
 #include "up_arch.h"
@@ -67,25 +70,16 @@
 
 #include "rda5981x_gpio.h"
 #include "rda5981x_i2c.h"
-
-#if defined(CONFIG_LPC17_I2C0) || defined(CONFIG_LPC17_I2C1) || defined(CONFIG_LPC17_I2C2)
+#include "rda5981x_system.h"
+#include "chip/rda5981x_memorymap.h"
+#include "chip/rda5981x_pinconfig.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#ifndef GPIO_I2C1_SCL
-#  define GPIO_I2C1_SCL GPIO_I2C1_SCL_1
-#  define GPIO_I2C1_SDA GPIO_I2C1_SDA_1
-#endif
-
-#ifndef CONFIG_LPC17_I2C0_FREQUENCY
-#  define CONFIG_LPC17_I2C0_FREQUENCY 100000
-#endif
-
-#define I2C_TIMEOUT  (20 * 1000/CONFIG_USEC_PER_TICK) /* 20 mS */
-#define LPC17_I2C1_FREQUENCY 400000
-
+#define I2C_CLKGATE_REG1        (RDA_SCU_BASE + 0x08)
+#define I2C_CLOCK_SOURCE        (AHBBusClock >> 1)
+#define I2C_DEFAULT_CLOCK       (400000)
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -93,62 +87,214 @@
 struct rda5981x_i2cdev_s
 {
   struct i2c_dev_s  dev;     /* Generic I2C device */
-  unsigned int     base;       /* Base address of registers */
-  uint16_t         irqid;      /* IRQ for this device */
-
-  sem_t            mutex;      /* Only one thread can access at a time */
-  sem_t            wait;       /* Place to wait for state machine completion */
-  volatile uint8_t state;      /* State of state machine */
-  WDOG_ID          timeout;    /* Watchdog to timeout when bus hung */
-  uint32_t         frequency;  /* Current I2C frequency */
-
-  struct i2c_msg_s *msgs;      /* remaining transfers - first one is in progress */
-  unsigned int     nmsg;       /* number of transfer remaining */
-
-  uint16_t         wrcnt;      /* number of bytes sent to tx fifo */
-  uint16_t         rdcnt;      /* number of bytes read from rx fifo */
+  uint32_t base;       /* Base address of registers */
+  uint32_t frequency;  /* Current I2C frequency */  
+  int slave_address;
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
-
 static int  rda5981x_i2c_start(struct rda5981x_i2cdev_s *priv);
 static void rda5981x_i2c_stop(struct rda5981x_i2cdev_s *priv);
-static int  rda5981x_i2c_interrupt(int irq, FAR void *context, void *arg);
-static void rda5981x_i2c_timeout(int argc, uint32_t arg, ...);
-static void rda5981x_stopnext(struct rda5981x_i2cdev_s *priv);
+static int rda5981x_i2c_reset(struct rda5981x_i2cdev_s *priv);
+
 
 /* I2C device operations */
-static void rda5981x_i2c_setfrequency(struct i2c_dev_s *priv,
+static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *priv,
               uint32_t frequency);
 static int  rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
               FAR struct i2c_msg_s *msgs, int count);
 
-int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int buflen);
-int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, FAR const uint8_t *buffer, int buflen);
+static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr, int nbits);
+
+static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int buflen);
+
+static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, FAR const uint8_t *buffer, int length);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
-
-#ifdef CONFIG_LPC17_I2C0
 static struct rda5981x_i2cdev_s g_i2c0dev;
-#endif
 static const struct i2c_ops_s rda5981x_i2c_ops = {
 	.setfrequency = rda5981x_i2c_setfrequency,
-	.setaddress = rda5981x_i2c_setownaddress,
+	.setaddress = rda5981x_i2c_setaddress,
 	.write = rda5981x_i2c_write,
 	.read = rda5981x_i2c_read,
-#ifdef CONFIG_I2C_TRANSFER
 	.transfer = rda5981x_i2c_transfer,
-#endif
-#ifdef CONFIG_I2C_SLAVE
-	.setownaddress = NULL,
-	.registercallback = NULL,
-#endif
 };
 
+static void i2c_cmd_cfg(struct rda5981x_i2cdev_s *priv, int start, int stop,int acknowledge, int write, int read)
+{
+    uint32_t reg_val =  (start << 16) | (stop << 8) | (acknowledge << 0) |
+			(write << 12) | (read << 4);
+    putreg32(reg_val, priv->base + I2C_CMD);
+}
+
+static void i2c_do_write(struct rda5981x_i2cdev_s *priv, int value)
+{
+    /* write data */
+    putreg32(value, priv->base + I2C_DR);
+}
+
+static void i2c_do_read(struct rda5981x_i2cdev_s *priv)
+{
+    uint32_t reg_val;
+
+    /* config read number */
+    reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
+    putreg32(reg_val | (0x01UL << 9), priv->base + I2C_CR0);
+}
+
+static void i2c_clear_fifo(struct rda5981x_i2cdev_s *priv)
+{
+    uint32_t reg_val;
+
+    /* clear read number */
+    reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
+    putreg32(reg_val, priv->base + I2C_CR0);
+
+    /* clear fifo */
+    reg_val = getreg32(priv->base + I2C_CR0) | (0x01UL << 7);
+    putreg32(reg_val, priv->base + I2C_CR0);
+
+    reg_val = getreg32(priv->base + I2C_CR0)  & ~(0x01UL << 7);
+    putreg32(reg_val, priv->base + I2C_CR0);
+}
+
+
+static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr, 
+					int nbits)
+{
+     struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+     priv->slave_address = addr;
+     return 0;
+}
+
+
+static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, 
+				FAR uint8_t *buffer, int buflen)
+{
+     struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+     int count;
+
+    /* wait tx fifo empty */
+    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+        /* timeout */
+        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+            i2c_clear_fifo(priv);
+            return 0;
+        }
+    }
+    i2c_do_write(priv, priv->slave_address);
+    i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
+
+    /* wait tx fifo empty */
+    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+            i2c_clear_fifo(priv);
+            return 0;
+        }
+    }
+
+    /* Read in all except last byte */
+    for (count = 0; count < (buflen - 1); count++) {
+        i2c_do_read(priv);
+        i2c_cmd_cfg(priv, 0, 0, 0, 0, 1);
+        
+        /* wait data */
+        while ((getreg32(priv->base+I2C_SR) & (0x1F << 21)) == 0) {
+            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+                i2c_clear_fifo(priv);
+                return count;
+            }
+        }
+        buffer[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
+    }
+
+#if 0
+    if (stop) {
+        i2c_do_read(priv);
+        i2c_cmd_cfg(priv, 0, 1, 1, 0, 1);
+
+        /* wait for i2c idle */
+        while (getreg32(priv->base+I2C_SR) & (0x01UL << 16)) {
+            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+                i2c_clear_fifo(priv);
+                return (length - 1);
+            }
+        }
+
+        if (getreg32(priv->base+I2C_SR) & (0x1F << 21)) {
+            data[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
+            i2c_clear_fifo(priv);
+        } else {
+            i2c_clear_fifo(priv);
+            return (length - 1);
+        }
+    }
+#endif
+    return buflen;
+}
+
+static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, 
+		FAR const uint8_t *buffer, int length)
+{
+    struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev; 
+    int count;
+	
+    /* wait tx fifo empty */
+    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+            i2c_clear_fifo(priv);
+            return 0;
+        }
+    }
+
+    i2c_do_write(priv, priv->slave_address);
+    i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
+
+    for (count = 0; count < length - 1; count++) {
+        /* wait tx fifo empty */
+       while ((((getreg32(priv->base+I2C_SR)) & (0x1FUL << 26)) >> 26) != 0x1F) {
+            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+                i2c_clear_fifo(priv);
+                return (count > 0 ? (count - 1) : 0);
+            }
+        }
+        i2c_do_write(priv, buffer[count]);
+        i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
+    }
+
+    /* wait tx fifo empty */
+    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+            i2c_clear_fifo(priv);
+            return (count > 0 ? (count - 1) : 0);
+        }
+    }
+
+    i2c_do_write(priv, buffer[length - 1]);
+ //   if (stop) {
+   //     i2c_cmd_cfg(priv, 0, 1, 0, 1, 0);
+   // } else {
+        i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
+  //  }
+
+    /* wait tx fifo empty */
+    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
+            i2c_clear_fifo(priv);
+            return (length - 1);
+        }
+    }
+#if 0
+    if (stop) {
+        i2c_clear_fifo(priv);
+    }
+#endif
+    return length; 	
+}
 
 /****************************************************************************
  * Name: rda5981x_i2c_setfrequency
@@ -158,77 +304,58 @@ static const struct i2c_ops_s rda5981x_i2c_ops = {
  *
  ****************************************************************************/
 
-int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int buflen)
-{
-	struct rda5981x_i2c_priv_s *priv = (struct rda5981x_i2c_priv_s *)dev;
-	struct i2c_msg_s msg;
-	unsigned int flags;
-
-	/* 7- or 10-bit? */
-	flags = (priv->addrlen == 10) ? I2C_M_TEN : 0;
-
-	/* Setup for the transfer */
-	msg.addr = priv->slave_addr, msg.flags = (flags | I2C_M_READ);
-	msg.buffer = (FAR uint8_t *)buffer;
-	msg.length = buflen;
-
-	/*
-	 * Then perform the transfer
-	 *
-	 * REVISIT:  The following two operations must become atomic in order to
-	 * assure thread safety.
-	 */
-
-	return rda5981x_i2c_transfer(dev, &msg, 1);
-}
-
-int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, FAR const uint8_t *buffer,
-				int buflen)
-{
-	struct rda5981x_i2c_priv_s *priv = (struct rda5981x_i2c_priv_s *)dev;
-	struct i2c_msg_s msg;
-
-	/* Setup for the transfer */
-	msg.addr = priv->slave_addr;
-	msg.flags = (priv->addrlen == 10) ? I2C_M_TEN : 0;
-	msg.buffer = (FAR uint8_t *)buffer; /* Override const */
-	msg.length = buflen;
-
-	/*
-	 * Then perform the transfer
-	 *
-	 * REVISIT:  The following two operations must become atomic in order to
-	 * assure thread safety.
-	 */
-	return rda5981x_i2c_transfer(dev, &msg, 1);
-}
-
-static void rda5981x_i2c_setfrequency(struct rda5981x_i2cdev_s *priv,
+static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *dev,
                                    uint32_t frequency)
 {
+    struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev; 
+   /* Set I2C frequency */
   if (frequency != priv->frequency)
     {
-      if (frequency > 100000)
-        {
-          /* Asymetric per 400Khz I2C spec */
 
-          putreg32(LPC17_CCLK / (83 + 47) * 47 / frequency,
-                   priv->base + LPC17_I2C_SCLH_OFFSET);
-          putreg32(LPC17_CCLK / (83 + 47) * 83 / frequency,
-                   priv->base + LPC17_I2C_SCLL_OFFSET);
-        }
-      else
-        {
-          /* 50/50 mark space ratio */
-
-          putreg32(LPC17_CCLK / 100 * 50 / frequency,
-                   priv->base + LPC17_I2C_SCLH_OFFSET);
-          putreg32(LPC17_CCLK / 100 * 50 / frequency,
-                   priv->base + LPC17_I2C_SCLL_OFFSET);
-        }
-
-      priv->frequency = frequency;
+    uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
+    uint32_t reg_val;
+    
+    reg_val = getreg32(priv->base + I2C_CR0) & ~(0xFFFFUL << 16);
+    putreg32(reg_val |(prescale << 16), priv->base + I2C_CR0);
+    priv->frequency = frequency;
     }
+    return 0;
+}
+
+/****************************************************************************
+ * Name: rda5981x_i2c_transfer
+ *
+ * Description:
+ *   Perform a sequence of I2C transfers
+ *
+ ****************************************************************************/
+static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
+                              FAR struct i2c_msg_s *msgs, int count)
+{
+  struct i2c_msg_s *pmsg; 
+  int ret;
+  int i;
+  DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
+
+  /* Get exclusive access to the I2C bus */
+  
+  for (i = 0; i < count; i++) {
+	pmsg = &msgs[i];
+  
+   if (pmsg->flags & I2C_M_READ) 
+   {
+	rda5981x_i2c_read(dev, pmsg->buffer, pmsg->length);
+   }
+
+   else 
+   {
+	rda5981x_i2c_write(dev, pmsg->buffer, pmsg->length);
+   }
+
+ }
+  /* Perform the transfer */
+
+  return ret;
 }
 
 /****************************************************************************
@@ -241,16 +368,8 @@ static void rda5981x_i2c_setfrequency(struct rda5981x_i2cdev_s *priv,
 
 static int rda5981x_i2c_start(struct rda5981x_i2cdev_s *priv)
 {
-  putreg32(I2C_CONCLR_STAC | I2C_CONCLR_SIC,
-           priv->base + LPC17_I2C_CONCLR_OFFSET);
-  putreg32(I2C_CONSET_STA, priv->base + LPC17_I2C_CONSET_OFFSET);
-
-  wd_start(priv->timeout, I2C_TIMEOUT, rda5981x_i2c_timeout, 1, (uint32_t)priv);
-  sem_wait(&priv->wait);
-
-  wd_cancel(priv->timeout);
-
-  return priv->nmsg;
+   i2c_cmd_cfg(priv, 1, 0, 0, 0, 0); 
+   return 0;
 }
 
 /****************************************************************************
@@ -263,195 +382,7 @@ static int rda5981x_i2c_start(struct rda5981x_i2cdev_s *priv)
 
 static void rda5981x_i2c_stop(struct rda5981x_i2cdev_s *priv)
 {
-  if (priv->state != 0x38)
-    {
-      putreg32(I2C_CONSET_STO | I2C_CONSET_AA,
-               priv->base + LPC17_I2C_CONSET_OFFSET);
-    }
-
-  sem_post(&priv->wait);
-}
-
-/****************************************************************************
- * Name: rda5981x_i2c_timeout
- *
- * Description:
- *   Watchdog timer for timeout of I2C operation
- *
- ****************************************************************************/
-
-static void rda5981x_i2c_timeout(int argc, uint32_t arg, ...)
-{
-  struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)arg;
-
-  irqstate_t flags = enter_critical_section();
-  priv->state = 0xff;
-  sem_post(&priv->wait);
-  leave_critical_section(flags);
-}
-
-/****************************************************************************
- * Name: rda5981x_i2c_transfer
- *
- * Description:
- *   Perform a sequence of I2C transfers
- *
- ****************************************************************************/
-
-static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
-                              FAR struct i2c_msg_s *msgs, int count)
-{
-  struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
-  int ret;
-
-   DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
-
-  /* Get exclusive access to the I2C bus */
-
-  sem_wait(&priv->mutex);
-
-  /* Set up for the transfer */
-
-  priv->wrcnt = 0;
-  priv->rdcnt = 0;
-  priv->msgs  = msgs;
-  priv->nmsg  = count;
-
-  /* Configure the I2C frequency.
-   * REVISIT: Note that the frequency is set only on the first message.
-   * This could be extended to support different transfer frequencies for
-   * each message segment.
-   */
-
-  rda5981x_i2c_setfrequency(priv->dev, msgs->frequency);
-
-  /* Perform the transfer */
-
-  ret = rda5981x_i2c_start(priv);
-
-  sem_post(&priv->mutex);
-  return ret;
-}
-
-/****************************************************************************
- * Name: rda5981x_stopnext
- *
- * Description:
- *   Check if we need to issue STOP at the next message
- *
- ****************************************************************************/
-
-static void rda5981x_stopnext(struct rda5981x_i2cdev_s *priv)
-{
-  priv->nmsg--;
-
-  if (priv->nmsg > 0)
-    {
-      priv->msgs++;
-      putreg32(I2C_CONSET_STA, priv->base + LPC17_I2C_CONSET_OFFSET);
-    }
-  else
-    {
-      rda5981x_i2c_stop(priv);
-    }
-}
-
-/****************************************************************************
- * Name: rda5981x_i2c_interrupt
- *
- * Description:
- *   The I2C Interrupt Handler
- *
- ****************************************************************************/
-
-static int rda5981x_i2c_interrupt(int irq, FAR void *context, void *arg)
-{
-  struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)arg;
-  struct i2c_msg_s *msg;
-  uint32_t state;
-
-  DEBUGASSERT(priv != NULL);
-
-  /* Reference UM10360 19.10.5 */
-
-  state = getreg32(priv->base + LPC17_I2C_STAT_OFFSET);
-  msg  = priv->msgs;
-
-  priv->state = state;
-  state &= 0xf8;  /* state mask, only 0xX8 is possible */
-  switch (state)
-    {
-
-    case 0x08:     /* A START condition has been transmitted. */
-    case 0x10:     /* A Repeated START condition has been transmitted. */
-      /* Set address */
-
-      putreg32(((I2C_M_READ & msg->flags) == I2C_M_READ) ?
-        I2C_READADDR8(msg->addr) :
-        I2C_WRITEADDR8(msg->addr), priv->base + LPC17_I2C_DAT_OFFSET);
-
-      /* Clear start bit */
-
-      putreg32(I2C_CONCLR_STAC, priv->base + LPC17_I2C_CONCLR_OFFSET);
-      break;
-
-    /* Write cases */
-
-    case 0x18: /* SLA+W has been transmitted; ACK has been received  */
-      priv->wrcnt = 0;
-      putreg32(msg->buffer[0], priv->base + LPC17_I2C_DAT_OFFSET); /* put first byte */
-      break;
-
-    case 0x28: /* Data byte in DAT has been transmitted; ACK has been received. */
-      priv->wrcnt++;
-
-      if (priv->wrcnt < msg->length)
-        {
-          putreg32(msg->buffer[priv->wrcnt], priv->base + LPC17_I2C_DAT_OFFSET); /* Put next byte */
-        }
-      else
-        {
-          rda5981x_stopnext(priv);
-        }
-      break;
-
-    /* Read cases */
-
-    case 0x40:  /* SLA+R has been transmitted; ACK has been received */
-      priv->rdcnt = 0;
-      if (msg->length > 1)
-        {
-          putreg32(I2C_CONSET_AA, priv->base + LPC17_I2C_CONSET_OFFSET); /* Set ACK next read */
-        }
-      else
-        {
-          putreg32(I2C_CONCLR_AAC, priv->base + LPC17_I2C_CONCLR_OFFSET);  /* Do not ACK because only one byte */
-        }
-      break;
-
-    case 0x50:  /* Data byte has been received; ACK has been returned. */
-      priv->rdcnt++;
-      msg->buffer[priv->rdcnt - 1] = getreg32(priv->base + LPC17_I2C_BUFR_OFFSET);
-
-      if (priv->rdcnt >= (msg->length - 1))
-        {
-          putreg32(I2C_CONCLR_AAC, priv->base + LPC17_I2C_CONCLR_OFFSET);  /* Do not ACK any more */
-        }
-      break;
-
-    case 0x58:  /* Data byte has been received; NACK has been returned. */
-      msg->buffer[priv->rdcnt] = getreg32(priv->base + LPC17_I2C_BUFR_OFFSET);
-      rda5981x_stopnext(priv);
-      break;
-
-    default:
-      rda5981x_i2c_stop(priv);
-      break;
-    }
-
-  putreg32(I2C_CONCLR_SIC, priv->base + LPC17_I2C_CONCLR_OFFSET); /* clear interrupt */
-
-  return OK;
+ i2c_cmd_cfg(priv, 0, 1, 0, 0, 0); 
 }
 
 /************************************************************************************
@@ -468,16 +399,17 @@ static int rda5981x_i2c_interrupt(int irq, FAR void *context, void *arg)
  *
  ************************************************************************************/
 
-#ifdef CONFIG_I2C_RESET
-static int rda5981x_i2c_reset(FAR struct i2c_dev_s * dev)
+static int rda5981x_i2c_reset(FAR struct rda5981x_i2cdev_s *priv)
 {
-  return OK;
+  i2c_cmd_cfg(priv, 0, 1, 0, 0, 0);
+  return 0;
 }
-#endif /* CONFIG_I2C_RESET */
+
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
 
 /****************************************************************************
  * Name: rda5981x_i2cbus_initialize
@@ -490,6 +422,7 @@ static int rda5981x_i2c_reset(FAR struct i2c_dev_s * dev)
 struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
 {
   struct rda5981x_i2cdev_s *priv;
+  uint32_t regval;
 
   if (port > 1)
     {
@@ -498,68 +431,35 @@ struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
     }
 
   irqstate_t flags;
-  uint32_t regval;
-
   flags = enter_critical_section();
 
  if (port == 0)
     {
       priv        = &g_i2c0dev;
-      priv->base  = LPC17_I2C0_BASE;
-      priv->irqid = LPC17_IRQ_I2C0;
+      priv->base  = RDA_I2C0_BASE;
+      priv->frequency = I2C_DEFAULT_CLOCK;
 
-      /* Enable clocking */
+/* Enable I2C clock */
+    regval = getreg32(I2C_CLKGATE_REG1) | (0x01UL << 6);
+    putreg32(regval, I2C_CLKGATE_REG1);
 
-      regval  = getreg32(LPC17_SYSCON_PCONP);
-      regval |= SYSCON_PCONP_PCI2C0;
-      putreg32(regval, LPC17_SYSCON_PCONP);
+/* set default frequency at 100k */
+    rda5981x_i2c_setfrequency(&(priv->dev), 100000);
+    i2c_cmd_cfg(priv, 0, 0, 0, 0, 0);
 
-      regval  = getreg32(LPC17_SYSCON_PCLKSEL0);
-      regval &= ~SYSCON_PCLKSEL0_I2C0_MASK;
-      regval |= (SYSCON_PCLKSEL_CCLK << SYSCON_PCLKSEL0_I2C0_SHIFT);
-      putreg32(regval, LPC17_SYSCON_PCLKSEL0);
+/* Enable I2C */
+    regval = getreg32(priv->base + I2C_CR0) |= 0x01UL;    
+    putreg32(regval, priv->base + I2C_CR0);
 
-      /* Pin configuration */
-
-      rda5981x_configgpio(GPIO_I2C0_SCL);
-      rda5981x_configgpio(GPIO_I2C0_SDA);
-
-      /* Set default frequency */
-
-      rda5981x_i2c_setfrequency(priv->dev, CONFIG_LPC17_I2C0_FREQUENCY);
+/* Pin configuration */
+     rda_configgpio(GPIO_I2C0_SCL);
+     rda_configgpio(GPIO_I2C0_SDA);
     }
 
 
   leave_critical_section(flags);
 
-  putreg32(I2C_CONSET_I2EN, priv->base + LPC17_I2C_CONSET_OFFSET);
-
-  /* Initialize semaphores */
-
-  sem_init(&priv->mutex, 0, 1);
-  sem_init(&priv->wait, 0, 0);
-
-  /* The wait semaphore is used for signaling and, hence, should not have
-   * priority inheritance enabled.
-   */
-
-  sem_setprotocol(&priv->wait, SEM_PRIO_NONE);
-
-  /* Allocate a watchdog timer */
-
-  priv->timeout = wd_create();
-  DEBUGASSERT(priv->timeout != 0);
-
-  /* Attach Interrupt Handler */
-
-  irq_attach(priv->irqid, rda5981x_i2c_interrupt, priv);
-
-  /* Enable Interrupt Handler */
-
-  up_enable_irq(priv->irqid);
-
-  /* Install our operations */
-
+/* Install our operations */
   priv->dev.ops = &rda5981x_i2c_ops;
   return &priv->dev;
 }
@@ -577,26 +477,7 @@ int rda5981x_i2cbus_uninitialize(FAR struct i2c_dev_s * dev)
   struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *) dev;
 
   /* Disable I2C */
-
-  putreg32(I2C_CONCLRT_I2ENC, priv->base + LPC17_I2C_CONCLR_OFFSET);
-
-  /* Reset data structures */
-
-  sem_destroy(&priv->mutex);
-  sem_destroy(&priv->wait);
-
-  /* Free the watchdog timer */
-
-  wd_delete(priv->timeout);
-  priv->timeout = NULL;
-
-  /* Disable interrupts */
-
-  up_disable_irq(priv->irqid);
-
-  /* Detach Interrupt Handler */
-
-  irq_detach(priv->irqid);
+  putreg32(0, priv->base + I2C_CR0);
   return OK;
 }
 
@@ -613,39 +494,13 @@ int up_i2cuninitialize(FAR struct i2c_dev_s *dev)
  * @note
  */
 
-int rda5981x_i2cbus_uninitialize(struct i2c_dev_s *dev)
-{
-	struct rda5981x_i2c_priv_s *priv = (struct rda5981x_i2c_priv_s *)dev;
-	int flags;
-
-	DEBUGASSERT(priv && priv->config && priv->refs > 0);
-
-	/* Decrement reference count and check for underflow */
-	flags = irqsave();
-
-	/* Check if the reference count will decrement to zero */
-	if (priv->refs < 2) {
-		/* Yes.. Disable power and other HW resource (GPIO's) */
-		rda5981x_i2c_uninitialize(priv);
-		priv->refs = 0;
-
-		/* Release unused resources */
-		rda5981x_i2c_sem_destroy(priv);
-	} else {
-		/* No.. just decrement the number of references to the device */
-		priv->refs--;
-	}
-
-	irqrestore(flags);
-	return OK;
-}
-
 /**
  * @brief   Unitialize one I2C bus for the I2C character driver
  * @param   struct i2c_dev_s *dev :
  * @return  ==0 : OK
  * @note
  */
+
 void rda5981x_i2c_register(int bus)
 {
 	FAR struct i2c_dev_s *i2c;

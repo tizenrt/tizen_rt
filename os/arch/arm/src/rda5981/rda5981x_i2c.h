@@ -33,14 +33,14 @@
  *
  ****************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_LPC17XX_LPC17_I2C_H
-#define __ARCH_ARM_SRC_LPC17XX_LPC17_I2C_H
+#ifndef __ARCH_ARM_SRC_RDA5981X_I2C_H
+#define __ARCH_ARM_SRC_RDA5981X_I2C_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <tinyara/config.h>
-#include <chip/rda5981x_i2c.h>
+#include "chip/rda5981x_i2c.h"
 
-#endif /* __ARCH_ARM_SRC_LPC17XX_LPC17_I2C_H */
+#endif 
