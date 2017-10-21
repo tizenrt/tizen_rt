@@ -109,7 +109,7 @@ ifeq ($(CONFIG_RDA5981_UART),y)
 CHIP_CSRCS += rda5981x_serial.c rda5981x_lowputc.c
 endif
 
-ifeq ($(CONFIG_rda5981_GPIO),y)
+ifeq ($(CONFIG_RDA5981_GPIO),y)
 CHIP_CSRCS += rda5981x_gpio.c rda5981x_gpio_lowerhalf.c
 endif
 
@@ -117,6 +117,9 @@ ifeq ($(CONFIG_RDA5981_I2C),y)
 CHIP_CSRCS += rda5981x_i2c.c
 endif
 
+ifeq ($(CONFIG_RDA5981_SPI),y)
+CHIP_CSRCS += rda5981x_spi.c
+endif
 
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
