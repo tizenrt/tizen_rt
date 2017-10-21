@@ -66,6 +66,12 @@ VPATH += :$(TOPDIR)/arch
 CSRCS += boardctl.c
 endif
 
+ifeq ($(CONFIG_AUDIO_I2SCHAR),y)
+ifeq ($(CONFIG_RDA5981_I2S),y)
+CSRCS += rda5981_i2schar.c
+endif
+endif
+
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
