@@ -177,6 +177,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
 {
      struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
      int count;
+     int stop = 1;
 
     /* wait tx fifo empty */
     while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
@@ -212,7 +213,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
         buffer[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
     }
 
-#if 0
+
     if (stop) {
         i2c_do_read(priv);
         i2c_cmd_cfg(priv, 0, 1, 1, 0, 1);
@@ -233,7 +234,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
             return (length - 1);
         }
     }
-#endif
+
     return buflen;
 }
 
@@ -241,8 +242,12 @@ static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
 		FAR const uint8_t *buffer, int length)
 {
     struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev; 
-    int count;
-	
+    int count; 
+    int stop = 1;
+  
+    if(length == 1)
+	stop = 0;
+
     /* wait tx fifo empty */
     while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
         if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
@@ -275,11 +280,11 @@ static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
     }
 
     i2c_do_write(priv, buffer[length - 1]);
- //   if (stop) {
-   //     i2c_cmd_cfg(priv, 0, 1, 0, 1, 0);
-   // } else {
+    if (stop) {
+        i2c_cmd_cfg(priv, 0, 1, 0, 1, 0);
+    } else {
         i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
-  //  }
+    }
 
     /* wait tx fifo empty */
     while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
@@ -288,11 +293,10 @@ static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
             return (length - 1);
         }
     }
-#if 0
+    
     if (stop) {
         i2c_clear_fifo(priv);
     }
-#endif
     return length; 	
 }
 
@@ -337,6 +341,7 @@ static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
   int i;
   DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
 
+  rda5981x_i2c_setaddress(dev, msgs[0]->address, 7);
   /* Get exclusive access to the I2C bus */
   
   for (i = 0; i < count; i++) {
