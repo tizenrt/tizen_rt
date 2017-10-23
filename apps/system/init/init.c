@@ -60,7 +60,7 @@ extern void dm_cb_register_init(void);
 static void tash_register_cmds(void)
 {
 #if defined(CONFIG_KERNEL_CMDS) && !defined(CONFIG_BUILD_PROTECTED)
-	kernel_register_utilcmds();
+	//kernel_register_utilcmds();
 #endif
 
 #ifdef CONFIG_FS_CMDS
@@ -68,8 +68,8 @@ static void tash_register_cmds(void)
 #endif
 
 #ifdef CONFIG_NET_CMDS
-	net_register_utilcmds();
-	net_register_appcmds();
+	//net_register_utilcmds();
+	//net_register_appcmds();
 #endif
 
 #ifdef CONFIG_BUILTIN_APPS
@@ -120,7 +120,7 @@ int preapp_start(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_TASH
-//	tash_register_cmds();
+	tash_register_cmds();
 
 	pid = tash_start();
 	if (pid <= 0) {

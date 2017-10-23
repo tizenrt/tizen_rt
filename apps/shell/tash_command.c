@@ -337,7 +337,6 @@ void tash_cmdlist_install(const tash_cmdlist_t list[])
 void tash_register_basic_cmds(void)
 {
     //reset count value
-    tash_cmds_info.count = 0;
     pthread_mutex_init(&tash_cmds_info.tmutex, NULL);
 
 	tash_cmdlist_install(tash_basic_cmds);
