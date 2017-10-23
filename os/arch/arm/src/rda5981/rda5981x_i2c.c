@@ -108,7 +108,7 @@ static int  rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
 
 static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr, int nbits);
 
-static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int buflen);
+static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int length);
 
 static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, FAR const uint8_t *buffer, int length);
 
@@ -173,7 +173,7 @@ static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr,
 
 
 static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, 
-				FAR uint8_t *buffer, int buflen)
+				FAR uint8_t *buffer, int length)
 {
      struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
      int count;
@@ -199,7 +199,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
     }
 
     /* Read in all except last byte */
-    for (count = 0; count < (buflen - 1); count++) {
+    for (count = 0; count < (length - 1); count++) {
         i2c_do_read(priv);
         i2c_cmd_cfg(priv, 0, 0, 0, 0, 1);
         
@@ -227,7 +227,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
         }
 
         if (getreg32(priv->base+I2C_SR) & (0x1F << 21)) {
-            data[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
+            buffer[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
             i2c_clear_fifo(priv);
         } else {
             i2c_clear_fifo(priv);
@@ -235,7 +235,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
         }
     }
 
-    return buflen;
+    return length;
 }
 
 static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, 
@@ -341,20 +341,21 @@ static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
   int i;
   DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
 
-  rda5981x_i2c_setaddress(dev, msgs[0]->address, 7);
   /* Get exclusive access to the I2C bus */
   
   for (i = 0; i < count; i++) {
 	pmsg = &msgs[i];
   
+   rda5981x_i2c_setaddress(dev, pmsg->addr, 7);
+   
    if (pmsg->flags & I2C_M_READ) 
    {
-	rda5981x_i2c_read(dev, pmsg->buffer, pmsg->length);
+	ret = rda5981x_i2c_read(dev, pmsg->buffer, pmsg->length);
    }
 
    else 
    {
-	rda5981x_i2c_write(dev, pmsg->buffer, pmsg->length);
+	ret = rda5981x_i2c_write(dev, pmsg->buffer, pmsg->length);
    }
 
  }
@@ -435,10 +436,7 @@ struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
       return NULL;
     }
 
-  irqstate_t flags;
-  flags = enter_critical_section();
-
- if (port == 0)
+  if (port == 0)
     {
       priv        = &g_i2c0dev;
       priv->base  = RDA_I2C0_BASE;
@@ -460,9 +458,6 @@ struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
      rda_configgpio(GPIO_I2C0_SCL);
      rda_configgpio(GPIO_I2C0_SDA);
     }
-
-
-  leave_critical_section(flags);
 
 /* Install our operations */
   priv->dev.ops = &rda5981x_i2c_ops;
@@ -486,6 +481,10 @@ int rda5981x_i2cbus_uninitialize(FAR struct i2c_dev_s * dev)
   return OK;
 }
 
+FAR struct i2c_dev_s *up_i2cinitialize(int port)
+{
+	return rda5981x_i2cbus_initialize(port);
+}
 
 int up_i2cuninitialize(FAR struct i2c_dev_s *dev)
 {
