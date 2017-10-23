@@ -66,7 +66,7 @@
 #include <tinyara/spi/spi.h>
 
 #include "up_arch.h"
-#include <rda5981x_spi.h>
+#include "rda5981x_spi.h"
 #include <string.h>
 #include <assert.h>
 #include <debug.h>
@@ -78,67 +78,22 @@
 #include <tinyara/fs/fs.h>
 #include <stddef.h>
 #include <chip.h>
-
-#include "rda5981x_vclk.h"
-
+#include "rda5981x_gpio.h"
 /****************************************************************************
  * Definitions
  ****************************************************************************/
-#define CH_CFG_TX_CH_ON			(1 << 0)
-#define CH_CFG_TX_CH_OFF		(0 << 0)
-#define CH_CFG_RX_CH_ON			(1 << 1)
-#define CH_CFG_RX_CH_OFF		(0 << 1)
-#define CH_CFG_MODE_MASK		(3 << 2)
-#define CH_CFG_MODE(x)			((x & 3) << 2)
-#define CH_CFG_SLAVE			(1 << 4)
-#define CH_CFG_MASTER			(0 << 4)
-#define CH_CFG_FIFO_FLUSH		(1 << 5)
-#define CH_CFG_FIFO_FLUSH_OFF	(0 << 5)
-#define CH_CFG_HIGH_SPEED_EN	(1 << 6)
-#define CH_CFG_HIGH_SPEED_DIS	(0 << 6)
+#define ENABLE_RDA_SPI_MODE 0
+#define RDA_BUS_CLK_FREQUENCY_80M                       ( 80000000UL)
 
-#define MODE_CFG_DMA_SINGLE		(0 << 0)
-#define MODE_CFG_DMA_4BURST		(1 << 0)
-#define MODE_CFG_DMA_TX_ON		(1 << 1)
-#define MODE_CFG_DMA_TX_OFF		(0 << 1)
-#define MODE_CFG_DMA_RX_ON		(1 << 2)
-#define MODE_CFG_DMA_RX_OFF		(0 << 2)
-#define MODE_CFG_TX_RDY_LVL(x)	((x & 0x3F) << 5)
-#define MODE_CFG_RX_RDY_LVL(x)	((x & 0x3F) << 11)
-#define MODE_CFG_BUS_WDT_MASK	(3 << 17)
-#define MODE_CFG_BUS_WIDTH_8	(0 << 17)
-#define MODE_CFG_BUS_WIDTH_16	(1 << 17)
-#define MODE_CFG_BUS_WIDTH_32	(2 << 17)
-#define MODE_CFG_TRLNG_CNT(x)	((x & 0x3FF) << 19)
-#define MODE_CFG_CH_WDT_MASK	(3 << 29)
-#define MODE_CFG_CH_WIDTH_8		(0 << 29)
-#define MODE_CFG_CH_WIDTH_16	(1 << 29)
-#define MODE_CFG_CH_WIDTH_32	(2 << 29)
 
-#define CS_REG_nSS_ACTIVE		(0 << 0)
-#define CS_REG_nSS_INACTIVE		(1 << 0)
-#define CS_REG_nSS_AUTO			(1 << 1)
-#define CS_REG_nSS_MANUAL		(0 << 1)
-#define CS_REG_nSS_TIME_CNT(x)	((x & 0x3F) << 1)
 
-#define INT_MASK_TRAILING		(1 << 6)
-#define INT_MASK_RX_OVERRUN		(1 << 5)
-#define INT_MASK_RX_UNDERRUN	(1 << 4)
-#define INT_MASK_TX_OVERRUN		(1 << 3)
-#define INT_MASK_TX_UNDERRUN	(1 << 2)
-#define INT_MASK_RX_FIFO_RDY	(1 << 1)
-#define INT_MASK_TX_FIFO_RDY	(1 << 0)
+/* SPI0 */
+#define GPIO_SPI0_CLK      (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN4)
+#define GPIO_SPI0_CS       (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN5)
+#define GPIO_SPI0_MISO     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN1)
+#define GPIO_SPI0_MOSI     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN0)
 
-#define SPI_STAT_TX_FIFO_RDY(x)		((x >> 0) & 1)
-#define SPI_STAT_RX_FIFO_RDY(x)		((x >> 1) & 1)
-#define SPI_STAT_TX_UNDERRUN(x)		((x >> 2) & 1)
-#define SPI_STAT_TX_OVERRUN(x)		((x >> 3) & 1)
-#define SPI_STAT_RX_UNDERRUN(x)		((x >> 4) & 1)
-#define SPI_STAT_RX_OVERRUN(x)		((x >> 5) & 1)
-#define SPI_STAT_TX_FIFO_LVL(x)		((x >> 6) & 0x1FF)
-#define SPI_STAT_RX_FIFO_LVL(x)		((x >> 15) & 0x1FF)
-#define SPI_STAT_TRAILING_BYTE(x)	((x >> 24) & 1)
-#define SPI_STAT_TX_DONE(x)			((x >> 25) & 1)
+
 
 /****************************************************************************
  * Private Types
@@ -162,6 +117,10 @@ struct rda5981x_spidev_s {
 #endif
 };
 
+
+struct spi_s spi_str;
+
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -179,6 +138,7 @@ static void spi_exchange(FAR struct spi_dev_s *dev, const void *txbuffer, void *
 static void spi_sndblock(FAR struct spi_dev_s *dev, const void *txbuffer, size_t nwords);
 static void spi_recvblock(FAR struct spi_dev_s *dev, void *rxbuffer, size_t nwords);
 #endif
+
 
 /****************************************************************************
  * Private Data
@@ -207,44 +167,15 @@ static const struct spi_ops_s g_spiops = {
 
 static struct rda5981x_spidev_s g_spi0dev = {
 	.spidev		= { .ops = &g_spiops },
-	.base		= RDA5981X_SPI0_BASE,
+	.base		= RDA_SPI0_BASE,
 	.port		= SPI_PORT0,
-	.freqid		= d1_spi0,
+	.freqid		= 0,
 	.gpio_clk	= GPIO_SPI0_CLK,
 	.gpio_nss	= GPIO_SPI0_CS,
 	.gpio_miso	= GPIO_SPI0_MISO,
 	.gpio_mosi	= GPIO_SPI0_MOSI,
 };
-static struct rda5981x_spidev_s g_spi1dev = {
-	.spidev		= { .ops = &g_spiops },
-	.base		= RDA5981X_SPI1_BASE,
-	.port		= SPI_PORT1,
-	.freqid		= d1_spi1,
-	.gpio_clk	= GPIO_SPI1_CLK,
-	.gpio_nss	= GPIO_SPI1_CS,
-	.gpio_miso	= GPIO_SPI1_MISO,
-	.gpio_mosi	= GPIO_SPI1_MOSI,
-};
-static struct rda5981x_spidev_s g_spi2dev = {
-	.spidev		= { .ops = &g_spiops },
-	.base		= RDA5981X_SPI2_BASE,
-	.port		= SPI_PORT2,
-	.freqid		= d1_spi2,
-	.gpio_clk	= GPIO_SPI2_CLK,
-	.gpio_nss	= GPIO_SPI2_CS,
-	.gpio_miso	= GPIO_SPI2_MISO,
-	.gpio_mosi	= GPIO_SPI2_MOSI,
-};
-static struct rda5981x_spidev_s g_spi3dev = {
-	.spidev		= { .ops = &g_spiops },
-	.base		= RDA5981X_SPI3_BASE,
-	.port		= SPI_PORT3,
-	.freqid		= d1_spi3,
-	.gpio_clk	= GPIO_SPI3_CLK,
-	.gpio_nss	= GPIO_SPI3_CS,
-	.gpio_miso	= GPIO_SPI3_MISO,
-	.gpio_mosi	= GPIO_SPI3_MOSI,
-};
+
 
 /****************************************************************************
  * Private Functions
@@ -287,11 +218,22 @@ static int spi_lock(struct spi_dev_s *dev, bool lock)
  ****************************************************************************/
 static uint32_t spi_setfrequency(struct spi_dev_s *dev, uint32_t frequency)
 {
-	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
+    uint32_t clk_rate = ((RDA_BUS_CLK_FREQUENCY_80M / frequency) >> 2) - 1U;
+    uint32_t reg_val;
 
-	cal_clk_setrate(priv->freqid, (unsigned long)frequency);
+    /* Check for valid frequency */
+    if(clk_rate <= 0x3FUL)
+    {
+	return -1;
+    }
 
-	return OK;
+    /* Set clk rate field */
+    reg_val = getreg32(RDA_SPI0_BASE+0x0);
+    reg_val = reg_val & ~(0x3FUL << 4);
+    reg_val |= ((clk_rate & 0x3FUL) << 4);
+    putreg32(RDA_SPI0_BASE+0x0, reg_val);
+
+    return 0;
 }
 
 /****************************************************************************
@@ -305,6 +247,8 @@ static uint32_t spi_setfrequency(struct spi_dev_s *dev, uint32_t frequency)
  ****************************************************************************/
 static void spi_select(struct spi_dev_s *dev, enum spi_dev_e devid, bool selected)
 {
+   // Only support Master Mode on RDA
+#if 0
 	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
 
 	SPI_SFR *pSPIRegs;
@@ -319,6 +263,7 @@ static void spi_select(struct spi_dev_s *dev, enum spi_dev_e devid, bool selecte
 	}
 
 	putreg32(cs_reg, &pSPIRegs->CS_REG);
+#endif
 }
 
 /****************************************************************************
@@ -331,14 +276,17 @@ static void spi_select(struct spi_dev_s *dev, enum spi_dev_e devid, bool selecte
 static void spi_setmode(struct spi_dev_s *dev, enum spi_mode_e mode)
 {
 	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
+	uint32_t polarity = (mode & 0x2) ? (0x01UL) : (0x00UL);
 
-	SPI_SFR *pSPIRegs;
-	pSPIRegs = (SPI_SFR *)priv->base;
+	spi_str.spi = (SPI_SFR *)priv->base;
+	unsigned int mod_cfg;
+	mod_cfg = spi_str.spi->CFG;
 
-	unsigned int ch_cfg;
-	ch_cfg = getreg32(&pSPIRegs->CH_CFG);
-	ch_cfg = (ch_cfg & (~CH_CFG_MODE_MASK)) | CH_CFG_MODE(mode);
-	putreg32(ch_cfg, &pSPIRegs->CH_CFG);
+	/* Set number of frame bits and clock phase */
+	mod_cfg = mod_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
+	mod_cfg = mod_cfg | (polarity << 1);
+
+    spi_str.spi->CFG = mod_cfg;	
 }
 
 /****************************************************************************
@@ -352,33 +300,92 @@ static void spi_setbits(struct spi_dev_s *dev, int nbits)
 {
 	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
 
-	SPI_SFR *pSPIRegs;
-	pSPIRegs = (SPI_SFR *)priv->base;
+	spi_str.spi = (SPI_SFR *)priv->base;
+	unsigned int bit_cfg;
+	bit_cfg = spi_str.spi->CFG;
 
-	unsigned int mode_cfg;
-	mode_cfg = getreg32(&pSPIRegs->MODE_CFG);
-	mode_cfg = mode_cfg & (~(MODE_CFG_BUS_WDT_MASK | MODE_CFG_CH_WDT_MASK));
+	/* Set number of frame bits and clock phase */
+	bit_cfg = bit_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
+	bit_cfg = bit_cfg | ((uint32_t)nbits << 16);
 
-	switch (nbits) {
-	case 8:
-		mode_cfg = mode_cfg | MODE_CFG_BUS_WIDTH_8 | MODE_CFG_CH_WIDTH_8;
-		break;
+    spi_str.spi->CFG = bit_cfg;
 
-	case 16:
-		mode_cfg = mode_cfg | MODE_CFG_BUS_WIDTH_16 | MODE_CFG_CH_WIDTH_16;
-		break;
 
-	case 32:
-		mode_cfg = mode_cfg | MODE_CFG_BUS_WIDTH_32 | MODE_CFG_CH_WIDTH_32;
-		break;
-
-	default:
-		DEBUGASSERT(0 == 1);
-		break;
-	}
-
-	putreg32(mode_cfg, &pSPIRegs->MODE_CFG);
+#if ENABLE_RDA_SPI_MODE
+    /* Set bit offset value */
+    spi_str.bit_ofst[0] = 0;
+    spi_str.bit_ofst[1] = 0;
+    if(2 > (nbits >> 5)) {
+        spi_str.bit_ofst[nbits >> 5] = (uint8_t)(32 - (nbits & 0x1F));
+    }
+#else  /* ENABLE_RDA_SPI_MODE */
+    spi_str.bit_ofst[0] = (uint8_t)(32 - nbits);
+#endif /* ENABLE_RDA_SPI_MODE */
+	
 }
+
+/****************************************************************************
+ * Name: spi_busy
+ *
+ * Description:
+ *   Set the number of bits per word.
+ *
+ ****************************************************************************/
+static int spi_busy(void)
+{
+    return (spi_str.spi->CFG & (0x01UL << 31)) ? (1) : (0);
+}
+
+
+static void spi_write(int value)
+{
+#if ENABLE_RDA_SPI_MODE
+    /* Write data register */
+    if(spi_str.bit_ofst[0] != 0) {
+        spi_str.spi->D1CMD = (uint32_t)value << spi_str.bit_ofst[0];
+    } else {
+        spi_str.spi->D1CMD = (uint32_t)value;
+        spi_str.spi->D0CMD = (uint32_t)value << spi_str.bit_ofst[1];
+    }
+    /* Set write bit & start bit */
+    spi_str.spi->CFG = (spi_str.spi->CFG & ~(0x01UL << 3)) | 0x01UL;
+#else  /* ENABLE_RDA_SPI_MODE */
+    /* Write data reg */
+    if(spi_str.bit_ofst[0] != 0) {
+        spi_str.spi->D1CMD = ((uint32_t)value << spi_str.bit_ofst[0]) | (0xFFFFFFFFUL >> (32 - spi_str.bit_ofst[0]));
+    } else {
+        spi_str.spi->D1CMD = (uint32_t)value;
+        spi_str.spi->D0CMD = 0xFFFFFFFFUL;
+    }
+    /* Set start bit */
+    spi_str.spi->CFG |= 0x01UL;
+#endif /* ENABLE_RDA_SPI_MODE */
+    while(spi_busy());
+}
+
+
+static int spi_read(void)
+{
+    uint32_t ret_val;
+
+#if ENABLE_RDA_SPI_MODE
+    /* Set read bit & start bit */
+    spi_str.spi->CFG |= ((0x01UL << 3) | 0x01UL);
+    while (spi_busy());
+    /* Read data register */
+    if(spi_str.bit_ofst[0] != 0) {
+        ret_val = spi_str.spi->D0CMD & ((0x01UL << (32UL - spi_str.bit_ofst[0])) - 1UL);
+    } else {
+        ret_val = spi_str.spi->D0CMD;
+        ret_val = spi_str.spi->D1CMD & ((0x01UL << (32UL - spi_str.bit_ofst[1])) - 1UL);
+    }
+#else  /* ENABLE_RDA_SPI_MODE */
+    /* Read data register */
+    ret_val = spi_str.spi->D0CMD & ((0x01UL << (32UL - spi_str.bit_ofst[0])) - 1UL);
+#endif /* ENABLE_RDA_SPI_MODE */
+    return (int)ret_val;
+}
+
 
 /****************************************************************************
  * Name: spi_send
@@ -406,6 +413,7 @@ static uint16_t spi_send(struct spi_dev_s *dev, uint16_t wd)
  *   Exchange a block data with the SPI device. Support only byte transfers.
  *
  ****************************************************************************/
+
 static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbuffer, size_t nwords)
 {
 	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
@@ -417,24 +425,19 @@ static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbu
 	SPI_SFR *pSPIRegs;
 	pSPIRegs = (SPI_SFR *)priv->base;
 
-	/* SPI FIFO FLUSH */
-	int ch_cfg = getreg32(&pSPIRegs->CH_CFG);
-	putreg32(CH_CFG_FIFO_FLUSH, &pSPIRegs->CH_CFG);
-	putreg32(ch_cfg, &pSPIRegs->CH_CFG);
-
 	/* TX/RX */
-	if ((rxbuffer == NULL) && (txbuffer == NULL)) {
-		while (received < nwords) {
+	if ((rxbuffer == NULL) && (txbuffer == NULL)) 
+	{
+		while (received < nwords) 
+		{
 			if (sent < nwords)
-				if (SPI_STAT_TX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) < 64) {
-					putreg32(0, &pSPIRegs->SPI_TX_DATA);
-					sent++;
-				}
-
-			if (SPI_STAT_RX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) > 0) {
-				dummy_rx = getreg32(&pSPIRegs->SPI_RX_DATA);
-				received++;
+			{
+				spi_write(0);
+				sent++;
 			}
+
+			spi_read();
+			received++;
 		}
 		return;
 	}
@@ -442,14 +445,12 @@ static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbu
 	if (rxbuffer == NULL) {
 		while (received < nwords) {
 			if (sent < nwords)
-				if (SPI_STAT_TX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) < 64) {
-					putreg32(((unsigned char *)txbuffer)[sent++], &pSPIRegs->SPI_TX_DATA);
-				}
-
-			if (SPI_STAT_RX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) > 0) {
-				dummy_rx = getreg32(&pSPIRegs->SPI_RX_DATA);
-				received++;
+			{
+				spi_write(((unsigned char *)txbuffer)[sent++]);
 			}
+
+			dummy_rx = spi_read();
+			received++;
 		}
 		return;
 	}
@@ -457,28 +458,23 @@ static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbu
 	if (txbuffer == NULL) {
 		while (received < nwords) {
 			if (sent < nwords)
-				if (SPI_STAT_TX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) < 64) {
-					putreg32(((unsigned char *)rxbuffer)[sent++], &pSPIRegs->SPI_TX_DATA);
-				}
-
-			if (SPI_STAT_RX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) > 0) {
-				((unsigned char *)rxbuffer)[received++] = getreg32(&pSPIRegs->SPI_RX_DATA);
+			{
+				spi_write(((unsigned char *)rxbuffer)[sent++]);
 			}
 
+			((unsigned char *)rxbuffer)[received++] = spi_read();
 		}
 		return;
 	}
 
-	while (received < nwords) {
+	while (received < nwords) 
+	{
 		if (sent < nwords)
-			if (SPI_STAT_TX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) < 64) {
-				putreg32(((unsigned char *)txbuffer)[sent++], &pSPIRegs->SPI_TX_DATA);
-			}
-
-		if (SPI_STAT_RX_FIFO_LVL(getreg32(&pSPIRegs->SPI_STATUS)) > 0) {
-			((unsigned char *)rxbuffer)[received++] = getreg32(&pSPIRegs->SPI_RX_DATA);
+		{
+			spi_write(((unsigned char *)txbuffer)[sent++]);
 		}
 
+		((unsigned char *)rxbuffer)[received++] = spi_read();
 	}
 }
 
@@ -510,6 +506,8 @@ static void spi_recvblock(struct spi_dev_s *dev, void *rxbuffer, size_t nwords)
  * Public Functions
  ****************************************************************************/
 
+
+
 /****************************************************************************
  * Name: up_spiinitialize
  *
@@ -520,32 +518,17 @@ static void spi_recvblock(struct spi_dev_s *dev, void *rxbuffer, size_t nwords)
 struct spi_dev_s *up_spiinitialize(int port)
 {
 	FAR struct rda5981x_spidev_s *priv = NULL;
+	uint32_t regval;
 
 	if (port < 0 || port >= SPI_PORT_MAX) {
 		return NULL;
 	}
+	
+	priv = &g_spi0dev;
 
-	switch (port) {
-	case 0:
-		priv = &g_spi0dev;
-		break;
-	case 1:
-		priv = &g_spi1dev;
-		break;
-	case 2:
-		priv = &g_spi2dev;
-		break;
-	case 3:
-		priv = &g_spi3dev;
-		break;
-	}
 	lldbg("Prepare SPI%d for Master operation\n", priv->port);
 
-	/* SET GPIO for the port */
-	rda5981x_configgpio(priv->gpio_clk);
-	rda5981x_configgpio(priv->gpio_nss);
-	rda5981x_configgpio(priv->gpio_miso);
-	rda5981x_configgpio(priv->gpio_mosi);
+	spi_str.spi = (SPI_SFR *)priv->base;
 
 #ifndef CONFIG_SPI_POLLWAIT
 	sem_init(&priv->xfrsem, 0, 0);
@@ -555,21 +538,36 @@ struct spi_dev_s *up_spiinitialize(int port)
 	sem_init(&priv->exclsem, 0, 1);
 #endif
 
-	/* SET SPI INITIAL */
-	SPI_SFR *pSPIRegs;
-	pSPIRegs = (SPI_SFR *)priv->base;
+    /* Enable power and clocking */  //Clock Gating 2 
+	regval = getreg32(RDA_SCU_BASE+0x0C);
+	regval |=	(0x01UL << 18);
+	putreg32(RDA_SCU_BASE+0x0C, regval);
 
-	/* TX/RX enable. Master.CPHA 00. */
-	putreg32(CH_CFG_HIGH_SPEED_DIS | CH_CFG_FIFO_FLUSH_OFF | CH_CFG_MASTER | CH_CFG_MODE(SPIDEV_MODE0) | CH_CFG_RX_CH_ON | CH_CFG_TX_CH_ON, &pSPIRegs->CH_CFG);
+	/* Select 4-wire SPI mode */
+	regval = getreg32(RDA_GPIO_BASE+0x0);
+    regval  &= ~(0x01UL << 14);
+	putreg32(RDA_GPIO_BASE+0x0, regval);
 
-	/*  No FIFO. N0 DMA. 8 bits */
-	putreg32(MODE_CFG_CH_WIDTH_8 | MODE_CFG_TRLNG_CNT(0) | MODE_CFG_BUS_WIDTH_8 | MODE_CFG_RX_RDY_LVL(0) | MODE_CFG_TX_RDY_LVL(0) | MODE_CFG_DMA_RX_OFF | MODE_CFG_DMA_TX_OFF | MODE_CFG_DMA_SINGLE, &pSPIRegs->MODE_CFG);
+	//Set Config Reg
+	/* Normal SPI mode */
+	regval = getreg32(RDA_SPI0_BASE+0x0);
+    regval &= ~(0x01UL << 2);
+    /* Set read flag */
+    regval |=  (0x01UL << 3);
 
-	/* CS Manual Passive */
-	putreg32(CS_REG_nSS_TIME_CNT(0) | CS_REG_nSS_MANUAL | CS_REG_nSS_INACTIVE, &pSPIRegs->CS_REG);
+   //set SEL
+	regval &= ~(0x03UL << 23);
+	regval |= ((1 & 0x03UL) << 23);
 
-	/* Disable Interrupts */
-	putreg32(0, &pSPIRegs->SPI_INT_EN);
+	putreg32(RDA_SPI0_BASE+0x0, regval);
+	
+
+	/* SET GPIO for the port */
+	rda_configgpio(priv->gpio_clk);
+	rda_configgpio(priv->gpio_nss);
+	rda_configgpio(priv->gpio_miso);
+	rda_configgpio(priv->gpio_mosi);
+
 
 	return (struct spi_dev_s *)priv;
 }
