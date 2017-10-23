@@ -68,9 +68,13 @@
 /************************************************************************************
  * Public Types
  ************************************************************************************/
+/* SPI0 */
+#define GPIO_SPI0_CLK      (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN4)
+#define GPIO_SPI0_CS       (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN5)
+#define GPIO_SPI0_MISO     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN1)
+#define GPIO_SPI0_MOSI     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN0)
 
 /*I2C*/
-
 #define GPIO_I2C0_SCL     (GPIO_ALT0 | GPIO_PORTB | GPIO_PIN2)
 #define GPIO_I2C0_SDA    (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN3)
 

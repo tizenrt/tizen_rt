@@ -79,20 +79,12 @@
 #include <stddef.h>
 #include <chip.h>
 #include "rda5981x_gpio.h"
+#include "chip/rda5981x_pinconfig.h"
 /****************************************************************************
  * Definitions
  ****************************************************************************/
 #define ENABLE_RDA_SPI_MODE 0
 #define RDA_BUS_CLK_FREQUENCY_80M                       ( 80000000UL)
-
-
-
-/* SPI0 */
-#define GPIO_SPI0_CLK      (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN4)
-#define GPIO_SPI0_CS       (GPIO_PORTB | GPIO_ALT4 | GPIO_PIN5)
-#define GPIO_SPI0_MISO     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN1)
-#define GPIO_SPI0_MOSI     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN0)
-
 
 
 /****************************************************************************

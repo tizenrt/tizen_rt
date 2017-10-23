@@ -106,18 +106,8 @@ static void board_gpio_initialize(void)
 		uint16_t pincfg;
 	} pins[] = {//Refer to rda5981x_pinconn.h, only define the pin only support GPIO function.
 		//Current we only keep the pin only for GPIO. In fact, we need to config the in as need.
-		//Port A
-		{ 37, GPIO_DIR_INPUT | GPIO_ALT1 | GPIO_PORTA | GPIO_PIN9 }, 
-		//Port B
-		//Port C
-		{ 38, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN2 }, 
-		{ 39, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN3 }, 
-		{ 40, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN4 }, 
-		{ 41, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN5 }, 
-		{ 42, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN6 }, 
-		{ 43, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN7 }, 
-		{ 44, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN8 }, 
-		{ 45, GPIO_DIR_INPUT  | GPIO_ALT0 | GPIO_PORTC | GPIO_PIN9 }, 
+            { 37, GPIO_DIR_OUTPUT | GPIO_ALT0 | GPIO_PORTB | GPIO_PIN1 },
+            { 38, GPIO_DIR_OUTPUT | GPIO_ALT0 | GPIO_PORTB | GPIO_PIN2 },
 	};
 
 	for (i = 0; i < sizeof(pins) / sizeof(*pins); i++) {
