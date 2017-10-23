@@ -72,8 +72,8 @@
  * performed in those bits.  The default priority level is set to the middle
  * value
  */
-#define RDA_CPU_CLK_FREQUENCY 40000000
-#define RDA_AHB_CLK_FREQUENCY 40000000
+#define RDA_CPU_CLK_FREQUENCY 160000000
+#define RDA_AHB_CLK_FREQUENCY 80000000
 
 /* Get customizations for each supported chip */
 
