@@ -79,45 +79,33 @@ static struct i2c_config_s configs;
 
 void i2c_test(void)
 {
-        uint8_t data[3];
+        uint8_t txbuf=0x03;
+        uint8_t rxbuf[2];
         int ret;
 	int port = 0;
-
-	printf("This is an example to add it in tash\n");
-	printf("Hello, World!!\n");
-
-        printf("transfer begin\n");
-        i2c_dev = up_i2cinitialize(port);
+        
+	i2c_dev = up_i2cinitialize(port);
         if (i2c_dev == NULL) {
                 printf("i2ctest_main: up_i2cinitialize(i2c:%d) failed\n", port);
 		return;
         }
 
         configs.frequency = 100000;
-        configs.address = 0x14;
+        configs.address = 0x30;
         configs.addrlen = 7;
 
-        data[0] = 0xCD;
-        data[1] = 0x0F;
-        data[1] = 0x07;
-
-        ret = i2c_write(i2c_dev, &configs, data, 3);
+        ret = i2c_write(i2c_dev, &configs, &txbuf, 1);
         if (ret < 0) {
                 printf("i2c_write fail(%d)\n", ret);
                 return;
         }
 
-        printf("transfer end\n");
-       // up_mdelay(1);
-
-#if 0
-        ret = i2c_read(i2c_dev, &configs, data, 1);
+	ret = i2c_read(i2c_dev, &configs, rxbuf, 2);
         if (ret < 0) {
                 printf("i2c_read fail(%d)\n", ret);
-                return -ret;
+                return;
         }
-#endif	
-
+	printf("%02x %02x \r\n", rxbuf[0], rxbuf[1]);
 	return;
 }
 
