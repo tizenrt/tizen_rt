@@ -78,7 +78,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 #define I2C_CLKGATE_REG1        (RDA_SCU_BASE + 0x08)
-#define I2C_CLOCK_SOURCE        (AHBBusClock >> 1)
+#define I2C_CLOCK_SOURCE        (RDA_AHB_CLK_FREQUENCY >> 1)
 #define I2C_DEFAULT_CLOCK       (400000)
 /****************************************************************************
  * Private Types
@@ -187,7 +187,7 @@ static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
             return 0;
         }
     }
-    i2c_do_write(priv, priv->slave_address);
+    i2c_do_write(priv, priv->slave_address | 0x1);
     i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
 
     /* wait tx fifo empty */
@@ -297,6 +297,7 @@ static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
     if (stop) {
         i2c_clear_fifo(priv);
     }
+    
     return length; 	
 }
 
@@ -315,6 +316,7 @@ static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *dev,
    /* Set I2C frequency */
   if (frequency != priv->frequency)
     {
+
 
     uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
     uint32_t reg_val;
