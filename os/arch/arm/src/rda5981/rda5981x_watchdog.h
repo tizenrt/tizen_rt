@@ -1,99 +1,80 @@
-/****************************************************************************
- *
- * Copyright 2017 Samsung Electronics All Rights Reserved.
+/* mbed Microcontroller Library
+ * Copyright (c) 2006-2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the License.
- *
- ****************************************************************************/
-/****************************************************************************
- * arch/arm/src/s5j/s5j_watchdog.h
- *
- *   Copyright (C) 2009, 2013, 2015 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
- *    used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- ****************************************************************************/
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef RDA_WDT_API_H
+#define RDA_WDT_API_H
 
-#ifndef __ARCH_ARM_SRC_RDA5981X_WATCHDOG_H
-#define __ARCH_ARM_SRC_RDA5981X_WATCHDOG_H
+#include <stdint.h>
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-#include <tinyara/config.h>
-#include <chip/rda5981x_watchdog.h>
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#define     __IO    volatile
 
-#ifndef __ASSEMBLY__
+typedef struct
+{
+  __IO uint32_t WDTCFG;
+} RDA_WDT_TypeDef;
 
-#undef EXTERN
-#if defined(__cplusplus)
-#define EXTERN extern "C"
+struct wdt_s {
+    RDA_WDT_TypeDef *wdt;
+};
+
+typedef enum {
+    WDT_0  = (int)RDA_WDT_BASE
+} WDTName;
+/** WDT HAL structure
+ */
+typedef struct wdt_s wdt_t;
+
+#ifdef __cplusplus
 extern "C" {
-#else
-#define EXTERN extern
 #endif
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-void s5j_watchdog_disable(void);
+/** Initialize the wdt module
+ *
+ */
+void rda_wdt_init(wdt_t *obj, uint8_t to);
 
-#ifdef CONFIG_RDA5981X_WATCHDOG
-void s5j_watchdog_enable(void);
-void s5j_watchdog_reset_disable(void);
-void s5j_watchdog_reset_enable(void);
-void s5j_watchdog_irq_disable(void);
-void s5j_watchdog_irq_enable(void);
-void s5j_watchdog_clk_set(unsigned int prescaler, unsigned int divider);
-void s5j_watchdog_set_reload_val(unsigned int reload_val);
-unsigned int s5j_watchdog_get_curr(void);
-void s5j_watchdog_set_curr(unsigned int curr_val);
-void s5j_watchdog_clear_int(void);
-#endif
+/** Start the wdt module
+ *
+ */
+void rda_wdt_start(wdt_t *obj);
 
-#undef EXTERN
-#if defined(__cplusplus)
+/** Stop the wdt module
+ *
+ */
+void rda_wdt_stop(wdt_t *obj);
+
+/** Feed the watchdog
+ *
+ */
+void rda_wdt_feed(wdt_t *obj);
+
+/** Software reset using watchdog
+ *
+ */
+void rda_wdt_softreset(void);
+
+/** System software reset
+ *
+ */
+void rda_sys_softreset(void);
+
+/**@}*/
+
+#ifdef __cplusplus
 }
 #endif
 
-#endif /* __ASSEMBLY__ */
-#endif /* __ARCH_ARM_SRC_RDA5981X_RDA5981X_WATCHDOG_H */
+#endif
+

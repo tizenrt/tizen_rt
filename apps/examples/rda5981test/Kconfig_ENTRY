@@ -1,0 +1,3 @@
+config ENTRY_RDA5981_TEST
+	bool "\"Hello, World!\" example in tash"
+	depends on RDA5981_TEST
