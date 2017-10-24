@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/sidk_rda5981xt200/src/rda5981xt200_tash.c
+ * arch/arm/src/rda5981_board/src/rda5981_tash.c
  *
  *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -73,8 +73,6 @@
 
 #include <tinyara/fs/mtd.h>
 
-#include "sidk_rda5981xt200.h"
-#include "rda5981x_mct.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -84,7 +82,7 @@
  * Public Functions
  ****************************************************************************/
 extern void rda5981x_i2c_register(int bus);
-
+#if 0
 char *rda5981x_get_binary_version(uint32_t baddr)
 {
 	static char version[13];
@@ -212,7 +210,7 @@ static void rda5981x_configure_partitions(void)
 	}
 #endif /* CONFIG_SIDK_S5JT200_FLASH_PART */
 }
-
+#endif
 /****************************************************************************
  * Name: rda5981x_adc_setup
  *
@@ -231,7 +229,6 @@ int rda5981x_adc_setup(void)
 		adc_channel_1,
 	};
 #endif 
-
 	/* Get an instance of the ADC interface */
 	adc = rda5981x_adc_initialize();
 	if (adc == NULL) {
@@ -243,7 +240,7 @@ int rda5981x_adc_setup(void)
 	if (ret < 0) {
 		return ret;
 	}
-#endif /* CONFIG_S5J_ADC */
+#endif /* CONFIG_RDA5981_ADC */
 
 	return OK;
 }
@@ -265,7 +262,7 @@ int ee_test_main(int argc, char **args);
 int board_app_initialize(void)
 {
 	int ret;
-	
+
 #if 0	//zhang
 
 #if defined(CONFIG_RAMMTD) && defined(CONFIG_FS_SMARTFS)

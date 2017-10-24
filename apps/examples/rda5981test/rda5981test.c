@@ -164,15 +164,20 @@ unsigned short adc_read_u16(void)
 void adc_test(void)
 {
     int read_times=0;
+    int loop_count;
     printf("Start AnalogIn test...\r\n");
-
+    analogin_init();
     while (read_times < 10) {
         float fval = adc_read();
         unsigned short ival = adc_read_u16();
         /* Print the percentage and 16-bit normalized values */
         printf("percentage: %3.3f%%\r\n", fval*100.0f);
         printf("normalized: 0x%04X\r\n\r\n", ival);
-        //sleep(1);
+        loop_count = 100000000;
+        while(loop_count>0)
+	{
+            loop_count--;
+        }
         read_times++;
     }
 }

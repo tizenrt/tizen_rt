@@ -76,11 +76,11 @@
 #define GPIO_SPI0_MOSI     (GPIO_PORTC | GPIO_ALT6 | GPIO_PIN0)
 
 /*I2C*/
-#define GPIO_I2C0_SCL     (GPIO_ALT0 | GPIO_PORTB | GPIO_PIN2)
+#define GPIO_I2C0_SCL     (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN2)
 #define GPIO_I2C0_SDA    (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN3)
 
 /*ADC*/
-#define GPIO_RDA_ADC   (GPIO_ALT2 | GPIO_PORTD | GPIO_PIN3)
+#define GPIO_RDA_ADC   (GPIO_ALT0 | GPIO_PORTB | GPIO_PIN6)
 
 /************************************************************************************
  * Public Data
