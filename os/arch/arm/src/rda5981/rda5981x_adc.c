@@ -479,13 +479,14 @@ void analogin_init(void)
 }
 
 uint16_t analogin_read_u16(void) 
-{
+{printf("analogin_read_u16\n");
     uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
     return (value); // 10 bit
 }
 
 float analogin_read(void) 
 {
+  printf("analogin_read\n");
     uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
     return (float)value * (1.0f / (float)RDA_ADC_RANGE);
 }

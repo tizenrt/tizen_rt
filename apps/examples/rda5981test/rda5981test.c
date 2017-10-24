@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * examples/hello_tash/hello_tash_main.c
+ * examples/rda5981test/rda5981test.c
  *
  *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -143,13 +143,53 @@ void watchdog_test(void)
 
 }
 
+
+// For ADC test
+float adc_read(void)
+{
+    float val=0;
+    val = analogin_read();
+    return val;	
+}
+
+
+unsigned short adc_read_u16(void)
+{
+    unsigned short val=0;
+    val = analogin_read_u16();
+    return val;
+}
+
+
+void adc_test(void)
+{
+    int read_times=0;
+    printf("Start AnalogIn test...\r\n");
+
+    while (read_times < 10) {
+        float fval = adc_read();
+        unsigned short ival = adc_read_u16();
+        /* Print the percentage and 16-bit normalized values */
+        printf("percentage: %3.3f%%\r\n", fval*100.0f);
+        printf("normalized: 0x%04X\r\n\r\n", ival);
+        //sleep(1);
+        read_times++;
+    }
+}
+
+
+
+
 static void *hello_example(void *arg)
 {
 /*I2C TEST */
 	//i2c_test();
 
 /*WDG TEST*/
-	watchdog_test();
+	//watchdog_test();
+
+/*ADC TEST*/
+	adc_test();
 	
 	return NULL;
 }
