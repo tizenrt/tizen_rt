@@ -133,6 +133,11 @@ ifeq ($(CONFIG_RDA5981_RTC),y)
 CHIP_CSRCS += rda5981x_rtc.c
 endif
 
+ifeq ($(CONFIG_RDA5981_ADC),y)
+CHIP_CSRCS += rda5981x_adc.c
+endif
+
+
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS)

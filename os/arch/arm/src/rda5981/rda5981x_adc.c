@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/s5j/s5j_adc.c
+ * arch/arm/src/rda5981/rda5981x_adc.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -65,16 +65,23 @@
 #include <tinyara/analog/ioctl.h>
 
 #include "up_arch.h"
-#include "s5j_adc.h"
+#include "rda5981x_adc.h"
+#include "chip/rda5981x_pinconfig.h"
 
-#ifdef CONFIG_S5J_ADC
+//
+#ifdef CONFIG_RDA5981_ADC
+
+#define RDA_ADC_RANGE               (0x03FFU)
+
+static int adc_inited_cnt = 0;
+
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
 /* This structure describes the state of one ADC block */
-struct s5j_dev_s {
+struct rda_dev_s {
 	FAR const struct adc_callback_s *cb;
 
 	struct adc_dev_s *dev;	/* A reference to the outer (parent) */
@@ -82,9 +89,16 @@ struct s5j_dev_s {
 	uint8_t cchannels;	/* Number of configured channels */
 	uint8_t current;	/* Current ADC channel being converted */
 
-	struct work_s work;	/* Supports the IRQ handling */
-	uint8_t chanlist[S5J_ADC_MAX_CHANNELS];
+	//struct work_s work;	/* Supports the IRQ handling */
+	//uint8_t chanlist[RDA5981X_ADC_MAX_CHANNELS];
 };
+
+typedef enum {
+    ADC0_0 = 0,
+    ADC0_1,
+    ADC0_2
+} ADCName;
+
 
 /****************************************************************************
  * Private Functions
@@ -108,8 +122,9 @@ struct s5j_dev_s {
  ****************************************************************************/
 static void adc_conversion(void *arg)
 {
+#if 0
 	uint16_t sample;
-	struct s5j_dev_s *priv = (struct s5j_dev_s *)arg;
+	struct rda_dev_s *priv = (struct rda_dev_s *)arg;
 
 	/* Read the ADC sample and pass it to the upper-half */
 	sample = getreg32(S5J_ADC_DAT) & ADC_DAT_ADCDAT_MASK;
@@ -132,6 +147,7 @@ static void adc_conversion(void *arg)
 
 	/* Exit, start a new conversion */
 	modifyreg32(S5J_ADC_CON1, 0, ADC_CON1_STCEN_ENABLE);
+#endif
 }
 
 /****************************************************************************
@@ -147,8 +163,10 @@ static void adc_conversion(void *arg)
  ****************************************************************************/
 static int adc_interrupt(int irq, FAR void *context, void *arg)
 {
+#if 0
+
 	int ret;
-	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)arg;
+	FAR struct rda_dev_s *priv = (FAR struct rda_dev_s *)arg;
 
 	if (getreg32(S5J_ADC_INT_STATUS) & ADC_INT_STATUS_PENDING) {
 		/* Clear interrupt pending */
@@ -167,8 +185,8 @@ static int adc_interrupt(int irq, FAR void *context, void *arg)
 			}
 		}
 	}
-
-	return OK;
+#endif
+	return 0;
 }
 
 /****************************************************************************
@@ -185,29 +203,18 @@ static int adc_interrupt(int irq, FAR void *context, void *arg)
  *   None
  *
  ****************************************************************************/
-static void adc_startconv(FAR struct s5j_dev_s *priv, bool enable)
+static void adc_startconv(FAR struct rda_dev_s *priv, bool enable)
 {
+#if 0
+
 	if (enable) {
 		modifyreg32(S5J_ADC_CON1, 0, ADC_CON1_STCEN_ENABLE);
 	} else {
 		modifyreg32(S5J_ADC_CON1, ADC_CON1_STCEN_ENABLE, 0);
 	}
+#endif
 }
 
-/****************************************************************************
- * Name: adc_setmode
- *
- * Description
- *   ADC conversion mode selection
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-static void adc_setmode(FAR struct s5j_dev_s *priv, adc_conversion_mode_t mode)
-{
-	modifyreg32(S5J_ADC_CON2, ADC_CON2_CTIME_MASK, mode);
-}
 
 /****************************************************************************
  * Name: adc_set_ch
@@ -225,8 +232,10 @@ static void adc_setmode(FAR struct s5j_dev_s *priv, adc_conversion_mode_t mode)
  ****************************************************************************/
 static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
 {
+#if 0
+
 	int i;
-	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)dev->ad_priv;
+	FAR struct rda_dev_s *priv = (FAR struct rda_dev_s *)dev->ad_priv;
 
 	if (ch == 0) {
 		/*
@@ -251,8 +260,8 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
 
 	modifyreg32(S5J_ADC_CON2, ADC_CON2_ACHSEL_MASK,
 				priv->chanlist[priv->current]);
-
-	return OK;
+#endif
+	return 0;
 }
 
 /****************************************************************************
@@ -266,12 +275,14 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
 static int adc_bind(FAR struct adc_dev_s *dev,
 		    FAR const struct adc_callback_s *callback)
 {
-	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)dev->ad_priv;
+#if 0
+
+	FAR struct rda_dev_s *priv = (FAR struct rda_dev_s *)dev->ad_priv;
 
 	DEBUGASSERT(priv != NULL);
 	priv->cb = callback;
-
-	return OK;
+#endif
+	return 0;
 }
 
 /****************************************************************************
@@ -288,6 +299,8 @@ static int adc_bind(FAR struct adc_dev_s *dev,
  ****************************************************************************/
 static void adc_reset(FAR struct adc_dev_s *dev)
 {
+#if 0
+
 	irqstate_t flags;
 
 	flags = irqsave();
@@ -302,6 +315,7 @@ static void adc_reset(FAR struct adc_dev_s *dev)
 	adc_set_ch(dev, 0);
 
 	irqrestore(flags);
+#endif
 }
 
 /****************************************************************************
@@ -319,8 +333,10 @@ static void adc_reset(FAR struct adc_dev_s *dev)
  ****************************************************************************/
 static int adc_setup(FAR struct adc_dev_s *dev)
 {
+#if 0
+
 	int ret;
-	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)dev->ad_priv;
+	FAR struct rda_dev_s *priv = (FAR struct rda_dev_s *)dev->ad_priv;
 
 	/* Attach the ADC interrupt */
 	ret = irq_attach(IRQ_ADC, adc_interrupt, priv);
@@ -338,8 +354,8 @@ static int adc_setup(FAR struct adc_dev_s *dev)
 	 */
 	lldbg("Enable the ADC interrupt: irq=%d\n", IRQ_ADC);
 	up_enable_irq(IRQ_ADC);
-
-	return OK;
+#endif
+	return 0;
 }
 
 /****************************************************************************
@@ -356,6 +372,8 @@ static int adc_setup(FAR struct adc_dev_s *dev)
  ****************************************************************************/
 static void adc_shutdown(FAR struct adc_dev_s *dev)
 {
+#if 0
+
 	/* Disable interrupt */
 	putreg32(ADC_INT_DISABLE, S5J_ADC_INT);
 
@@ -365,6 +383,7 @@ static void adc_shutdown(FAR struct adc_dev_s *dev)
 
 	/* Reset ADC */
 	putreg32(ADC_CON1_SOFTRESET_RESET, S5J_ADC_CON1);
+#endif
 }
 
 /****************************************************************************
@@ -380,8 +399,10 @@ static void adc_shutdown(FAR struct adc_dev_s *dev)
  ****************************************************************************/
 static void adc_rxint(FAR struct adc_dev_s *dev, bool enable)
 {
+#if 0
 	/* Enable or Disable ADC interrupt */
 	putreg32(enable ? ADC_INT_ENABLE : ADC_INT_DISABLE, S5J_ADC_INT);
+#endif
 }
 
 /****************************************************************************
@@ -400,7 +421,9 @@ static void adc_rxint(FAR struct adc_dev_s *dev, bool enable)
  ****************************************************************************/
 static int adc_ioctl(FAR struct adc_dev_s *dev, int cmd, unsigned long arg)
 {
-	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)dev->ad_priv;
+#if 0
+
+	FAR struct rda_dev_s *priv = (FAR struct rda_dev_s *)dev->ad_priv;
 	int ret = OK;
 
 	switch (cmd) {
@@ -412,8 +435,8 @@ static int adc_ioctl(FAR struct adc_dev_s *dev, int cmd, unsigned long arg)
 		ret = -ENOTTY;
 		break;
 	}
-
-	return ret;
+#endif
+	return 0;
 }
 
 /****************************************************************************
@@ -428,7 +451,7 @@ static const struct adc_ops_s g_adcops = {
 	.ao_ioctl	= adc_ioctl,
 };
 
-static struct s5j_dev_s g_adcpriv = {
+static struct rda_dev_s g_adcpriv = {
 	.cb		= NULL,
 	.current	= 0,
 };
@@ -438,9 +461,60 @@ static struct adc_dev_s g_adcdev;
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+void analogin_init(void) 
+{
+   //use Port B pin6
+    unsigned char gp = 6U;  //PortB 6pin
+
+    /* Init ADC */
+    if(0 == adc_inited_cnt) {
+        rda_ccfg_adc_init();
+    }
+    adc_inited_cnt++;
+
+    rda_ccfg_gp(gp, 0x00U);
+    rda_ccfg_adc_gp(gp, 0x00U);
+
+    rda_configgpio(GPIO_RDA_ADC);
+}
+
+uint16_t analogin_read_u16(void) 
+{
+    uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
+    return (value); // 10 bit
+}
+
+float analogin_read(void) 
+{
+    uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
+    return (float)value * (1.0f / (float)RDA_ADC_RANGE);
+}
+
+void analogin_free(void) 
+{
+    unsigned char gp = 6U;
+    adc_inited_cnt--;
+    if(0 == adc_inited_cnt) {
+        rda_ccfg_adc_free();
+    }
+#if 0	// because we only use ADC0_0
+    if(ADC0_2 == obj->adc) {
+        return;
+    }
+    if(ADC0_1 == obj->adc) {
+        if(0U == adc1_gp) {
+            return;
+        }
+        gp = adc1_gp;
+    }
+#endif	
+    rda_ccfg_adc_gp(gp, 0x01U);
+    rda_ccfg_gp(gp, 0x01U);
+}
+
 
 /****************************************************************************
- * Name: s5j_adc_initialize
+ * Name: rda5981x_adc_initialize
  *
  * Description:
  *   Initialize the ADC. As the pins of each ADC channel are exported through
@@ -448,17 +522,14 @@ static struct adc_dev_s g_adcdev;
  *   ADC channels should be passed to s5j_adc_initialize().
  *
  * Input Parameters:
- *   chanlist  - The list of channels
- *   cchannels - Number of channels
  *
  * Returned Value:
  *   Valid ADC device structure reference on succcess; a NULL on failure
  *
  ****************************************************************************/
-struct adc_dev_s *s5j_adc_initialize(FAR const uint8_t *chanlist,
-				     int cchannels)
+struct adc_dev_s *rda5981x_adc_initialize(void)
 {
-	FAR struct s5j_dev_s *priv = &g_adcpriv;
+	FAR struct rda_dev_s *priv = &g_adcpriv;
 
 	/* Initialize the public ADC device data structure */
 	g_adcdev.ad_ops  = &g_adcops;
@@ -467,16 +538,19 @@ struct adc_dev_s *s5j_adc_initialize(FAR const uint8_t *chanlist,
 	/* Initialize the private ADC device data structure */
 	priv->cb         = NULL;
 	priv->dev        = &g_adcdev;
-	priv->cchannels  = cchannels;
-
-	if (cchannels > S5J_ADC_MAX_CHANNELS) {
-		lldbg("S5J has maximum %d ADC channels.\n",
-						S5J_ADC_MAX_CHANNELS);
+	//priv->cchannels  = cchannels;
+#if 0
+	if (cchannels > RDA5981X_ADC_MAX_CHANNELS) {
+		lldbg("RDA5981 has maximum %d ADC channels.\n",
+						RDA5981X_ADC_MAX_CHANNELS);
 		return NULL;
 	}
 
 	memcpy(priv->chanlist, chanlist, cchannels);
+#endif
+
+	analogin_init(); 
 
 	return &g_adcdev;
 }
-#endif /* CONFIG_S5J_ADC */
+#endif /* CONFIG_RDA5981_ADC */

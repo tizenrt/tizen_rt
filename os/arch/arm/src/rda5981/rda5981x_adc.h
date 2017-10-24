@@ -118,8 +118,7 @@ typedef enum {
  *   Valid can device structure reference on success; a NULL on failure
  *
  ****************************************************************************/
-struct adc_dev_s *rda5981x_adc_initialize(FAR const uint8_t *chanlist,
-				     int cchannels);
+struct adc_dev_s *rda5981x_adc_initialize(void);
 
 #undef EXTERN
 #if defined(__cplusplus)

@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/sidk_s5jt200/src/s5jt200_boot.c
+ * arch/arm/src/rda5981_board/src/rda5981_boot.c
  *
  *   Copyright (C) 2009, 2011, 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -198,7 +198,7 @@ void s5j_board_initialize(void)
 void board_initialize(void)
 {
 	/* Perform app-specific initialization here instead of from the TASH. */
-	//board_app_initialize();
+	board_app_initialize();
 
 #ifdef CONFIG_SCSC_WLAN
 	//slldbg("Initialize SCSC driver\n");

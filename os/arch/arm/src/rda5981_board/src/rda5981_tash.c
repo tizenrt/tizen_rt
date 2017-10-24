@@ -119,7 +119,7 @@ static void scsc_wpa_ctrl_iface_init(void)
 #endif
 }
 
-static void sidk_rda5981xt200_configure_partitions(void)
+static void rda5981x_configure_partitions(void)
 {
 #if defined(CONFIG_SIDK_S5JT200_FLASH_PART)
 	int partno;
@@ -214,24 +214,26 @@ static void sidk_rda5981xt200_configure_partitions(void)
 }
 
 /****************************************************************************
- * Name: sidk_rda5981xt200_adc_setup
+ * Name: rda5981x_adc_setup
  *
  * Description:
  *   Initialize ADC and register the ADC driver.
  *
  ****************************************************************************/
-int sidk_rda5981xt200_adc_setup(void)
+int rda5981x_adc_setup(void)
 {
-#ifdef CONFIG_S5J_ADC
+#ifdef CONFIG_RDA5981_ADC
 	int ret;
 	struct adc_dev_s *adc;
+#if 0	
 	uint8_t chanlist[] = {
 		adc_channel_0,
 		adc_channel_1,
 	};
+#endif 
 
 	/* Get an instance of the ADC interface */
-	adc = rda5981x_adc_initialize(chanlist, sizeof(chanlist));
+	adc = rda5981x_adc_initialize();
 	if (adc == NULL) {
 		return -ENODEV;
 	}
@@ -263,13 +265,16 @@ int ee_test_main(int argc, char **args);
 int board_app_initialize(void)
 {
 	int ret;
+	
+#if 0	//zhang
+
 #if defined(CONFIG_RAMMTD) && defined(CONFIG_FS_SMARTFS)
 	int bufsize = CONFIG_RAMMTD_ERASESIZE * CONFIG_SIDK_S5JT200_RAMMTD_NEBLOCKS;
 	static uint8_t *rambuf;
 	struct mtd_dev_s *mtd;
 #endif /* CONFIG_RAMMTD */
 
-	sidk_rda5981xt200_configure_partitions();
+	rda5981x_configure_partitions();
 
 #if defined(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS)
 	ret = mount(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS_DEVNAME,
@@ -347,11 +352,15 @@ int board_app_initialize(void)
 	}
 #endif /* CONFIG_RAMMTD */
 
-#ifdef CONFIG_S5J_I2C
+#endif// zhang
+
+
+#ifdef CONFIG_RDA5981_I2C
 	rda5981x_i2c_register(0);
 	rda5981x_i2c_register(1);
 #endif
 
+#if 0 //zhang
 #if defined(CONFIG_RTC)
 	{
 		struct tm tp;
@@ -379,8 +388,11 @@ int board_app_initialize(void)
 #endif /* CONFIG_RTC_DRIVER */
 #endif /* CONFIG_RTC */
 
-	sidk_rda5981xt200_adc_setup();
+#endif //zhang
 
+	rda5981x_adc_setup();
+
+#if 0 //zhangqiang
 	scsc_wpa_ctrl_iface_init();
 
 #ifdef CONFIG_TIMER
@@ -399,6 +411,8 @@ int board_app_initialize(void)
 	ee_test_main(0, NULL);
 #endif
 
+
+#endif//  zhangqiang
 	/* to suppress a compiler warning */
 	UNUSED(ret);
 

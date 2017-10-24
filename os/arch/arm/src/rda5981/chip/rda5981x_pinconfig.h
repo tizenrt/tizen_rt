@@ -41,6 +41,7 @@
  ************************************************************************************/
 
 #include <tinyara/config.h>
+#include "../rda5981x_gpio.h"
 
 /************************************************************************************
  * Pre-processor Definitions
@@ -77,6 +78,9 @@
 /*I2C*/
 #define GPIO_I2C0_SCL     (GPIO_ALT0 | GPIO_PORTB | GPIO_PIN2)
 #define GPIO_I2C0_SDA    (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN3)
+
+/*ADC*/
+#define GPIO_RDA_ADC   (GPIO_ALT2 | GPIO_PORTD | GPIO_PIN3)
 
 /************************************************************************************
  * Public Data
