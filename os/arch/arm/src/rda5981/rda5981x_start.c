@@ -190,22 +190,6 @@ static inline void rda_fpuconfig(void)
  *
  ****************************************************************************/
 /*add dummy function just for build no errro, place at right place then*/
-void up_rtc_initialize(void)
-{
-
-}
-
-int up_rtc_getdatetime(FAR struct tm *tp)
-{
-    return 0;
-}
-
-int up_rtc_settime(FAR const struct timespec *tp)
-{
-    return 0;
-
-}
-
 
 void __start(void)
 {

@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/rda5981_board/src/rda5981_tash.c
+ * arch/arm/src/sidk_rda5981xt200/src/rda5981xt200_tash.c
  *
  *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -73,7 +73,6 @@
 
 #include <tinyara/fs/mtd.h>
 
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -82,7 +81,7 @@
  * Public Functions
  ****************************************************************************/
 extern void rda5981x_i2c_register(int bus);
-#if 0
+
 char *rda5981x_get_binary_version(uint32_t baddr)
 {
 	static char version[13];
@@ -210,7 +209,7 @@ static void rda5981x_configure_partitions(void)
 	}
 #endif /* CONFIG_SIDK_S5JT200_FLASH_PART */
 }
-#endif
+
 /****************************************************************************
  * Name: rda5981x_adc_setup
  *
@@ -229,6 +228,7 @@ int rda5981x_adc_setup(void)
 		adc_channel_1,
 	};
 #endif 
+
 	/* Get an instance of the ADC interface */
 	adc = rda5981x_adc_initialize();
 	if (adc == NULL) {
@@ -240,7 +240,7 @@ int rda5981x_adc_setup(void)
 	if (ret < 0) {
 		return ret;
 	}
-#endif /* CONFIG_RDA5981_ADC */
+#endif /* CONFIG_S5J_ADC */
 
 	return OK;
 }
@@ -262,7 +262,7 @@ int ee_test_main(int argc, char **args);
 int board_app_initialize(void)
 {
 	int ret;
-
+	
 #if 0	//zhang
 
 #if defined(CONFIG_RAMMTD) && defined(CONFIG_FS_SMARTFS)
@@ -357,7 +357,7 @@ int board_app_initialize(void)
 	rda5981x_i2c_register(1);
 #endif
 
-#if 0 //zhang
+
 #if defined(CONFIG_RTC)
 	{
 		struct tm tp;
@@ -372,7 +372,12 @@ int board_app_initialize(void)
 #if defined(CONFIG_RTC_DRIVER)
 	{
 		struct rtc_lowerhalf_s *rtclower;
+		int i;
+                for(i=0;i<100;i++)
+                {
+               up_lowputc('Z');
 
+                    }
 		rtclower = rda5981x_rtc_lowerhalf();
 		if (rtclower) {
 			ret = rtc_initialize(0, rtclower);
@@ -385,7 +390,6 @@ int board_app_initialize(void)
 #endif /* CONFIG_RTC_DRIVER */
 #endif /* CONFIG_RTC */
 
-#endif //zhang
 
 	rda5981x_adc_setup();
 

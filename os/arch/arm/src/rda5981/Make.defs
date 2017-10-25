@@ -130,16 +130,17 @@ CHIP_CSRCS += rda5981x_watchdog.c
 endif
 
 ifeq ($(CONFIG_RDA5981_RTC),y)
-CHIP_CSRCS += rda5981x_rtc.c
+CHIP_CSRCS += rda5981x_rtc.c rda5981x_rtc_lowerhalf.c rda5981x_ticker.c rda5981x_us_ticker.c rda5981x_lp_ticker.c
 endif
 
 ifeq ($(CONFIG_RDA5981_ADC),y)
 CHIP_CSRCS += rda5981x_adc.c
 endif
 
-ifeq ($(CONFIG_RDA5981_PWM),y)
-CHIP_CSRCS += rda5981x_pwm.c
-endif
+ifeq ($(CONFIG_RDA5981_PWM),y) 
+CHIP_CSRCS += rda5981x_pwm.c 
+endif 
+
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
 

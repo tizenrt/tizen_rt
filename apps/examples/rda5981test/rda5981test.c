@@ -266,7 +266,7 @@ enum spi_mode_e {
 
 void spi_test(void)
 {
-    //int rdata, wdata = 0x00;
+    int rdata, wdata = 0x00;
 
     printf("Start SPI test...\r\n");
 
@@ -278,10 +278,9 @@ void spi_test(void)
     //spi_setbits(NULL,8);
     //spi_setmode(NULL,3);
     spi_format(8,3,0);
-    spi_setfrequency(NULL,1000000); 
+    spi_setfrequency(NULL,10000000);// 1MHZ, 10MHZ 
 
 
-#if 0	
     while(true) {
         /* Send 1 byte */
         //spi.write(wdata);
@@ -291,11 +290,36 @@ void spi_test(void)
         printf("Send data: 0x%X\r\n", wdata);
 
         /* Send 1 dummy byte to receive data from slave SPI */
-        rdata = spi_send(0xFF);
+        rdata = spi_send(NULL,0x00);
         printf("Recv data: 0x%X\r\n", rdata);
     }
-#endif
 }
+
+
+// RTC test
+#define CUSTOM_TIME  1256729737
+
+void rtc_test(void) {
+    char buffer[32] = {0};
+	up_rtc_initialize();
+	
+    rtc_write(CUSTOM_TIME);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
+
+    while (true) {
+        time_t seconds;
+
+        /* Delay 1s using systick timer */
+        usleep(1000*1000);
+
+        /* Get RTC timer */
+        seconds = time(NULL);
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S %p", localtime(&seconds));
+        printf("[%ld] %s\r\n", seconds, buffer);
+    }
+}
+
+
+
 
 
 static void *hello_example(void *arg)
@@ -307,15 +331,19 @@ static void *hello_example(void *arg)
 	//watchdog_test();
 
 /*ADC TEST*/
-	adc_test();
+	//adc_test();
 
 /*PWM TEST*/
-	pwm_test();
+	//pwm_test();
 	
 /*I2S TEST*/
 	//i2s_master_in();	
 	//i2s_master_io();
-	
+/*SPI TEST*/
+	//spi_test();	
+/*RTC TEST*/
+	rtc_test();
+
 	return NULL;
 }
 

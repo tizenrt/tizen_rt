@@ -74,6 +74,24 @@
 #error "RDA5981X does not support other than CONFIG_RTC_DATETIME."
 #endif
 
+extern uint32_t SystemCoreClock;
+
+#define RDA5991H_HW_VER 4
+
+#if RDA5991H_HW_VER <= 4
+uint32_t lpo_ticks_cal = 0U;
+uint32_t lpo_tmr_flag  = 0U;
+int32_t  lpo_delta_us  = 0;
+#endif
+
+
+static time_t sw_timebase = 0U;
+static time_t sw_timeofst = 0U;
+static uint32_t round_ticks = 0U;
+static uint32_t remain_ticks = 0U;
+static int is_rtc_enabled = 0;
+
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -81,6 +99,9 @@
 /* Callback to use when the alarm expires */
 static alarmcb_t g_alarmcb;
 #endif
+
+
+static uint8_t is_timer_irq_set = 0;
 
 /****************************************************************************
  * Public Data
@@ -91,6 +112,8 @@ volatile bool g_rtc_enabled = false;
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+
+#if 0 //zhang
 struct rtc_regvals_s {
 	uint8_t bcdsec;
 	uint8_t bcdmin;
@@ -147,15 +170,6 @@ static void rtc_breakout(FAR const struct tm *tm,
 	regvals->bcdyear    = rtc_bin2bcd(tm->tm_year);
 }
 
-static void rtc_wprunlock(void)
-{
-	modifyreg32(RDA5981X_RTC_RTCCON, 0, RTC_RTCCON_CTLEN_ENABLE);
-}
-
-static void rtc_wprlock(void)
-{
-	modifyreg32(RDA5981X_RTC_RTCCON, RTC_RTCCON_CTLEN_ENABLE, 0);
-}
 
 #if defined(CONFIG_RTC_ALARM)
 static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
@@ -176,7 +190,7 @@ static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
 	return OK;
 }
 #endif
-
+#endif //zhang
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -204,6 +218,7 @@ static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
  ****************************************************************************/
 int up_rtc_getdatetime(FAR struct tm *tp)
 {
+#if 0
 	irqstate_t flags;
 	struct rtc_regvals_s regvals;
 
@@ -233,7 +248,7 @@ int up_rtc_getdatetime(FAR struct tm *tp)
 #endif
 	tp->tm_mon  = rtc_bcd2bin(regvals.bcdmon) - 1;
 	tp->tm_year = rtc_bcd2bin(regvals.bcdyear);
-
+#endif
 	return OK;
 }
 
@@ -255,26 +270,13 @@ int up_rtc_getdatetime(FAR struct tm *tp)
 int up_rtc_setdatetime(FAR struct tm *tm)
 {
 	irqstate_t flags;
-	struct rtc_regvals_s regvals;
+	//struct rtc_regvals_s regvals;
 
-	rtc_breakout(tm, &regvals);
+	//rtc_breakout(tm, &regvals);
 
 	flags = irqsave();
 
-	rtc_wprunlock();
-
-	/* update BCD counters */
-	putreg32(regvals.bcdsec, RDA5981X_RTC_BCDSEC);
-	putreg32(regvals.bcdmin, RDA5981X_RTC_BCDMIN);
-	putreg32(regvals.bcdhour, RDA5981X_RTC_BCDHOUR);
-	putreg32(regvals.bcdday, RDA5981X_RTC_BCDDAY);
-#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
-	putreg32(regvals.bcddayweek, RDA5981X_RTC_BCDDAYWEEK);
-#endif
-	putreg32(regvals.bcdmon, RDA5981X_RTC_BCDMON);
-	putreg32(regvals.bcdyear, RDA5981X_RTC_BCDYEAR);
-
-	rtc_wprlock();
+	//write
 
 	irqrestore(flags);
 
@@ -305,91 +307,103 @@ int up_rtc_settime(FAR const struct timespec *tp)
 	return up_rtc_setdatetime(&t);
 }
 
-#ifdef CONFIG_RTC_ALARM
-/****************************************************************************
- * Name: rda5981x_rtc_setalarm
- *
- * Description:
- *   Set up an alarm
- *
- * Input Parameters:
- *   tp       - the time to set the alarm
- *   callback - the function to call when the alarm expires
- *
- * Returned Value:
- *   Zero (OK) on success; a negated errno on failure
- *
- ****************************************************************************/
-int rda5981x_rtc_setalarm(FAR const struct timespec *tp, alarmcb_t callback)
+
+
+//RDA CODE
+
+void rtc_base_update(void)
 {
-	struct tm t;
-	struct rtc_regvals_s regvals;
-	irqstate_t flags;
-
-	/* convert timepsec to tm */
-	gmtime_r(&tp->tv_sec, &t);
-
-	rtc_breakout(&t, &regvals);
-
-	flags = irqsave();
-
-	if (g_alarmcb != NULL) {
-		irqrestore(flags);
-		return -EBUSY;
-	}
-
-	/* Set the alarm */
-	putreg32(regvals.bcdsec,  RDA5981X_RTC_ALMSEC);
-	putreg32(regvals.bcdmin,  RDA5981X_RTC_ALMMIN);
-	putreg32(regvals.bcdhour, RDA5981X_RTC_ALMHOUR);
-	putreg32(regvals.bcdday,  RDA5981X_RTC_ALMDAY);
-	putreg32(regvals.bcdmon,  RDA5981X_RTC_ALMMON);
-	putreg32(regvals.bcdyear, RDA5981X_RTC_ALMYEAR);
-
-	/* Enable RTC alarm */
-	putreg32(RTC_RTCALM_ALMEN_ENABLE | RTC_RTCALM_YEAREN_ENABLE |
-		 RTC_RTCALM_MONEN_ENABLE | RTC_RTCALM_DAYEN_ENABLE |
-		 RTC_RTCALM_HOUREN_ENABLE | RTC_RTCALM_MINEN_ENABLE |
-		 RTC_RTCALM_SECEN_ENABLE,
-		 RDA5981X_RTC_RTCALM);
-
-	/* save the callback function pointer */
-	g_alarmcb = callback;
-	irq_attach(IRQ_TOP_RTC_ALARM, rtc_alarm_handler, NULL);
-	up_enable_irq(IRQ_TOP_RTC_ALARM);
-
-	irqrestore(flags);
-
-	return OK;
+    if(is_rtc_enabled) {
+        uint32_t sw_rpl = 0U;
+        remain_ticks += round_ticks & 0x00007FFFUL;
+        sw_rpl = remain_ticks >> 15;
+        remain_ticks &= 0x00007FFFUL;
+        sw_timebase += (time_t)((round_ticks >> 15) + sw_rpl);
+    }
 }
 
-/****************************************************************************
- * Name: rda5981x_rtc_cancelalarm
- *
- * Description:
- *   Cancel a pending alarm
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   Zero (OK) on success; a negated errno on failure
- *
- ****************************************************************************/
-int rda5981x_rtc_cancelalarm(void)
+// interput handle
+int rda_timer_isr(int irq, FAR void *context, FAR void *arg)
 {
-	if (g_alarmcb == NULL)
-		return -ENODATA;
+	int i;
+	 for(i=0;i<100;i++)
+	 {
+	up_lowputc('L');
+	
+		 }
+	uint32_t regval;
 
-	/* Disable alarm */
-	modifyreg32(RDA5981X_RTC_RTCALM, RTC_RTCALM_ALMEN_MASK,
-						RTC_RTCALM_ALMEN_DISABLE);
+    uint32_t int_status = getreg32(RDA_TIMER_INTSTATE);
+	int_status &= 0x000FUL;
+	
+    if(int_status & (0x01UL << 2)) {
+        us_ticker_irq_handler();
+    }
 
-	g_alarmcb = NULL;
+    if (int_status & (0x01UL << 3)) {
+#if DEVICE_LOWPOWERTIMER
+        lp_ticker_irq_handler();
+#endif /* DEVICE_LOWPOWERTIMER */
+    }
+    if(int_status & (0x01UL << 1)) {
+		regval = getreg32(RDA_POWER_CONTROL);
+		regval |= ((0x01UL << 28) | (0x01UL << 27)); // clear int & ts
+		putreg32(regval,RDA_POWER_CONTROL);
+        //rPOWER_CONTROL |= ((0x01UL << 28) | (0x01UL << 27)); // clear int & ts
+        //__DSB();
+        while(regval & (0x01UL << 28));
 
-	return OK;
+        rtc_base_update();
+    }
+	return 0;
 }
-#endif /* CONFIG_RTC_ALARM */
+
+void rda_timer_irq_set(void)
+{
+    int i;
+	 for(i=0;i<100;i++)
+	 {
+	   up_lowputc('T');
+	
+		 }
+    
+    if(0 == is_timer_irq_set) {
+        is_timer_irq_set = 1;
+			/* Attach the timer interrupt vector */
+		irq_attach(RDA_IRQ_TIMER, rda_timer_isr, NULL);	
+		//irqenable();
+    }
+}
+
+
+time_t rtc_read(void) {
+    /* Get hw timestamp in seconds, ">>15" equals "/RTC_TIMER_CLOCK_SOURCE" (="/32768") */
+    time_t hw_ts = (time_t)((getreg32(RTC_TIMER_TIMESTAMP) + remain_ticks) >> 15);
+    /* Calculate current timestamp */
+    time_t t = sw_timebase + hw_ts - sw_timeofst;
+    return t;
+}
+
+void rtc_write(time_t t) {
+    /* Get hw timestamp in seconds */
+    uint32_t rtc_cur_ticks = getreg32(RTC_TIMER_TIMESTAMP);
+    uint32_t rtc_rpl_ticks = (rtc_cur_ticks + remain_ticks) & 0x00007FFFUL;
+    uint32_t sw_rpl = 0U;
+    time_t hw_ts = (time_t)((rtc_cur_ticks + remain_ticks) >> 15);
+    /* Set remaining ticks */
+    remain_ticks += rtc_rpl_ticks;
+    sw_rpl = remain_ticks >> 15;
+    remain_ticks &= 0x00007FFFUL;
+    /* Set sw timestamp in seconds */
+    if(t < hw_ts) {
+        sw_timebase = sw_rpl;
+        sw_timeofst = hw_ts - t;
+    } else {
+        sw_timebase = sw_rpl + t - hw_ts;
+        sw_timeofst = 0U;
+    }
+}
+
 
 /****************************************************************************
  * Name: up_rtc_initialize
@@ -407,40 +421,25 @@ int rda5981x_rtc_cancelalarm(void)
  ****************************************************************************/
 int up_rtc_initialize(void)
 {
-	/* Disable RTC Alarm */
-	putreg32(0, RDA5981X_RTC_RTCALM);
-
-	/* Clear interrupt pending (if any) */
-	putreg32(RTC_INTP_ALARM | RTC_INTP_TIMETIC0, RDA5981X_RTC_INTP);
-
-	rtc_wprunlock();
-
-	/* Reset to all initial state */
-	modifyreg32(RDA5981X_RTC_RTCCON,
-			RTC_RTCCON_TICCKSEL0_MASK | RTC_RTCCON_CLKRST_MASK |
-			RTC_RTCCON_CNTSEL_MASK | RTC_RTCCON_CLKSEL_MASK,
-			RTC_RTCCON_TICCKSEL0_32768HZ |
-			RTC_RTCCON_CLKRST_ENABLE |
-			RTC_RTCCON_CNTSEL_MERGE_BCDCNT |
-			RTC_RTCCON_CLKSEL_DIV32768);
-
-	/* Fix invalid reset value of BCDDAY and BCDMON which is based 1. */
-	if (getreg32(RDA5981X_RTC_BCDDAY) == 0) {
-		putreg32(1, RDA5981X_RTC_BCDDAY);
-	}
-
-	if (getreg32(RDA5981X_RTC_BCDMON) == 0) {
-		putreg32(1, RDA5981X_RTC_BCDMON);
-	}
-
-	/* OS supports to convert epoch only after 1970. Set year to 2010. */
-	if (getreg32(RDA5981X_RTC_BCDYEAR) == 0) {
-		putreg32(0x110, RDA5981X_RTC_BCDYEAR);
-	}
-
-	rtc_wprlock();
-
-	g_rtc_enabled = true;
+   int i;
+   for(i=0;i<100;i++)
+   {
+  up_lowputc('O');
+  
+	   }
+    uint32_t start_time;
+    /* Make sure us_ticker is running */
+    start_time = us_ticker_read();
+    /* To fix compiling warning */
+    start_time = start_time;
+    /* Record the ticks */
+    round_ticks = RTC_TIMER_INITVAL_REG;
+    is_rtc_enabled = 1;
+	 for(i=0;i<100;i++)
+	 {
+	up_lowputc('P');
+	
+		 }
 
 	return OK;
 }
