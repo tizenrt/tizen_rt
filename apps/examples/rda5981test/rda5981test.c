@@ -73,6 +73,7 @@
 #include <tinyara/config.h>
 #define RDA_WDT_BASE  ((0x40000000UL)+ 0x0000C)
 #include "../arch/arm/src/rda5981/rda5981x_watchdog.h"
+#include "../arch/arm/src/rda5981/rda5981x_pwm.h"
 
 static struct i2c_dev_s *i2c_dev;
 static struct i2c_config_s configs;
@@ -131,6 +132,62 @@ void watchdog_test(void)
 
 }
 
+/*For I2S test*/
+#if 0
+#define BUFFER_SIZE 240
+uint32_t rdata[BUFFER_SIZE] = {0};
+i2s_t obj;
+static void *i2s_receive(void *arg)
+{
+   while (true) {
+        rda_i2s_int_recv(&obj, &rdata[0], BUFFER_SIZE);
+        if (I2S_ST_BUSY == obj.sw_rx.state) {
+            rda_i2s_sem_wait(i2s_rx_sem, osWaitForever);
+        }
+        printf("I2S a frame received,rdata[0]=%08X\n", rdata[0]);
+    }
+}
+
+void i2s_master_in(void)
+{
+    printf("i2s_master_in test begin\n");
+    pthread_t i2s_recv;
+    pthread_attr_t attr;
+
+    i2s_cfg_t cfg;
+    cfg.mode              = I2S_MD_MASTER_RX;
+    cfg.rx.fs             = I2S_64FS;
+    cfg.rx.ws_polarity    = I2S_WS_NEG;
+    cfg.rx.std_mode       = I2S_STD_M;
+    cfg.rx.justified_mode = I2S_RIGHT_JM;
+    cfg.rx.data_len       = I2S_DL_16b;
+    cfg.rx.msb_lsb        = I2S_MSB;
+
+    cfg.tx.fs             = I2S_64FS;
+    cfg.tx.ws_polarity    = I2S_WS_NEG;
+    cfg.tx.std_mode       = I2S_STD_M;
+    cfg.tx.justified_mode = I2S_RIGHT_JM;
+    cfg.tx.data_len       = I2S_DL_16b;
+    cfg.tx.msb_lsb        = I2S_MSB;
+    cfg.tx.wrfifo_cntleft = I2S_WF_CNTLFT_8W;
+
+    rda_i2s_init(&obj, I2S_TX_BCLK, I2S_TX_WS, I2S_TX_SD, NC, NC, I2S_RX_SD, NC);
+    rda_i2s_set_ws(&obj, 16000, 256);
+    rda_i2s_set_tx_channel(&obj, 2);
+    rda_i2s_set_rx_channel(&obj, 2);
+    rda_i2s_format(&obj, &cfg);
+
+    rda_i2s_enable_master_rx();
+    rda_i2s_enable_rx(&obj);
+    rda_i2s_enable_tx(&obj);
+    rda_i2s_out_mute(&obj);
+
+/*create recv thread*/
+    pthread_create(&i2s_recv, &attr, i2s_receive, (void *)NULL);
+    pthread_join(i2s_recv);
+	
+}
+#endif
 
 // For ADC test
 float adc_read(void)
@@ -171,7 +228,41 @@ void adc_test(void)
 }
 
 
+/*For PWM test*/
+struct pwmout_s pwm0;
+struct pwmout_s pwm1;
+struct pwmout_s pwm2;
+struct pwmout_s pwm3;
+struct pwmout_s pwm4;
 
+void pwm_test(void) {
+
+    pwmout_init(&pwm0, 0);
+    pwmout_period_ms(&pwm0, 4.0f); 
+    pwmout_write(&pwm0,0.25f);   
+
+
+    pwmout_init(&pwm1, 1);
+    pwmout_period_ms(&pwm1, 4.0f); 
+    pwmout_write(&pwm1,0.50f);   
+  
+  
+    pwmout_init(&pwm2, 2);
+    pwmout_period_ms(&pwm2, 4.0f); 
+    pwmout_write(&pwm2,0.75f);   
+ 
+    pwmout_init(&pwm3, 3);
+    pwmout_period_ms(&pwm3, 8.0f); 
+    pwmout_write(&pwm3,0.25f);   
+ 
+    pwmout_init(&pwm4, 4);
+    pwmout_period_ms(&pwm4, 8.0f); 
+    pwmout_write(&pwm4,0.50f);   
+  
+    while(true) {
+        printf("duty=%f\r\n", pwmout_read(&pwm0));
+    }
+}
 
 static void *hello_example(void *arg)
 {
@@ -183,6 +274,13 @@ static void *hello_example(void *arg)
 
 /*ADC TEST*/
 	adc_test();
+
+/*PWM TEST*/
+	pwm_test();
+	
+/*I2S TEST*/
+	//i2s_master_in();	
+	//i2s_master_io();
 	
 	return NULL;
 }

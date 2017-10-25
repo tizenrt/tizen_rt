@@ -82,6 +82,13 @@
 /*ADC*/
 #define GPIO_RDA_ADC   (GPIO_ALT0 | GPIO_PORTB | GPIO_PIN6)
 
+/*PWM*/
+#define GPIO_PWM_TOUT0  (GPIO_ALT4 | GPIO_PORTB | GPIO_PIN8)
+#define GPIO_PWM_TOUT1  (GPIO_ALT5 | GPIO_PORTC | GPIO_PIN13)
+#define GPIO_PWM_TOUT2  (GPIO_ALT4 | GPIO_PORTB | GPIO_PIN0)
+#define GPIO_PWM_TOUT3  (GPIO_ALT4 | GPIO_PORTA | GPIO_PIN27) 
+#define GPIO_PWM_TOUT4  (GPIO_ALT4 | GPIO_PORTB | GPIO_PIN3)
+
 /************************************************************************************
  * Public Data
  ************************************************************************************/
