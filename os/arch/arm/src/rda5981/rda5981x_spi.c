@@ -120,10 +120,10 @@ struct spi_s spi_str;
 /* SPI Driver Methods */
 static int spi_lock(FAR struct spi_dev_s *dev, bool lock);
 static void spi_select(FAR struct spi_dev_s *dev, enum spi_dev_e devid, bool selected);
-static uint32_t spi_setfrequency(FAR struct spi_dev_s *dev, uint32_t frequency);
-static void spi_setmode(FAR struct spi_dev_s *dev, enum spi_mode_e mode);
-static void spi_setbits(FAR struct spi_dev_s *dev, int nbits);
-static uint16_t spi_send(FAR struct spi_dev_s *dev, uint16_t wd);
+uint32_t spi_setfrequency(FAR struct spi_dev_s *dev, uint32_t frequency);
+void spi_setmode(FAR struct spi_dev_s *dev, enum spi_mode_e mode);
+void spi_setbits(FAR struct spi_dev_s *dev, int nbits);
+uint16_t spi_send(FAR struct spi_dev_s *dev, uint16_t wd);
 static void spi_exchange(FAR struct spi_dev_s *dev, const void *txbuffer, void *rxbuffer, size_t nwords);
 
 #ifndef CONFIG_SPI_EXCHANGE
@@ -208,22 +208,28 @@ static int spi_lock(struct spi_dev_s *dev, bool lock)
  *   Set the SPI frequency.
  *
  ****************************************************************************/
-static uint32_t spi_setfrequency(struct spi_dev_s *dev, uint32_t frequency)
+uint32_t spi_setfrequency(struct spi_dev_s *dev, uint32_t frequency)
 {
     uint32_t clk_rate = ((RDA_BUS_CLK_FREQUENCY_80M / frequency) >> 2) - 1U;
     uint32_t reg_val;
 
     /* Check for valid frequency */
-    if(clk_rate <= 0x3FUL)
-    {
-	return -1;
-    }
+    //if(clk_rate <= 0x3FUL)
+    //{
+	    //return -1;
+    //}
 
     /* Set clk rate field */
-    reg_val = getreg32(RDA_SPI0_BASE+0x0);
-    reg_val = reg_val & ~(0x3FUL << 4);
-    reg_val |= ((clk_rate & 0x3FUL) << 4);
-    putreg32(RDA_SPI0_BASE+0x0, reg_val);
+    //reg_val = spi_str.spi->CFG & ~(0x3FUL << 4);
+    //spi_str.spi->CFG = reg_val | ((clk_rate & 0x3FUL) << 4);
+
+	printf("spi_setfrequency: clk_rate is %d\n",clk_rate);
+
+	reg_val = getreg32(RDA_SPI0_BASE+0x0);
+    reg_val  &= ~(0x03FUL << 4);
+	reg_val |= ((clk_rate & 0x3FUL) << 4);
+	putreg32(reg_val, (RDA_SPI0_BASE+0x0));
+
 
     return 0;
 }
@@ -265,20 +271,30 @@ static void spi_select(struct spi_dev_s *dev, enum spi_dev_e devid, bool selecte
  *   Set the SPI mode.  see enum spi_mode_e for mode definitions
  *
  ****************************************************************************/
-static void spi_setmode(struct spi_dev_s *dev, enum spi_mode_e mode)
+void spi_setmode(struct spi_dev_s *dev, enum spi_mode_e mode)
 {
-	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
+	printf("spi_setmode!\n");
+
+	//FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
 	uint32_t polarity = (mode & 0x2) ? (0x01UL) : (0x00UL);
 
-	spi_str.spi = (SPI_SFR *)priv->base;
 	unsigned int mod_cfg;
-	mod_cfg = spi_str.spi->CFG;
+	//mod_cfg = spi_str.spi->CFG;
 
 	/* Set number of frame bits and clock phase */
-	mod_cfg = mod_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
-	mod_cfg = mod_cfg | (polarity << 1);
+	//mod_cfg = mod_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
+	//mod_cfg = mod_cfg | (polarity << 1);
 
-    spi_str.spi->CFG = mod_cfg;	
+    //spi_str.spi->CFG = mod_cfg;	
+
+
+	mod_cfg = getreg32(RDA_SPI0_BASE+0x0);
+    mod_cfg  &= ~(0x7FUL << 16) & ~(0x01UL << 1);
+	mod_cfg |= (polarity << 1);
+	putreg32(mod_cfg, (RDA_SPI0_BASE+0x0));
+
+	
+	printf("spi_setmode end!\n");
 }
 
 /****************************************************************************
@@ -288,33 +304,46 @@ static void spi_setmode(struct spi_dev_s *dev, enum spi_mode_e mode)
  *   Set the number of bits per word.
  *
  ****************************************************************************/
-static void spi_setbits(struct spi_dev_s *dev, int nbits)
+void spi_setbits(struct spi_dev_s *dev, int nbits)
 {
-	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
+	printf("spi_setbits !\n");
 
-	spi_str.spi = (SPI_SFR *)priv->base;
+	//FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
+
 	unsigned int bit_cfg;
-	bit_cfg = spi_str.spi->CFG;
+	//bit_cfg = spi_str.spi->CFG;
 
 	/* Set number of frame bits and clock phase */
-	bit_cfg = bit_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
-	bit_cfg = bit_cfg | ((uint32_t)nbits << 16);
+	//bit_cfg = bit_cfg & ~(0x7FUL << 16) & ~(0x01UL << 1);
+	//bit_cfg = bit_cfg | ((uint32_t)nbits << 16);
 
-    spi_str.spi->CFG = bit_cfg;
-
-
-#if ENABLE_RDA_SPI_MODE
-    /* Set bit offset value */
-    spi_str.bit_ofst[0] = 0;
-    spi_str.bit_ofst[1] = 0;
-    if(2 > (nbits >> 5)) {
-        spi_str.bit_ofst[nbits >> 5] = (uint8_t)(32 - (nbits & 0x1F));
-    }
-#else  /* ENABLE_RDA_SPI_MODE */
+   // spi_str.spi->CFG = bit_cfg;
     spi_str.bit_ofst[0] = (uint8_t)(32 - nbits);
-#endif /* ENABLE_RDA_SPI_MODE */
-	
+
+	bit_cfg = getreg32(RDA_SPI0_BASE+0x0);
+    bit_cfg  &= ~(0x7FUL << 16) & ~(0x01UL << 1);
+	bit_cfg |= ((uint32_t)nbits << 16);
+	putreg32(bit_cfg, (RDA_SPI0_BASE+0x0));
+
+    printf("spi_setbits end!\n");	
 }
+
+
+void spi_format(int bits, int mode, int slave)
+{
+    uint32_t polarity = (mode & 0x2) ? (0x01UL) : (0x00UL);
+    uint32_t reg_val;
+
+    /* Set number of frame bits and clock phase */
+    reg_val =  getreg32(RDA_SPI0_BASE+0x0);
+    reg_val &= ~(0x7FUL << 16) & ~(0x01UL << 1);
+    reg_val = reg_val | ((uint32_t)bits << 16) | (polarity << 1);
+	putreg32(reg_val, (RDA_SPI0_BASE+0x0));
+
+    spi_str.bit_ofst[0] = (uint8_t)(32 - bits);
+
+}
+
 
 /****************************************************************************
  * Name: spi_busy
@@ -386,14 +415,18 @@ static int spi_read(void)
  *   Exchange one word on SPI. Currently support only byte transfers.
  *
  ****************************************************************************/
-static uint16_t spi_send(struct spi_dev_s *dev, uint16_t wd)
+uint16_t spi_send(struct spi_dev_s *dev, uint16_t wd)
 {
+    printf("spi_send !\n");
 	uint8_t txbyte;
 	uint8_t rxbyte;
 
 	txbyte = (uint8_t)wd;
 	rxbyte = (uint8_t)0;
 	spi_exchange(dev, &txbyte, &rxbyte, 1);
+
+	printf("spi_send  endd rxbyte is %d!\n",rxbyte);
+
 
 	return (uint16_t)rxbyte;
 }
@@ -406,7 +439,7 @@ static uint16_t spi_send(struct spi_dev_s *dev, uint16_t wd)
  *
  ****************************************************************************/
 
-static void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbuffer, size_t nwords)
+void spi_exchange(struct spi_dev_s *dev, const void *txbuffer, void *rxbuffer, size_t nwords)
 {
 	FAR struct rda5981x_spidev_s *priv = (FAR struct rda5981x_spidev_s *)dev;
 
@@ -509,6 +542,7 @@ static void spi_recvblock(struct spi_dev_s *dev, void *rxbuffer, size_t nwords)
  ****************************************************************************/
 struct spi_dev_s *up_spiinitialize(int port)
 {
+    printf("up_spiinitialize!\n");
 	FAR struct rda5981x_spidev_s *priv = NULL;
 	uint32_t regval;
 
@@ -533,12 +567,12 @@ struct spi_dev_s *up_spiinitialize(int port)
     /* Enable power and clocking */  //Clock Gating 2 
 	regval = getreg32(RDA_SCU_BASE+0x0C);
 	regval |=	(0x01UL << 18);
-	putreg32(RDA_SCU_BASE+0x0C, regval);
+	putreg32(regval, (RDA_SCU_BASE+0x0C));
 
 	/* Select 4-wire SPI mode */
-	regval = getreg32(RDA_GPIO_BASE+0x0);
+	regval = getreg32(RDA_GPIO_CTRL);
     regval  &= ~(0x01UL << 14);
-	putreg32(RDA_GPIO_BASE+0x0, regval);
+	putreg32(regval, (RDA_GPIO_CTRL));
 
 	//Set Config Reg
 	/* Normal SPI mode */
@@ -547,11 +581,12 @@ struct spi_dev_s *up_spiinitialize(int port)
     /* Set read flag */
     regval |=  (0x01UL << 3);
 
+
    //set SEL
 	regval &= ~(0x03UL << 23);
 	regval |= ((1 & 0x03UL) << 23);
 
-	putreg32(RDA_SPI0_BASE+0x0, regval);
+	putreg32(regval, (RDA_SPI0_BASE+0x0));
 	
 
 	/* SET GPIO for the port */
@@ -560,6 +595,7 @@ struct spi_dev_s *up_spiinitialize(int port)
 	rda_configgpio(priv->gpio_miso);
 	rda_configgpio(priv->gpio_mosi);
 
+	printf("up_spiinitialize! end\n");
 
 	return (struct spi_dev_s *)priv;
 }

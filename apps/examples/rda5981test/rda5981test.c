@@ -254,6 +254,50 @@ void pwm_test(void)
     pwmout_write(&pwm3,0.25f);   
  }
 
+
+//SPI test
+enum spi_mode_e {
+	SPIDEV_MODE0 = 0,			/* CPOL=0 CHPHA=0 */
+	SPIDEV_MODE1,				/* CPOL=0 CHPHA=1 */
+	SPIDEV_MODE2,				/* CPOL=1 CHPHA=0 */
+	SPIDEV_MODE3				/* CPOL=1 CHPHA=1 */
+};
+
+
+void spi_test(void)
+{
+    //int rdata, wdata = 0x00;
+
+    printf("Start SPI test...\r\n");
+
+    /* Setup the spi for 8 bit data, high state clock, */
+    /* second edge capture, with a 1MHz clock rate     */
+    //spi.format(8, 3);
+    up_spiinitialize(0);
+	printf("after up_spiinitialize!\n");
+    //spi_setbits(NULL,8);
+    //spi_setmode(NULL,3);
+    spi_format(8,3,0);
+    spi_setfrequency(NULL,1000000); 
+
+
+#if 0	
+    while(true) {
+        /* Send 1 byte */
+        //spi.write(wdata);
+        spi_send(NULL,wdata);
+        wdata++;
+        wdata &= 0x00FF;
+        printf("Send data: 0x%X\r\n", wdata);
+
+        /* Send 1 dummy byte to receive data from slave SPI */
+        rdata = spi_send(0xFF);
+        printf("Recv data: 0x%X\r\n", rdata);
+    }
+#endif
+}
+
+
 static void *hello_example(void *arg)
 {
 /*I2C TEST */
