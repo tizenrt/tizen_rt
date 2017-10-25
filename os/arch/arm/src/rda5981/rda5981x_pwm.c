@@ -107,6 +107,9 @@ void pwmout_init(pwmout_t* obj, int chanel_id)
 {
     uint32_t reg_val = 0U;
 
+  //  if(chanel_id == 0)
+    // 	rda_configgpio(GPIO_PWM_TOUT0);    
+
     obj->channel = chanel_id;
     obj->CFGR = PWM_MATCH[chanel_id];
 
@@ -176,6 +179,7 @@ void pwmout_write(pwmout_t* obj, float value)
 
 float pwmout_read(pwmout_t* obj)
 {
+    printf("pw: %u, period %u\n", obj->pulsewidth_ticks, obj->period_ticks); 
     float v = (float)(obj->pulsewidth_ticks) / (float)(obj->period_ticks);
     return (v > 1.0f) ? (1.0f) : (v);
 }
@@ -493,12 +497,6 @@ static struct rda5981x_pwmtimer_s g_pwm3 = {
 	.pincfg	= GPIO_PWM_TOUT3,
 };
 
-static struct rda5981x_pwmtimer_s g_pwm4 = {
-	.ops	= &g_pwm_ops,
-	.id		= 4,
-	.pincfg	= GPIO_PWM_TOUT4,
-};
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -537,10 +535,6 @@ FAR struct pwm_lowerhalf_s *rda5981x_pwminitialize(int timer)
 	else if (timer == 3) {
 		lower = (struct pwm_lowerhalf_s *)&g_pwm3;
 	} 
-	else if (timer == 4) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm4;
-	} 
-	
 	else
 	{
 		lldbg("ERROR: invalid PWM is requested\n");

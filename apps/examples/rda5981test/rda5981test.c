@@ -233,20 +233,18 @@ struct pwmout_s pwm0;
 struct pwmout_s pwm1;
 struct pwmout_s pwm2;
 struct pwmout_s pwm3;
-struct pwmout_s pwm4;
 
-void pwm_test(void) {
-
+void pwm_test(void) 
+{
+/* pwm0-pwm3 is avaliable*/
     pwmout_init(&pwm0, 0);
-    pwmout_period_ms(&pwm0, 4.0f); 
-    pwmout_write(&pwm0,0.25f);   
-
+    pwmout_period_ms(&pwm0, 4.0f); //4ms
+    pwmout_write(&pwm0,0.25f);   //duty ratio
 
     pwmout_init(&pwm1, 1);
     pwmout_period_ms(&pwm1, 4.0f); 
     pwmout_write(&pwm1,0.50f);   
-  
-  
+   
     pwmout_init(&pwm2, 2);
     pwmout_period_ms(&pwm2, 4.0f); 
     pwmout_write(&pwm2,0.75f);   
@@ -254,15 +252,7 @@ void pwm_test(void) {
     pwmout_init(&pwm3, 3);
     pwmout_period_ms(&pwm3, 8.0f); 
     pwmout_write(&pwm3,0.25f);   
- 
-    pwmout_init(&pwm4, 4);
-    pwmout_period_ms(&pwm4, 8.0f); 
-    pwmout_write(&pwm4,0.50f);   
-  
-    while(true) {
-        printf("duty=%f\r\n", pwmout_read(&pwm0));
-    }
-}
+ }
 
 static void *hello_example(void *arg)
 {
