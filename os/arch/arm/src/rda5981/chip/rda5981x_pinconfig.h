@@ -87,7 +87,14 @@
 #define GPIO_PWM_TOUT1  (GPIO_ALT5 | GPIO_PORTC | GPIO_PIN13)
 #define GPIO_PWM_TOUT2  (GPIO_ALT4 | GPIO_PORTB | GPIO_PIN0)
 #define GPIO_PWM_TOUT3  (GPIO_ALT4 | GPIO_PORTA | GPIO_PIN27) 
-#define GPIO_PWM_TOUT4  (GPIO_ALT4 | GPIO_PORTB | GPIO_PIN3)
+
+/*I2S*/
+
+#define I2S_TX_BCLK  (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN3)
+#define I2S_TX_WS (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN2)
+#define I2S_TX_SD (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN1)
+#define I2S_RX_SD (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN4)
+#define I2S_MCLK (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN5)
 
 /************************************************************************************
  * Public Data

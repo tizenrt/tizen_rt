@@ -58,7 +58,7 @@ include $(APPDIR)/Make.defs
 
 ASRCS =
 CSRCS =
-MAINSRC = rda5981test.c
+MAINSRC = rda5981test.c rda_i2s_test.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

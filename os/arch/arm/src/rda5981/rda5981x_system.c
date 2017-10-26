@@ -171,16 +171,13 @@ void SystemCoreClockUpdate (void)            /* Get Core/Bus Clock Frequency    
  */
 void SystemInit (void)
 {
-#if 0  // enable me later
 
-#if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
-    SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
-#endif /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
+//#if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
+  //  SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
+//#endif /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
     SCB->VTOR  = RDA_CODE_BASE;                       /* vector table in flash      */
     NVIC_SetPriorityGrouping(0x06);                   /* 1 bit for pre-emption pri  */
 
-    __enable_irq();
-#endif
 }
 
 /**

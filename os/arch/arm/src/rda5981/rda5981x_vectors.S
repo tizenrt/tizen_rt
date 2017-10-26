@@ -197,6 +197,8 @@ Reset_Handler:
 	msr		msp, r0
         ldr             r0, =rda_ccfg_boot
     	blx             r0
+        ldr             r0, =SystemInit
+    	blx             r0
 	ldr		r0, =__start
 	bx		r0
 	.pool

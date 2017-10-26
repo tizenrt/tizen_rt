@@ -122,7 +122,7 @@ CHIP_CSRCS += rda5981x_spi.c
 endif
 
 ifeq ($(CONFIG_RDA5981_I2S),y)
-CHIP_CSRCS += rda5981x_i2s.c
+CHIP_CSRCS += rda5981x_i2s.c rda5981x_exif_isr.c 
 endif
 
 ifeq ($(CONFIG_RDA5981_WDG),y)
