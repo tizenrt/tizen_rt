@@ -86,6 +86,14 @@ static inline void clear_i2s_rx_int(void);
 
 extern void rda_exif_irq_set(void);
 
+#define PORT_SHIFT 8
+#define PB_5   (1<<PORT_SHIFT|5)
+#define i2s_mclk PB_5
+
+static inline void clear_i2s_rx_int(void);
+static inline void clear_i2s_rx_int(void);
+
+
 void rda_i2s_init(i2s_t *obj)
 {
     uint32_t reg_val = 0x00;
@@ -125,9 +133,9 @@ void rda_i2s_init(i2s_t *obj)
         RDA_GPIO->CTRL = reg_val |  (0x06UL /*<< 0*/);
         reg_val = RDA_SCU->CLKGATE3 & ~(0x0FUL << 8);
         RDA_SCU->CLKGATE3 = reg_val |  (0x02UL << 8);
-        port =  ((int)I2S_MCLK) >> PORT_SHIFT;
-        idx  = (((int)I2S_MCLK) >> 2) & 0x0003;
-        ofst = (((int)I2S_MCLK) & 0x0003) << 3;
+        port =  ((int)i2s_mclk) >> PORT_SHIFT;
+        idx  = (((int)i2s_mclk) >> 2) & 0x0003;
+        ofst = (((int)i2s_mclk) & 0x0003) << 3;
         if(4 == port) {
             idx += 3;
         }
@@ -528,8 +536,7 @@ uint8_t rda_i2s_int_recv(i2s_t *obj, uint32_t *buf, uint16_t size)
 
 void rda_i2s_irq_handler(uint32_t int_status)
 {
-    printf("rda_i2s_irq_handler\n");
-#if 0
+#if 1
     i2s_t *obj = rda_i2s_obj;
      uint32_t i, j;
     if (int_status & I2S_RXFIFO_WRITEWHENFULL_BIT) {

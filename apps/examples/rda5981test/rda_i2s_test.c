@@ -27,9 +27,12 @@ static void *rx_thread(void *arg)
 
 static void *tx_thread(void *arg)
 {
-   printf("1tx\n");     
-   rda_i2s_int_send(&obj, &tdata[0], BUFFER_SIZE);
-   
+    while (true) {
+        rda_i2s_int_send(&obj, &tdata[0], BUFFER_SIZE);
+        if (I2S_ST_BUSY == obj.sw_tx.state) {
+            rda_i2s_sem_wait(i2s_tx_sem);
+        }
+    } 
    return NULL;
 }
 

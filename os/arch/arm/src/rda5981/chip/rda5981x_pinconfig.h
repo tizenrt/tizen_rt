@@ -94,7 +94,7 @@
 #define I2S_TX_WS (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN2)
 #define I2S_TX_SD (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN1)
 #define I2S_RX_SD (GPIO_ALT3 | GPIO_PORTB | GPIO_PIN4)
-#define I2S_MCLK (GPIO_ALT1 | GPIO_PORTB | GPIO_PIN5)
+#define I2S_MCLK (GPIO_ALT2 | GPIO_PORTB | GPIO_PIN5)
 
 /************************************************************************************
  * Public Data

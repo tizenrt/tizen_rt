@@ -356,6 +356,7 @@ void up_irqinitialize(void)
    * nintlines * 8 priority registers.
    */
 
+
   for (i = (nintlines << 3), regaddr = NVIC_IRQ0_3_PRIORITY;
        i > 0;
        i--, regaddr += 4)
@@ -389,10 +390,10 @@ void up_irqinitialize(void)
    * Fault handler.
    */
 
-#ifdef CONFIG_ARM_MPU
+//#ifdef CONFIG_ARM_MPU
   irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
   up_enable_irq(RDA_IRQ_MEMFAULT);
-#endif
+//#endif
 
   /* Attach all other processor exceptions (except reset and sys tick) */
 
