@@ -39,13 +39,6 @@ void us_ticker_init(void)
     if (us_ticker_inited)
         return;
 
-	int i;
-	 for(i=0;i<100;i++)
-	 {
-	up_lowputc('Q');
-	
-		 }
-
     /* Enable apb timer clock */
 	regval = getreg32(RDA_CLKGATE1); // CLKGATE1
 	regval |= (0x01UL << 3);
@@ -70,13 +63,6 @@ void us_ticker_init(void)
             regval += getreg32(RTC_TIMER_TIMESTAMP);
         }
     }
-
-	
-	 for(i=0;i<100;i++)
-	 {
-	up_lowputc('R');
-	
-		 }
 
     /* Set free timer write_en */
 	regval = getreg32(RDA_POWER_CONTROL); // CLKGATE1
@@ -125,12 +111,6 @@ void us_ticker_init(void)
 	regval = getreg32(RDA_POWER_CONTROL);
 	regval &= (~(uint32_t)(1 << 8));
 	putreg32(regval, RDA_POWER_CONTROL);
-
-	 for(i=0;i<100;i++)
-	 {
-	up_lowputc('S');
-	
-		 }
 
     rda_timer_irq_set();
 

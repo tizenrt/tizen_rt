@@ -206,6 +206,8 @@ typedef struct
 #define TIMER1_LDCNT_INIT_VAL       (0x08637BD0UL)
 #define TIMER1_CURVAL_DELTA         (0xF79C842FUL)
 #define FREE_TIMER_INIT_VAL         (0x08637BD0UL)
+//#define FREE_TIMER_INIT_VAL         (0x3D5B4)   //5second
+
 
 #define RDA_TIMER_INTSTATE          (RDA_TIMINTST_BASE)
 

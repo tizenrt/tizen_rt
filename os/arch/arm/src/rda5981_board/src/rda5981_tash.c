@@ -73,6 +73,7 @@
 
 #include <tinyara/fs/mtd.h>
 
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -372,12 +373,7 @@ int board_app_initialize(void)
 #if defined(CONFIG_RTC_DRIVER)
 	{
 		struct rtc_lowerhalf_s *rtclower;
-		int i;
-                for(i=0;i<100;i++)
-                {
-               up_lowputc('Z');
 
-                    }
 		rtclower = rda5981x_rtc_lowerhalf();
 		if (rtclower) {
 			ret = rtc_initialize(0, rtclower);

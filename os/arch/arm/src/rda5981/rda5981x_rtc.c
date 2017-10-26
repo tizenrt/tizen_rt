@@ -325,12 +325,6 @@ void rtc_base_update(void)
 // interput handle
 int rda_timer_isr(int irq, FAR void *context, FAR void *arg)
 {
-	int i;
-	 for(i=0;i<100;i++)
-	 {
-	up_lowputc('L');
-	
-		 }
 	uint32_t regval;
 
     uint32_t int_status = getreg32(RDA_TIMER_INTSTATE);
@@ -345,13 +339,15 @@ int rda_timer_isr(int irq, FAR void *context, FAR void *arg)
         lp_ticker_irq_handler();
 #endif /* DEVICE_LOWPOWERTIMER */
     }
-    if(int_status & (0x01UL << 1)) {
+    if(int_status & (0x01UL << 1)) 
+	{
 		regval = getreg32(RDA_POWER_CONTROL);
 		regval |= ((0x01UL << 28) | (0x01UL << 27)); // clear int & ts
 		putreg32(regval,RDA_POWER_CONTROL);
-        //rPOWER_CONTROL |= ((0x01UL << 28) | (0x01UL << 27)); // clear int & ts
         //__DSB();
-        while(regval & (0x01UL << 28));
+        do{
+			regval = getreg32(RDA_POWER_CONTROL);
+		}while(regval & (0x01UL << 28));
 
         rtc_base_update();
     }
@@ -360,18 +356,16 @@ int rda_timer_isr(int irq, FAR void *context, FAR void *arg)
 
 void rda_timer_irq_set(void)
 {
-    int i;
-	 for(i=0;i<100;i++)
-	 {
-	   up_lowputc('T');
-	
-		 }
+	int ret = 0;
     
     if(0 == is_timer_irq_set) {
         is_timer_irq_set = 1;
 			/* Attach the timer interrupt vector */
 		irq_attach(RDA_IRQ_TIMER, rda_timer_isr, NULL);	
-		//irqenable();
+		if (ret == OK)
+		{
+			up_enable_irq(RDA_IRQ_TIMER);
+		}
     }
 }
 
@@ -421,12 +415,6 @@ void rtc_write(time_t t) {
  ****************************************************************************/
 int up_rtc_initialize(void)
 {
-   int i;
-   for(i=0;i<100;i++)
-   {
-  up_lowputc('O');
-  
-	   }
     uint32_t start_time;
     /* Make sure us_ticker is running */
     start_time = us_ticker_read();
@@ -435,12 +423,7 @@ int up_rtc_initialize(void)
     /* Record the ticks */
     round_ticks = RTC_TIMER_INITVAL_REG;
     is_rtc_enabled = 1;
-	 for(i=0;i<100;i++)
-	 {
-	up_lowputc('P');
 	
-		 }
-
 	return OK;
 }
 #endif /* CONFIG_RTC */
