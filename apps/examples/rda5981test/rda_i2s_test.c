@@ -128,9 +128,10 @@ void i2s_test(void) /*master, in and out */
  
 /*create tx/rx thread*/ 
     spawn_tx_thread(); 
+
 //    spawn_rx_thread(); 
     
-//    pthread_join(i2s_recv, NULL);
+// pthread_join(i2s_recv, NULL);
    pthread_join(i2s_send, NULL);
 
 }

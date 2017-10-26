@@ -290,10 +290,12 @@ static void *hello_example(void *arg)
 	//spi_test();	
 
 /*I2S TEST*/
-	//i2s_test();
+	i2s_test();
 
 /*RTC TEST*/
 	//rtc_test();
+	
+	return NULL;
 }
 
 /*  Call-back function registered in TASH.
