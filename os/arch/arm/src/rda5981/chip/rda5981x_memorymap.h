@@ -42,8 +42,6 @@
 
 #include <tinyara/config.h>
 
-//#include "chip.h"
-
 /************************************************************************************
  * Pre-processor Definitions
  ************************************************************************************/
@@ -54,8 +52,7 @@
 #define RDA_IRAM_BASE       (0x00100000UL)
 #define RDA_DRAM_BASE       (0x00180000UL)
 #define RDA_PSRAM_BASE      (0x10000000UL)
-#define RDA_FLASH_BASE      (0x14000000UL)
-#define RDA_ICACHE_BASE     (0x18000000UL)
+#define RDA_FLASH_BASE      (0x18000000UL)
 #define RDA_PER_BASE        (0x40000000UL)
 #define RDA_AHB0_BASE       (0x40000000UL)
 #define RDA_APB_BASE        (RDA_AHB0_BASE)

@@ -72,6 +72,9 @@ CSRCS += rda5981_i2schar.c
 endif
 endif
 
+ifeq ($(CONFIG_MTD_PROGMEM),y)
+CSRCS += rda5981_progmem.c
+endif
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
 

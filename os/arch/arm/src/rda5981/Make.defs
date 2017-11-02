@@ -141,12 +141,16 @@ ifeq ($(CONFIG_RDA5981_PWM),y)
 CHIP_CSRCS += rda5981x_pwm.c 
 endif 
 
+ifeq ($(CONFIG_RDA5981_FLASH),y)
+CHIP_CSRCS += rda5981x_flash.c
+endif
 
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
+EXTRA_LIBS += chip/thirdpartlib/lib_flash.a
 
 all: libboard$(LIBEXT)
 

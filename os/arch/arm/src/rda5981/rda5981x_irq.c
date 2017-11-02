@@ -45,7 +45,7 @@
 #include <tinyara/irq.h>
 #include <tinyara/arch.h>
 #include <arch/irq.h>
-
+#include "chip.h"
 #include "nvic.h"
 #include "ram_vectors.h"
 #include "up_arch.h"

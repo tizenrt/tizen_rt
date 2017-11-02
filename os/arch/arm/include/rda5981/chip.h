@@ -61,6 +61,9 @@
 
 #include <tinyara/config.h>
 
+/* Then get all of the register definitions */
+#include "chip/rda5981x_memorymap.h"
+
 /************************************************************************************
  * Pre-processor Definitions
  ************************************************************************************/

@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 /****************************************************************************
- * arch/arm/src/sidk_rda5981xt200/src/rda5981xt200_tash.c
+ * arch/arm/src/rda5981_board/src/rda5981_tash.c
  *
  *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -73,6 +73,7 @@
 
 #include <tinyara/fs/mtd.h>
 
+#include "rda5981_board.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -117,15 +118,15 @@ static void scsc_wpa_ctrl_iface_init(void)
 #endif
 }
 
-static void rda5981x_configure_partitions(void)
+static void sidk_rda5981x_configure_partitions(void)
 {
-#if defined(CONFIG_SIDK_S5JT200_FLASH_PART)
+#if defined(CONFIG_SIDK_RDA5981_FLASH_PART)
 	int partno;
 	int partoffset;
-	const char *parts = CONFIG_SIDK_S5JT200_FLASH_PART_LIST;
-	const char *types = CONFIG_SIDK_S5JT200_FLASH_PART_TYPE;
+	const char *parts = CONFIG_SIDK_RDA5981_FLASH_PART_LIST;
+	const char *types = CONFIG_SIDK_RDA5981_FLASH_PART_TYPE;
 #if defined(CONFIG_MTD_PARTITION_NAMES)
-	const char *names = CONFIG_SIDK_S5JT200_FLASH_PART_NAME;
+	const char *names = CONFIG_SIDK_RDA5981_FLASH_PART_NAME;
 #endif
 	FAR struct mtd_dev_s *mtd;
 	FAR struct mtd_geometry_s geo;
@@ -185,7 +186,7 @@ static void rda5981x_configure_partitions(void)
 		if (!strncmp(types, "smartfs,", 8)) {
 			char partref[4];
 			snprintf(partref, sizeof(partref), "p%d", partno);
-			smart_initialize(CONFIG_SIDK_S5JT200_FLASH_MINOR,
+			smart_initialize(CONFIG_SIDK_RDA5981_FLASH_MINOR,
 					mtd_part, partref);
 		} else
 #endif
@@ -208,7 +209,7 @@ static void rda5981x_configure_partitions(void)
 
 		partno++;
 	}
-#endif /* CONFIG_SIDK_S5JT200_FLASH_PART */
+#endif /* CONFIG_SIDK_RDA5981_FLASH_PART */
 }
 
 /****************************************************************************
@@ -241,7 +242,7 @@ int rda5981x_adc_setup(void)
 	if (ret < 0) {
 		return ret;
 	}
-#endif /* CONFIG_S5J_ADC */
+#endif /* CONFIG_RDA5981_ADC */
 
 	return OK;
 }
@@ -263,95 +264,32 @@ int ee_test_main(int argc, char **args);
 int board_app_initialize(void)
 {
 	int ret;
-	
-#if 0	//zhang
+	sidk_rda5981x_configure_partitions();
 
-#if defined(CONFIG_RAMMTD) && defined(CONFIG_FS_SMARTFS)
-	int bufsize = CONFIG_RAMMTD_ERASESIZE * CONFIG_SIDK_S5JT200_RAMMTD_NEBLOCKS;
-	static uint8_t *rambuf;
-	struct mtd_dev_s *mtd;
-#endif /* CONFIG_RAMMTD */
-
-	rda5981x_configure_partitions();
-
-#if defined(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS)
-	ret = mount(CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS_DEVNAME,
-			CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS_MOUNTPOINT,
-			"romfs", 0, NULL);
-
-	if (ret != OK) {
-		lldbg("ERROR: mounting '%s'(ROMFS) failed\n",
-			CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS_DEVNAME);
-	}
-#endif /* CONFIG_SIDK_S5JT200_AUTOMOUNT_ROMFS */
-
-#ifdef CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS
+#ifdef CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS
 	/* Initialize and mount user partition (if we have) */
-	ret = mksmartfs(CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS_DEVNAME, false);
+	ret = mksmartfs(CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME, false);
 	if (ret != OK) {
 		lldbg("ERROR: mksmartfs on %s failed",
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS_DEVNAME);
+				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
 	} else {
-		ret = mount(CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS_DEVNAME,
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS_MOUNTPOINT,
+		ret = mount(CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME,
+				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_MOUNTPOINT,
 				"smartfs", 0, NULL);
 		if (ret != OK)
 			lldbg("ERROR: mounting '%s' failed\n",
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS_DEVNAME);
+				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
 	}
-#endif /* CONFIG_SIDK_S5JT200_AUTOMOUNT_USERFS */
-
-#ifdef CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW
-	/* Initialize and mount sssrw partition (if we have) */
-	ret = mksmartfs(CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW_DEVNAME, false);
-	if (ret != OK) {
-		lldbg("ERROR: mksmartfs on %s failed",
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW_DEVNAME);
-	} else {
-		ret = mount(CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW_DEVNAME,
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW_MOUNTPOINT,
-				"smartfs", 0, NULL);
-		if (ret != OK)
-			lldbg("ERROR: mounting '%s' failed\n",
-				CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW_DEVNAME);
-	}
-#endif /* CONFIG_SIDK_S5JT200_AUTOMOUNT_SSSRW */
+#endif /* CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS */
 
 #ifdef CONFIG_FS_PROCFS
 	/* Mount the procfs file system */
-	ret = mount(NULL, SIDK_S5JT200_PROCFS_MOUNTPOINT, "procfs", 0, NULL);
+	ret = mount(NULL, SIDK_RDA5981_PROCFS_MOUNTPOINT, "procfs", 0, NULL);
 	if (ret < 0) {
 		lldbg("Failed to mount procfs at %s: %d\n",
-				SIDK_S5JT200_PROCFS_MOUNTPOINT, ret);
+				SIDK_RDA5981_PROCFS_MOUNTPOINT, ret);
 	}
 #endif
-
-#if defined(CONFIG_RAMMTD) && defined(CONFIG_FS_SMARTFS)
-	rambuf = (uint8_t *)malloc(bufsize);
-
-	mtd = rammtd_initialize(rambuf, bufsize);
-	if (!mtd) {
-		lldbg("ERROR: FAILED TO CREATE RAM MTD INSTANCE\n");
-		free(rambuf);
-	} else {
-		if (smart_initialize(CONFIG_SIDK_S5JT200_RAMMTD_DEV_NUMBER, mtd, NULL) < 0) {
-			lldbg("ERROR: FAILED TO smart_initialize\n");
-			free(rambuf);
-		} else {
-			(void)mksmartfs(CONFIG_SIDK_S5JT200_RAMMTD_DEV_POINT, false);
-
-			ret = mount(CONFIG_SIDK_S5JT200_RAMMTD_DEV_POINT, CONFIG_SIDK_S5JT200_RAMMTD_MOUNT_POINT,
-					"smartfs", 0, NULL);
-			if (ret < 0) {
-				lldbg("ERROR: Failed to mount the SMART volume: %d\n", errno);
-				free(rambuf);
-			}
-		}
-	}
-#endif /* CONFIG_RAMMTD */
-
-#endif// zhang
-
 
 #ifdef CONFIG_RDA5981_I2C
 	//rda5981x_i2c_register(0);

@@ -47,7 +47,7 @@
 #ifndef __ASSEMBLY__
 #  include <stdint.h>
 #endif
-#include <arch/rda5981/chip.h>
+#include <tinyara/config.h>
 
 /****************************************************************************
  * Pre-processor Definitions
