@@ -93,7 +93,7 @@ ssize_t file_pwrite(FAR struct file *filep, FAR const void *buf, size_t nbytes, 
 	 */
 
 	savepos = file_seek(filep, 0, SEEK_CUR);
-	if (savepos == (off_t)-1) {
+	if (savepos == (off_t) - 1) {
 		/* file_seek might fail if this if the media is not seekable */
 
 		return ERROR;
@@ -102,7 +102,7 @@ ssize_t file_pwrite(FAR struct file *filep, FAR const void *buf, size_t nbytes, 
 	/* Then seek to the correct position in the file */
 
 	pos = file_seek(filep, offset, SEEK_SET);
-	if (pos == (off_t)-1) {
+	if (pos == (off_t) - 1) {
 		/* This might fail is the offset is beyond the end of file */
 
 		return ERROR;
@@ -116,7 +116,7 @@ ssize_t file_pwrite(FAR struct file *filep, FAR const void *buf, size_t nbytes, 
 	/* Restore the file position */
 
 	pos = file_seek(filep, savepos, SEEK_SET);
-	if (pos == (off_t)-1 && ret >= 0) {
+	if (pos == (off_t) - 1 && ret >= 0) {
 		/* This really should not fail */
 
 		return ERROR;

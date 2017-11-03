@@ -118,7 +118,7 @@ int s5jt200_rgbled_setup(void)
 
 		/* Initialize LED B */
 		/* Call s5j_pwminitialize() to get an instance of the PWM interface */
-		ledb = (struct pwm_lowerhalf_s*)s5j_pwminitialize(1);
+		ledb = (struct pwm_lowerhalf_s *)s5j_pwminitialize(1);
 		if (!ledb) {
 			lldbg("ERROR: Failed to get PWM lower half to LEDR\n");
 			return -ENODEV;
@@ -133,7 +133,7 @@ int s5jt200_rgbled_setup(void)
 
 		/* Initialize LED G */
 		/* Call s5j_pwminitialize() to get an instance of the PWM interface */
-		ledg = (struct pwm_lowerhalf_s*)s5j_pwminitialize(2);
+		ledg = (struct pwm_lowerhalf_s *)s5j_pwminitialize(2);
 		if (!ledg) {
 			lldbg("ERROR: Failed to get PWM lower half to LEDG\n");
 			return -ENODEV;
@@ -144,7 +144,7 @@ int s5jt200_rgbled_setup(void)
 
 		/* Initialize LED R */
 		/* Call s5j_pwminitialize() to get an instance of the PWM interface */
-		ledr = (struct pwm_lowerhalf_s*)s5j_pwminitialize(3);
+		ledr = (struct pwm_lowerhalf_s *)s5j_pwminitialize(3);
 		if (!ledr) {
 			lldbg("ERROR: Failed to get PWM lower half to LEDB\n");
 			return -ENODEV;
@@ -175,7 +175,7 @@ int s5j_ledinitialize(void)
 	s5jt200_rgbled_setup();
 
 	g_rgbled_tid = task_create("s5jt200 rgbstate", 100, 1024,
-					s5jt200_rgbled_state_task, NULL);
+							   s5jt200_rgbled_state_task, NULL);
 	lldbg("Create rgbled task..\n");
 
 	if (!g_rgbled_tid) {

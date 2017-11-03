@@ -132,34 +132,34 @@ uint32_t AHBBusClock     = RDA_BUS_CLK_FREQUENCY_80M; /*!< AHB Bus Clock Frequen
  *         retrieved from cpu registers.
  */
 #if 0 // enable me later
-void SystemCoreClockUpdate (void)            /* Get Core/Bus Clock Frequency     */
+void SystemCoreClockUpdate(void)             /* Get Core/Bus Clock Frequency     */
 {
-    uint32_t val = RDA_SCU->CORECFG;
-    /* Determine clock frequency according to SCU core config register values    */
-    switch ((val >> 12) & 0x03UL) {
-      case 0:
-        SystemCoreClock = RDA_SYS_CLK_FREQUENCY_40M;
-        break;
-      case 1:
-        SystemCoreClock = RDA_SYS_CLK_FREQUENCY_80M;
-        break;
-      case 2:
-      case 3:
-        SystemCoreClock = RDA_SYS_CLK_FREQUENCY_160M;
-        break;
-    }
+	uint32_t val = RDA_SCU->CORECFG;
+	/* Determine clock frequency according to SCU core config register values    */
+	switch ((val >> 12) & 0x03UL) {
+	case 0:
+		SystemCoreClock = RDA_SYS_CLK_FREQUENCY_40M;
+		break;
+	case 1:
+		SystemCoreClock = RDA_SYS_CLK_FREQUENCY_80M;
+		break;
+	case 2:
+	case 3:
+		SystemCoreClock = RDA_SYS_CLK_FREQUENCY_160M;
+		break;
+	}
 
-    /* Determine clock frequency according to SCU core config register values    */
-    switch ((val >> 11) & 0x01UL) {
-      case 0:
-        AHBBusClock = RDA_BUS_CLK_FREQUENCY_40M;
-        break;
-      case 1:
-        AHBBusClock = RDA_BUS_CLK_FREQUENCY_80M;
-        break;
-    }
+	/* Determine clock frequency according to SCU core config register values    */
+	switch ((val >> 11) & 0x01UL) {
+	case 0:
+		AHBBusClock = RDA_BUS_CLK_FREQUENCY_40M;
+		break;
+	case 1:
+		AHBBusClock = RDA_BUS_CLK_FREQUENCY_80M;
+		break;
+	}
 }
-#endif 
+#endif
 /**
  * Initialize the system
  *
@@ -169,14 +169,14 @@ void SystemCoreClockUpdate (void)            /* Get Core/Bus Clock Frequency    
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
 
 //#if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
-  //  SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
+	//  SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
 //#endif /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
-    SCB->VTOR  = RDA_CODE_BASE;                       /* vector table in flash      */
-    NVIC_SetPriorityGrouping(0x06);                   /* 1 bit for pre-emption pri  */
+	SCB->VTOR  = RDA_CODE_BASE;                       /* vector table in flash      */
+	NVIC_SetPriorityGrouping(0x06);                   /* 1 bit for pre-emption pri  */
 
 }
 

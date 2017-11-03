@@ -28,56 +28,58 @@
  */
 void rda_wdt_init(wdt_t *obj, uint8_t to)
 {
-    uint32_t reg = 0;
+	uint32_t reg = 0;
 
 //#if RDA5991H_HW_VER >= 2
-    rda_ccfg_wdt_en();
+	rda_ccfg_wdt_en();
 //#endif /* RDA5991H_HW_VER */
 
- //   MBED_ASSERT(0x00U == (to & 0xF0U));
-    obj->wdt = (RDA_WDT_TypeDef *)WDT_0;
+//   MBED_ASSERT(0x00U == (to & 0xF0U));
+	obj->wdt = (RDA_WDT_TypeDef *)WDT_0;
 
-    reg = obj->wdt->WDTCFG & ~(((0x01UL << WDT_TMRCNT_WIDTH) - 0x01UL) << WDT_TMRCNT_OFST);
-    obj->wdt->WDTCFG = reg | (to << WDT_TMRCNT_OFST);
+	reg = obj->wdt->WDTCFG & ~(((0x01UL << WDT_TMRCNT_WIDTH) - 0x01UL) << WDT_TMRCNT_OFST);
+	obj->wdt->WDTCFG = reg | (to << WDT_TMRCNT_OFST);
 }
 
 void rda_wdt_start(wdt_t *obj)
 {
-    obj->wdt->WDTCFG |= (0x01UL << WDT_EN_BIT);
+	obj->wdt->WDTCFG |= (0x01UL << WDT_EN_BIT);
 }
 
 void rda_wdt_stop(wdt_t *obj)
 {
-    obj->wdt->WDTCFG &= ~(0x01UL << WDT_EN_BIT);
+	obj->wdt->WDTCFG &= ~(0x01UL << WDT_EN_BIT);
 }
 
 void rda_wdt_feed(wdt_t *obj)
 {
-    obj->wdt->WDTCFG |= (0x01UL << WDT_CLR_BIT);
+	obj->wdt->WDTCFG |= (0x01UL << WDT_CLR_BIT);
 }
 
 void rda_wdt_softreset(void)
 {
-    wdt_t obj;
-    rda_ccfg_ckrst();
-    rda_wdt_init(&obj, 0U);
-    rda_wdt_start(&obj);
+	wdt_t obj;
+	rda_ccfg_ckrst();
+	rda_wdt_init(&obj, 0U);
+	rda_wdt_start(&obj);
 }
 
 void rda_sys_softreset(void)
 {
 #if 0
-    rda_ccfg_ckrst();
-    rda_ccfg_perrst();
-    /* Ensure all outstanding memory accesses included buffered write are completed before reset */
-    __DSB();
-    SCB->AIRCR = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
-                            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) | /* Keep priority group unchanged */
-                             SCB_AIRCR_VECTRESET_Msk);
-    /* Ensure completion of memory access */
-    __DSB();
-    /* wait until reset */
-    while(1) { __NOP(); }
+	rda_ccfg_ckrst();
+	rda_ccfg_perrst();
+	/* Ensure all outstanding memory accesses included buffered write are completed before reset */
+	__DSB();
+	SCB->AIRCR = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
+							(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) | /* Keep priority group unchanged */
+							SCB_AIRCR_VECTRESET_Msk);
+	/* Ensure completion of memory access */
+	__DSB();
+	/* wait until reset */
+	while (1) {
+		__NOP();
+	}
 #endif
 }
 

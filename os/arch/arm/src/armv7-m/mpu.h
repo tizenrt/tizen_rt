@@ -265,12 +265,12 @@ static inline void mpu_show_regioninfo(void)
 		size = getreg32(MPU_RASR);
 		attr = getreg32(MPU_RASR);
 		lldbg("%8d\t\t%8X\t%8X\t%8X\t%8X\t%8X\n",
-			(base & MPU_RBAR_REGION_MASK),
-			(base & MPU_RBAR_ADDR_MASK),
-			(size ? (1 << (((size & MPU_RASR_SIZE_MASK) >> MPU_RASR_SIZE_SHIFT) + 1)) : 0),
-			((size & MPU_RASR_SRD_MASK) >> MPU_RASR_SRD_SHIFT),
-			(size & MPU_RASR_ENABLE) ? 1 : 0,
-			((attr & MPU_RASR_ATTR_MASK) >> MPU_RASR_ATTR_SHIFT));
+			  (base & MPU_RBAR_REGION_MASK),
+			  (base & MPU_RBAR_ADDR_MASK),
+			  (size ? (1 << (((size & MPU_RASR_SIZE_MASK) >> MPU_RASR_SIZE_SHIFT) + 1)) : 0),
+			  ((size & MPU_RASR_SRD_MASK) >> MPU_RASR_SRD_SHIFT),
+			  (size & MPU_RASR_ENABLE) ? 1 : 0,
+			  ((attr & MPU_RASR_ATTR_MASK) >> MPU_RASR_ATTR_SHIFT));
 	}
 	lldbg("*****************************************************************************\n");
 	/* restore the previous region */

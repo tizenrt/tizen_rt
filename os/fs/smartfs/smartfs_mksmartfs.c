@@ -135,7 +135,7 @@ int mksmartfs(FAR const char *pathname, bool force)
 	/* check if it is already formatted */
 	if (!force) {
 		ret = inode->u.i_bops->ioctl(inode, BIOC_GETFORMAT,
-							(unsigned long)&fmt);
+									 (unsigned long)&fmt);
 		if (ret == OK && (fmt.flags & SMART_FMT_ISFORMATTED) != 0) {
 			close_blockdriver(inode);
 			return OK;

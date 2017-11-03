@@ -33,7 +33,7 @@
  *
  ************************************************************************************/
 #include <tinyara/config.h>
-	 
+
 #include <sys/types.h>
 #include <assert.h>
 #include <debug.h>
@@ -45,9 +45,9 @@ typedef uint32_t timestamp_t;
 /** Ticker's event structure
  */
 typedef struct ticker_event_s {
-    timestamp_t            timestamp; /**< Event's timestamp */
-    uint32_t               id;        /**< TimerEvent object */
-    struct ticker_event_s *next;      /**< Next event in the queue */
+	timestamp_t            timestamp; /**< Event's timestamp */
+	uint32_t               id;        /**< TimerEvent object */
+	struct ticker_event_s *next;      /**< Next event in the queue */
 } ticker_event_t;
 
 typedef void (*ticker_event_handler)(uint32_t id);
@@ -55,24 +55,24 @@ typedef void (*ticker_event_handler)(uint32_t id);
 /** Ticker's interface structure - required API for a ticker
  */
 typedef struct {
-    void (*init)(void);                           /**< Init function */
-    uint32_t (*read)(void);                       /**< Read function */
-    void (*disable_interrupt)(void);              /**< Disable interrupt function */
-    void (*clear_interrupt)(void);                /**< Clear interrupt function */
-    void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
+	void (*init)(void);                           /**< Init function */
+	uint32_t (*read)(void);                       /**< Read function */
+	void (*disable_interrupt)(void);              /**< Disable interrupt function */
+	void (*clear_interrupt)(void);                /**< Clear interrupt function */
+	void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
 } ticker_interface_t;
 
 /** Ticker's event queue structure
  */
 typedef struct {
-    ticker_event_handler event_handler; /**< Event handler */
-    ticker_event_t *head;               /**< A pointer to head */
+	ticker_event_handler event_handler; /**< Event handler */
+	ticker_event_t *head;               /**< A pointer to head */
 } ticker_event_queue_t;
 
 /** Ticker's data structure
  */
 typedef struct {
-    const ticker_interface_t *interface; /**< Ticker's interface */
-    ticker_event_queue_t *queue;         /**< Ticker's event queue */
+	const ticker_interface_t *interface; /**< Ticker's interface */
+	ticker_event_queue_t *queue;         /**< Ticker's event queue */
 } ticker_data_t;
 

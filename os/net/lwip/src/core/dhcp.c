@@ -1368,7 +1368,7 @@ again:
 		/* LWIP_DEBUGF(DHCP_DEBUG, ("msg_offset=%"U16_F", q->len=%"U16_F, msg_offset, q->len)); */
 		decode_len = len;
 		switch (op) {
-			/* case(DHCP_OPTION_END): handled above */
+		/* case(DHCP_OPTION_END): handled above */
 		case (DHCP_OPTION_PAD):
 			/* special option: no len encoded */
 			decode_len = len = 0;

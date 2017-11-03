@@ -141,8 +141,8 @@ static int send_sm_msg_start_blocking(struct scsc_service *service, scsc_mifram_
 	struct mxmgmt_transport *mxmgmt_transport = scsc_mx_get_mxmgmt_transport(mx);
 	int r;
 	struct sm_msg_packet message = {.service_id = service->id,
-		.msg = SM_MSG_START_REQ,
-		 .optional_data = ref
+			   .msg = SM_MSG_START_REQ,
+				.optional_data = ref
 	};
 
 	reinit_completion(&service->sm_msg_start_completion);
@@ -163,8 +163,8 @@ static int send_sm_msg_stop_blocking(struct scsc_service *service)
 	struct mxmgmt_transport *mxmgmt_transport = scsc_mx_get_mxmgmt_transport(mx);
 	int r;
 	struct sm_msg_packet message = {.service_id = service->id,
-		.msg = SM_MSG_STOP_REQ,
-		 .optional_data = 0
+			   .msg = SM_MSG_STOP_REQ,
+				.optional_data = 0
 	};
 	if (mxman->mxman_state == MXMAN_STATE_FAILED) {
 		return 0;

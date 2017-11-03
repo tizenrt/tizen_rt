@@ -155,8 +155,8 @@ static inline void rwb_resetwrbuffer(struct rwbuffer_s *rwb)
 	/* We assume that the caller holds the wrsem */
 
 	rwb->wrnblocks = 0;
-	rwb->wrblockstart = (off_t)-1;
-	rwb->wrexpectedblock = (off_t)-1;
+	rwb->wrblockstart = (off_t) - 1;
+	rwb->wrexpectedblock = (off_t) - 1;
 }
 #endif
 
@@ -299,7 +299,7 @@ static inline void rwb_resetrhbuffer(struct rwbuffer_s *rwb)
 	/* We assume that the caller holds the readAheadBufferSemphore */
 
 	rwb->rhnblocks = 0;
-	rwb->rhblockstart = (off_t)-1;
+	rwb->rhblockstart = (off_t) - 1;
 }
 #endif
 

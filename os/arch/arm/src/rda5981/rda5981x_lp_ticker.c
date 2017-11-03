@@ -71,82 +71,84 @@ void lp_ticker_init(void)
 {
 	uint32_t regval;
 
-    if (lp_ticker_inited)
-        return;
+	if (lp_ticker_inited) {
+		return;
+	}
 
-    /* Enable apb timer clock */
+	/* Enable apb timer clock */
 	regval = getreg32(RDA_CLKGATE1);
 	regval |= (0x01UL << 3);
 	putreg32(regval, RDA_CLKGATE1);
 
-    /* Set timer load count */
+	/* Set timer load count */
 	putreg32(0xFFFFFFFF, RDA_TIMER1_LDCNT);
 
-    /* Set timer mode */
+	/* Set timer mode */
 	regval = getreg32(RDA_TIMER1_TCTRL);
 	regval |= TIMER1_CONTROL_MODE;
 	putreg32(regval, RDA_TIMER1_TCTRL);
 
-    /* Enable timer */
+	/* Enable timer */
 	regval = getreg32(RDA_TIMER1_TCTRL);
 	regval |= (TIMER1_CONTROL_ENABLE);
 	putreg32(regval, RDA_TIMER1_TCTRL);
 
-    rda_timer_irq_set();
+	rda_timer_irq_set();
 
-    /* Set lp_ticker_inited true, after all settings done */
-    lp_ticker_inited = 1;
+	/* Set lp_ticker_inited true, after all settings done */
+	lp_ticker_inited = 1;
 }
 
 uint32_t lp_ticker_read(void)
 {
-    if (!lp_ticker_inited)
-        lp_ticker_init();
+	if (!lp_ticker_inited) {
+		lp_ticker_init();
+	}
 
-    /* Get timestamp from us_ticker */
-    return us_ticker_read();
+	/* Get timestamp from us_ticker */
+	return us_ticker_read();
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
 	uint32_t regval;
-    int32_t delta = (int32_t)(timestamp - lp_ticker_read());
-    uint32_t delay_ticks = SystemCoreClock / LP_TIMER_CLOCK_SOURCE / 5;
-    if (delta <= 0) {
-        // This event was in the past:
-        lp_ticker_irq_handler();
-        return;
-    }
+	int32_t delta = (int32_t)(timestamp - lp_ticker_read());
+	uint32_t delay_ticks = SystemCoreClock / LP_TIMER_CLOCK_SOURCE / 5;
+	if (delta <= 0) {
+		// This event was in the past:
+		lp_ticker_irq_handler();
+		return;
+	}
 
-    /* Disable timer */
+	/* Disable timer */
 	regval = getreg32(RDA_TIMER1_TCTRL);
 	regval &= (~TIMER1_CONTROL_ENABLE);
 	putreg32(regval, RDA_TIMER1_TCTRL);
 
-    /* Set timer load count */
+	/* Set timer load count */
 #if RDA5991H_HW_VER <= 4
-    if((0U != lpo_tmr_flag) && (0U != lpo_ticks_cal)) {
-        //LP_TICKER_TIMER->LDCNT = (uint32_t)(((uint64_t)delta * (uint64_t)lpo_ticks_cal) / US_TIMER_HZ) + 1;
+	if ((0U != lpo_tmr_flag) && (0U != lpo_ticks_cal)) {
+		//LP_TICKER_TIMER->LDCNT = (uint32_t)(((uint64_t)delta * (uint64_t)lpo_ticks_cal) / US_TIMER_HZ) + 1;
 		regval = (uint32_t)(((uint64_t)delta * (uint64_t)lpo_ticks_cal) / US_TIMER_HZ) + 1;
 		putreg32(regval, RDA_TIMER1_LDCNT);
-    } else {
-        regval = (uint32_t)(((uint64_t)delta << 15) / US_TIMER_HZ) + 1;
+	} else {
+		regval = (uint32_t)(((uint64_t)delta << 15) / US_TIMER_HZ) + 1;
 		putreg32(regval, RDA_TIMER1_LDCNT);
-    }
+	}
 #else
-	regval =(uint32_t)(((uint64_t)delta << 15) / US_TIMER_HZ) + 1;
+	regval = (uint32_t)(((uint64_t)delta << 15) / US_TIMER_HZ) + 1;
 	putreg32(regval, RDA_TIMER1_LDCNT);
 #endif
 
-    /* Delay for Clock Sync */
-    for(;delay_ticks > 1;delay_ticks--);
+	/* Delay for Clock Sync */
+	for (; delay_ticks > 1; delay_ticks--);
 
-    /* Enable timer */
+	/* Enable timer */
 	regval = getreg32(RDA_TIMER1_TCTRL);
 	regval |= (TIMER1_CONTROL_ENABLE);
 	putreg32(regval, RDA_TIMER1_TCTRL);
 
-    /* Unmask timer, enable an overflow int */
+	/* Unmask timer, enable an overflow int */
 	regval = getreg32(RDA_TIMER1_TCTRL);
 	regval &= (~(TIMER1_CONTROL_INT_MSK));
 	putreg32(regval, RDA_TIMER1_TCTRL);
@@ -154,19 +156,19 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
 void lp_ticker_disable_interrupt(void)
 {
-    /* Mask timer, disable an overflow int */
-    LP_TICKER_TIMER->TCTRL |= (TIMER1_CONTROL_INT_MSK);
+	/* Mask timer, disable an overflow int */
+	LP_TICKER_TIMER->TCTRL |= (TIMER1_CONTROL_INT_MSK);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
-    volatile uint32_t temp = LP_TICKER_TIMER->INTCLR;
+	volatile uint32_t temp = LP_TICKER_TIMER->INTCLR;
 
-    /* To fix compiling warning */
-    temp = temp;
+	/* To fix compiling warning */
+	temp = temp;
 
-    /* Disable timer */
-    LP_TICKER_TIMER->TCTRL &= (~TIMER1_CONTROL_ENABLE);
+	/* Disable timer */
+	LP_TICKER_TIMER->TCTRL &= (~TIMER1_CONTROL_ENABLE);
 }
 
 
@@ -175,26 +177,26 @@ void lp_ticker_clear_interrupt(void)
 static ticker_event_queue_t events;
 
 static const ticker_interface_t lp_interface = {
-    .init = lp_ticker_init,
-    .read = lp_ticker_read,
-    .disable_interrupt = lp_ticker_disable_interrupt,
-    .clear_interrupt = lp_ticker_clear_interrupt,
-    .set_interrupt = lp_ticker_set_interrupt,
+	.init = lp_ticker_init,
+	.read = lp_ticker_read,
+	.disable_interrupt = lp_ticker_disable_interrupt,
+	.clear_interrupt = lp_ticker_clear_interrupt,
+	.set_interrupt = lp_ticker_set_interrupt,
 };
 
 static const ticker_data_t lp_data = {
-    .interface = &lp_interface,
-    .queue = &events,
+	.interface = &lp_interface,
+	.queue = &events,
 };
 
-const ticker_data_t* get_lp_ticker_data(void)
+const ticker_data_t *get_lp_ticker_data(void)
 {
-    return &lp_data;
+	return &lp_data;
 }
 
 void lp_ticker_irq_handler(void)
 {
-    ticker_irq_handler(&lp_data);
+	ticker_irq_handler(&lp_data);
 }
 
 #endif

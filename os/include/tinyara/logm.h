@@ -15,10 +15,10 @@
  * language governing permissions and limitations under the License.
  *
  ****************************************************************************/
- /**
-  * @defgroup LOGM_KERNEL LOGM
-  * @ingroup KERNEL
-  */
+/**
+ * @defgroup LOGM_KERNEL LOGM
+ * @ingroup KERNEL
+ */
 
 ///@file tinyara/logm.h
 ///@brief logm APIs
@@ -90,7 +90,7 @@ int logm_set_values(enum logm_param_type_e type, int value);
 /**
  * @internal
  */
-int logm_get_values(enum logm_param_type_e type, int* value);
+int logm_get_values(enum logm_param_type_e type, int *value);
 /**
  * @endcond
  */

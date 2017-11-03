@@ -25,7 +25,7 @@
 #ifdef CONFIG_RDA_ADV_FEATURE
 struct wireless_dev *rda_add_virtual_intf(struct wiphy *wiphy, const char *name, enum rda_80211_iftype type, u32 *flags, struct vif_params *params)
 {
-	
+
 }
 
 int rda_del_virtual_intf(struct wiphy *wiphy, struct wireless_dev *wdev)
@@ -38,7 +38,7 @@ int rda_change_virtual_intf(struct wiphy *wiphy, struct net_device *dev, enum rd
 	return 0;
 }
 
-#endif	/*CONFIG_RDA_ADV_FEATURE*/	
+#endif	/*CONFIG_RDA_ADV_FEATURE*/
 
 int rda_add_key(const char *ifname, void *priv, enum wpa_alg alg, const u8 *mac_addr, int key_index, int set_tx, const u8 *seq, size_t seq_len, const u8 *key, size_t key_len)
 {
@@ -147,7 +147,7 @@ int rda_wifi_set_param(void *priv, const char *param)
 
 struct hostapd_hw_modes *rda_get_hw_feature_data(void *priv, u16 *num_modes, u16 *flags)
 {
-	
+
 }
 
 int rda_wifi_get_capa(void *priv, struct wpa_driver_capa *capa)
@@ -164,5 +164,5 @@ ssize_t rda_set_country(void *priv, const char *country_code)
 
 ssize_t rda_get_country(void *priv, char *country_code)
 {
-	
+
 }

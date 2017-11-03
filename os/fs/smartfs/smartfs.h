@@ -371,7 +371,7 @@ struct smartfs_mountpt_s {
 	FAR struct inode *fs_blkdriver;	/* Our underlying block device */
 	sem_t *fs_sem;			/* Used to assure thread-safe access */
 	FAR struct smartfs_ofile_s
-			*fs_head;					/* A singly-linked list of open files */
+		*fs_head;					/* A singly-linked list of open files */
 	bool fs_mounted;			/* true: The file system is ready */
 	struct smart_format_s fs_llformat;	/* Low level device format info */
 	char *fs_rwbuffer;			/* Read/Write working buffer */

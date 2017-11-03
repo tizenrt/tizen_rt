@@ -87,7 +87,7 @@ extern int g_lineno;
  * Public Function Prototypes
  ****************************************************************************/
 
-char *read_line(FILE * stream);
+char *read_line(FILE *stream);
 int parse_csvline(char *ptr);
 
 #endif							/* __TOOLS_CSVPARSER_H */

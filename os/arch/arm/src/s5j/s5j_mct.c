@@ -103,7 +103,7 @@ static uint32_t mct_getreg32(FAR struct s5j_mct_priv_s *priv, uint32_t offset)
 }
 
 static void mct_putreg32(FAR struct s5j_mct_priv_s *priv, uint32_t offset,
-				uint32_t value)
+						 uint32_t value)
 {
 	putreg32(value, priv->base_addr + offset);
 }

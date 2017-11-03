@@ -175,16 +175,16 @@
 #ifdef CONFIG_CAN_EXTID
 struct can_hdr_s {
 	uint32_t ch_id;				/* 11- or 29-bit ID (3-bits unsed) */
-	uint8_t ch_dlc:4;			/* 4-bit DLC */
-	uint8_t ch_rtr:1;			/* RTR indication */
-	uint8_t ch_extid:1;			/* Extended ID indication */
-	uint8_t ch_unused:2;		/* Unused */
+	uint8_t ch_dlc: 4;			/* 4-bit DLC */
+	uint8_t ch_rtr: 1;			/* RTR indication */
+	uint8_t ch_extid: 1;			/* Extended ID indication */
+	uint8_t ch_unused: 2;		/* Unused */
 } packed_struct;
 #else
 struct can_hdr_s {
-	uint16_t ch_dlc:4;			/* 4-bit DLC */
-	uint16_t ch_rtr:1;			/* RTR indication */
-	uint16_t ch_id:11;			/* 11-bit standard ID */
+	uint16_t ch_dlc: 4;			/* 4-bit DLC */
+	uint16_t ch_rtr: 1;			/* RTR indication */
+	uint16_t ch_id: 11;			/* 11-bit standard ID */
 } packed_struct;
 #endif
 

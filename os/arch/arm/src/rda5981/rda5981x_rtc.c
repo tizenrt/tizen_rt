@@ -157,7 +157,7 @@ static int rtc_bcd2bin(uint32_t value)
 }
 
 static void rtc_breakout(FAR const struct tm *tm,
-		FAR struct rtc_regvals_s *regvals)
+						 FAR struct rtc_regvals_s *regvals)
 {
 	regvals->bcdsec     = rtc_bin2bcd(tm->tm_sec);
 	regvals->bcdmin     = rtc_bin2bcd(tm->tm_min);
@@ -180,7 +180,7 @@ static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
 
 		/* Disable alarm */
 		modifyreg32(RDA5981X_RTC_RTCALM, RTC_RTCALM_ALMEN_MASK,
-						RTC_RTCALM_ALMEN_DISABLE);
+					RTC_RTCALM_ALMEN_DISABLE);
 
 		/* Alarm callback */
 		g_alarmcb();
@@ -313,13 +313,13 @@ int up_rtc_settime(FAR const struct timespec *tp)
 
 void rtc_base_update(void)
 {
-    if(is_rtc_enabled) {
-        uint32_t sw_rpl = 0U;
-        remain_ticks += round_ticks & 0x00007FFFUL;
-        sw_rpl = remain_ticks >> 15;
-        remain_ticks &= 0x00007FFFUL;
-        sw_timebase += (time_t)((round_ticks >> 15) + sw_rpl);
-    }
+	if (is_rtc_enabled) {
+		uint32_t sw_rpl = 0U;
+		remain_ticks += round_ticks & 0x00007FFFUL;
+		sw_rpl = remain_ticks >> 15;
+		remain_ticks &= 0x00007FFFUL;
+		sw_timebase += (time_t)((round_ticks >> 15) + sw_rpl);
+	}
 }
 
 // interput handle
@@ -327,75 +327,75 @@ int rda_timer_isr(int irq, FAR void *context, FAR void *arg)
 {
 	uint32_t regval;
 
-    uint32_t int_status = getreg32(RDA_TIMER_INTSTATE);
+	uint32_t int_status = getreg32(RDA_TIMER_INTSTATE);
 	int_status &= 0x000FUL;
-	
-    if(int_status & (0x01UL << 2)) {
-        us_ticker_irq_handler();
-    }
 
-    if (int_status & (0x01UL << 3)) {
+	if (int_status & (0x01UL << 2)) {
+		us_ticker_irq_handler();
+	}
+
+	if (int_status & (0x01UL << 3)) {
 #if DEVICE_LOWPOWERTIMER
-        lp_ticker_irq_handler();
+		lp_ticker_irq_handler();
 #endif /* DEVICE_LOWPOWERTIMER */
-    }
-    if(int_status & (0x01UL << 1)) 
-	{
+	}
+	if (int_status & (0x01UL << 1)) {
 		regval = getreg32(RDA_POWER_CONTROL);
 		regval |= ((0x01UL << 28) | (0x01UL << 27)); // clear int & ts
-		putreg32(regval,RDA_POWER_CONTROL);
-        //__DSB();
-        do{
+		putreg32(regval, RDA_POWER_CONTROL);
+		//__DSB();
+		do {
 			regval = getreg32(RDA_POWER_CONTROL);
-		}while(regval & (0x01UL << 28));
+		} while (regval & (0x01UL << 28));
 
-        rtc_base_update();
-    }
+		rtc_base_update();
+	}
 	return 0;
 }
 
 void rda_timer_irq_set(void)
 {
 	int ret = 0;
-    
-    if(0 == is_timer_irq_set) {
-        is_timer_irq_set = 1;
-			/* Attach the timer interrupt vector */
-		irq_attach(RDA_IRQ_TIMER, rda_timer_isr, NULL);	
-		if (ret == OK)
-		{
+
+	if (0 == is_timer_irq_set) {
+		is_timer_irq_set = 1;
+		/* Attach the timer interrupt vector */
+		irq_attach(RDA_IRQ_TIMER, rda_timer_isr, NULL);
+		if (ret == OK) {
 			up_enable_irq(RDA_IRQ_TIMER);
 		}
-    }
+	}
 }
 
 
-time_t rtc_read(void) {
-    /* Get hw timestamp in seconds, ">>15" equals "/RTC_TIMER_CLOCK_SOURCE" (="/32768") */
-    time_t hw_ts = (time_t)((getreg32(RTC_TIMER_TIMESTAMP) + remain_ticks) >> 15);
-    /* Calculate current timestamp */
-    time_t t = sw_timebase + hw_ts - sw_timeofst;
-    return t;
+time_t rtc_read(void)
+{
+	/* Get hw timestamp in seconds, ">>15" equals "/RTC_TIMER_CLOCK_SOURCE" (="/32768") */
+	time_t hw_ts = (time_t)((getreg32(RTC_TIMER_TIMESTAMP) + remain_ticks) >> 15);
+	/* Calculate current timestamp */
+	time_t t = sw_timebase + hw_ts - sw_timeofst;
+	return t;
 }
 
-void rtc_write(time_t t) {
-    /* Get hw timestamp in seconds */
-    uint32_t rtc_cur_ticks = getreg32(RTC_TIMER_TIMESTAMP);
-    uint32_t rtc_rpl_ticks = (rtc_cur_ticks + remain_ticks) & 0x00007FFFUL;
-    uint32_t sw_rpl = 0U;
-    time_t hw_ts = (time_t)((rtc_cur_ticks + remain_ticks) >> 15);
-    /* Set remaining ticks */
-    remain_ticks += rtc_rpl_ticks;
-    sw_rpl = remain_ticks >> 15;
-    remain_ticks &= 0x00007FFFUL;
-    /* Set sw timestamp in seconds */
-    if(t < hw_ts) {
-        sw_timebase = sw_rpl;
-        sw_timeofst = hw_ts - t;
-    } else {
-        sw_timebase = sw_rpl + t - hw_ts;
-        sw_timeofst = 0U;
-    }
+void rtc_write(time_t t)
+{
+	/* Get hw timestamp in seconds */
+	uint32_t rtc_cur_ticks = getreg32(RTC_TIMER_TIMESTAMP);
+	uint32_t rtc_rpl_ticks = (rtc_cur_ticks + remain_ticks) & 0x00007FFFUL;
+	uint32_t sw_rpl = 0U;
+	time_t hw_ts = (time_t)((rtc_cur_ticks + remain_ticks) >> 15);
+	/* Set remaining ticks */
+	remain_ticks += rtc_rpl_ticks;
+	sw_rpl = remain_ticks >> 15;
+	remain_ticks &= 0x00007FFFUL;
+	/* Set sw timestamp in seconds */
+	if (t < hw_ts) {
+		sw_timebase = sw_rpl;
+		sw_timeofst = hw_ts - t;
+	} else {
+		sw_timebase = sw_rpl + t - hw_ts;
+		sw_timeofst = 0U;
+	}
 }
 
 
@@ -415,15 +415,15 @@ void rtc_write(time_t t) {
  ****************************************************************************/
 int up_rtc_initialize(void)
 {
-    uint32_t start_time;
-    /* Make sure us_ticker is running */
-    start_time = us_ticker_read();
-    /* To fix compiling warning */
-    start_time = start_time;
-    /* Record the ticks */
-    round_ticks = RTC_TIMER_INITVAL_REG;
-    is_rtc_enabled = 1;
-	
+	uint32_t start_time;
+	/* Make sure us_ticker is running */
+	start_time = us_ticker_read();
+	/* To fix compiling warning */
+	start_time = start_time;
+	/* Record the ticks */
+	round_ticks = RTC_TIMER_INITVAL_REG;
+	is_rtc_enabled = 1;
+
 	return OK;
 }
 #endif /* CONFIG_RTC */

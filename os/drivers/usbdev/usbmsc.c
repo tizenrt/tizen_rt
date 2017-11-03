@@ -192,7 +192,7 @@ FAR struct usbmsc_dev_s *g_usbmsc_handoff;
 static void usbmsc_ep0incomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 {
 	if (req->result || req->xfrd != req->len) {
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_REQRESULT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_REQRESULT), (uint16_t) - req->result);
 	}
 }
 
@@ -327,7 +327,7 @@ static int usbmsc_bind(FAR struct usbdevclass_driver_s *driver, FAR struct usbde
 		reqcontainer = &priv->rdreqs[i];
 		reqcontainer->req = usbmsc_allocreq(priv->epbulkout, CONFIG_USBMSC_BULKOUTREQLEN);
 		if (reqcontainer->req == NULL) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDALLOCREQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDALLOCREQ), (uint16_t) - ret);
 			ret = -ENOMEM;
 			goto errout;
 		}
@@ -341,7 +341,7 @@ static int usbmsc_bind(FAR struct usbdevclass_driver_s *driver, FAR struct usbde
 		reqcontainer = &priv->wrreqs[i];
 		reqcontainer->req = usbmsc_allocreq(priv->epbulkin, CONFIG_USBMSC_BULKINREQLEN);
 		if (reqcontainer->req == NULL) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_WRALLOCREQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_WRALLOCREQ), (uint16_t) - ret);
 			ret = -ENOMEM;
 			goto errout;
 		}
@@ -746,7 +746,7 @@ static int usbmsc_setup(FAR struct usbdevclass_driver_s *driver, FAR struct usbd
 		ret = composite_ep0submit(driver, dev, ctrlreq);
 #endif
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_EPRESPQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_EPRESPQ), (uint16_t) - ret);
 #if 0							/* Not necessary */
 			ctrlreq->result = OK;
 			usbmsc_ep0incomplete(dev->ep0, ctrlreq);
@@ -931,7 +931,7 @@ int usbmsc_setconfig(FAR struct usbmsc_dev_s *priv, uint8_t config)
 		req->callback = usbmsc_rdcomplete;
 		ret = EP_SUBMIT(priv->epbulkout, req);
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDSUBMIT), (uint16_t) - ret);
 			goto errout;
 		}
 	}
@@ -1017,7 +1017,7 @@ void usbmsc_wrcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 		break;
 
 	default:					/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_WRUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_WRUNEXPECTED), (uint16_t) - req->result);
 		break;
 	};
 
@@ -1084,7 +1084,7 @@ void usbmsc_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 	break;
 
 	default: {				/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDUNEXPECTED), (uint16_t) - req->result);
 
 		/* Return the read request to the bulk out endpoint for re-filling */
 
@@ -1094,7 +1094,7 @@ void usbmsc_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 
 		ret = EP_SUBMIT(priv->epbulkout, req);
 		if (ret != OK) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDCOMPLETERDSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_RDCOMPLETERDSUBMIT), (uint16_t) - ret);
 		}
 	}
 	break;
@@ -1148,7 +1148,7 @@ void usbmsc_deferredresponse(FAR struct usbmsc_dev_s *priv, bool failed)
 		ctrlreq->flags = USBDEV_REQFLAGS_NULLPKT;
 		ret = EP_SUBMIT(dev->ep0, ctrlreq);
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_DEFERREDRESPSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_DEFERREDRESPSUBMIT), (uint16_t) - ret);
 #if 0							/* Not necessary */
 			ctrlreq->result = OK;
 			usbmsc_ep0incomplete(dev->ep0, ctrlreq);
@@ -1544,7 +1544,7 @@ int usbmsc_exportluns(FAR void *handle)
 #ifndef CONFIG_USBMSC_COMPOSITE
 	ret = usbdev_register(&drvr->drvr);
 	if (ret != OK) {
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_DEVREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_DEVREGISTER), (uint16_t) - ret);
 		goto errout_with_lock;
 	}
 #endif

@@ -101,12 +101,12 @@ static int bch_cypher(FAR struct bchlib_s *bch, int encrypt)
 		};
 
 		aes_cypher(X, X, 16, NULL, bch->key, CONFIG_BCH_ENCRYPTION_KEY_SIZE,
-						AES_MODE_ECB, CYPHER_ENCRYPT);
+				   AES_MODE_ECB, CYPHER_ENCRYPT);
 
 		/* Xor-Encrypt-Xor */
 		bch_xor(T, X, buffer);
 		aes_cypher(T, T, 16, NULL, bch->key, CONFIG_BCH_ENCRYPTION_KEY_SIZE,
-						AES_MODE_ECB, encrypt);
+				   AES_MODE_ECB, encrypt);
 		bch_xor(buffer, X, T);
 	}
 
@@ -184,7 +184,7 @@ int bchlib_readsector(FAR struct bchlib_s *bch, size_t sector)
 		inode = bch->inode;
 
 		(void)bchlib_flushsector(bch);
-		bch->sector = (size_t)-1;
+		bch->sector = (size_t) - 1;
 
 		ret = inode->u.i_bops->read(inode, bch->buffer, sector, 1);
 		if (ret < 0) {

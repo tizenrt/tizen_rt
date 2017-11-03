@@ -92,8 +92,9 @@ int net_timeo(systime_t start_time, socktimeo_t timeo)
 	uint32_t timeo_ticks = DSEC2TICK(timeo);
 	systime_t elapsed = clock_systimer() - start_time;
 
-	if (elapsed >= timeo_ticks)
+	if (elapsed >= timeo_ticks) {
 		return TRUE;
+	}
 
 	return FALSE;
 }

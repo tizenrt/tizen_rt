@@ -121,48 +121,48 @@
  */
 
 struct userspace_s {
-	/* General memory map */
+/* General memory map */
 
-	main_t us_entrypoint;
-	uintptr_t us_textstart;
-	uintptr_t us_textend;
-	uintptr_t us_datasource;
-	uintptr_t us_datastart;
-	uintptr_t us_dataend;
-	uintptr_t us_bssstart;
-	uintptr_t us_bssend;
+main_t us_entrypoint;
+uintptr_t us_textstart;
+uintptr_t us_textend;
+uintptr_t us_datasource;
+uintptr_t us_datastart;
+uintptr_t us_dataend;
+uintptr_t us_bssstart;
+uintptr_t us_bssend;
 
-	/* Task/thread startup routines */
+/* Task/thread startup routines */
 
-	void (*task_startup)(main_t entrypt, int argc, FAR char *argv[])
-	noreturn_function;
+void (*task_startup)(main_t entrypt, int argc, FAR char *argv[])
+noreturn_function;
 #ifndef CONFIG_DISABLE_PTHREAD
-	void (*pthread_startup)(pthread_startroutine_t entrypt, pthread_addr_t arg);
+void (*pthread_startup)(pthread_startroutine_t entrypt, pthread_addr_t arg);
 #endif
 
-	/* Signal handler trampoline */
+/* Signal handler trampoline */
 
 #ifndef CONFIG_DISABLE_SIGNALS
-	void (*signal_handler)(_sa_sigaction_t sighand, int signo, FAR siginfo_t *info, FAR void *ucontext);
+void (*signal_handler)(_sa_sigaction_t sighand, int signo, FAR siginfo_t *info, FAR void *ucontext);
 #endif
 
-	/* Memory manager entry points */
+/* Memory manager entry points */
 
-	void (*mm_initialize)(FAR void *heap_start, size_t heap_size);
-	void (*mm_addregion)(FAR void *heap_start, size_t heap_size);
-	int (*mm_trysemaphore)(void);
-	void (*mm_givesemaphore)(void);
+void (*mm_initialize)(FAR void *heap_start, size_t heap_size);
+void (*mm_addregion)(FAR void *heap_start, size_t heap_size);
+int (*mm_trysemaphore)(void);
+void (*mm_givesemaphore)(void);
 
-	FAR void *(*mm_malloc)(size_t size);
-	FAR void *(*mm_realloc)(FAR void *oldmem, size_t newsize);
-	FAR void *(*mm_memalign)(size_t alignment, size_t size);
-	FAR void *(*mm_zalloc)(size_t size);
-	FAR struct mallinfo(*mm_mallinfo)(void);
-	void (*mm_free)(FAR void *mem);
+FAR void *(*mm_malloc)(size_t size);
+FAR void *(*mm_realloc)(FAR void *oldmem, size_t newsize);
+FAR void *(*mm_memalign)(size_t alignment, size_t size);
+FAR void *(*mm_zalloc)(size_t size);
+FAR struct mallinfo(*mm_mallinfo)(void);
+void (*mm_free)(FAR void *mem);
 
-	/* Pre - Application Start */
+/* Pre - Application Start */
 
-	preapp_main_t preapp_start;
+preapp_main_t preapp_start;
 };
 
 /****************************************************************************

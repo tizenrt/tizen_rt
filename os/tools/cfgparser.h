@@ -87,7 +87,7 @@ extern char line[LINESIZE + 1];
  * Public Functions
  ****************************************************************************/
 
-void parse_file(FILE * stream, struct variable_s **list);
+void parse_file(FILE *stream, struct variable_s **list);
 struct variable_s *find_variable(const char *varname, struct variable_s *list);
 
 #endif							/* __TOOLS_CFGPARSER_H */

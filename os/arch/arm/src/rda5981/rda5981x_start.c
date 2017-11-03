@@ -116,60 +116,60 @@
 
 static inline void rda_fpuconfig(void)
 {
-  uint32_t regval;
+	uint32_t regval;
 
-  /* Set CONTROL.FPCA so that we always get the extended context frame
-   * with the volatile FP registers stacked above the basic context.
-   */
+	/* Set CONTROL.FPCA so that we always get the extended context frame
+	 * with the volatile FP registers stacked above the basic context.
+	 */
 
-  regval = getcontrol();
-  regval |= (1 << 2);
-  setcontrol(regval);
+	regval = getcontrol();
+	regval |= (1 << 2);
+	setcontrol(regval);
 
-  /* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
-   * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
-   * are going to turn on CONTROL.FPCA for all contexts.
-   */
+	/* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
+	 * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
+	 * are going to turn on CONTROL.FPCA for all contexts.
+	 */
 
-  regval = getreg32(NVIC_FPCCR);
-  regval &= ~((1 << 31) | (1 << 30));
-  putreg32(regval, NVIC_FPCCR);
+	regval = getreg32(NVIC_FPCCR);
+	regval &= ~((1 << 31) | (1 << 30));
+	putreg32(regval, NVIC_FPCCR);
 
-  /* Enable full access to CP10 and CP11 */
+	/* Enable full access to CP10 and CP11 */
 
-  regval = getreg32(NVIC_CPACR);
-  regval |= ((3 << (2*10)) | (3 << (2*11)));
-  putreg32(regval, NVIC_CPACR);
+	regval = getreg32(NVIC_CPACR);
+	regval |= ((3 << (2 * 10)) | (3 << (2 * 11)));
+	putreg32(regval, NVIC_CPACR);
 }
 
 #else
 
 static inline void rda_fpuconfig(void)
 {
-  uint32_t regval;
+	uint32_t regval;
 
-  /* Clear CONTROL.FPCA so that we do not get the extended context frame
-   * with the volatile FP registers stacked in the saved context.
-   */
+	/* Clear CONTROL.FPCA so that we do not get the extended context frame
+	 * with the volatile FP registers stacked in the saved context.
+	 */
 
-  regval = getcontrol();
-  regval &= ~(1 << 2);
-  setcontrol(regval);
+	regval = getcontrol();
+	regval &= ~(1 << 2);
+	setcontrol(regval);
 
-  /* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
-   * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
-   * are going to keep CONTROL.FPCA off for all contexts.
-   */
+	/* Ensure that FPCCR.LSPEN is disabled, so that we don't have to contend
+	 * with the lazy FP context save behaviour.  Clear FPCCR.ASPEN since we
+	 * are going to keep CONTROL.FPCA off for all contexts.
+	 */
 
-  regval = getreg32(NVIC_FPCCR);
-  regval &= ~((1 << 31) | (1 << 30));
-  putreg32(regval, NVIC_FPCCR);
+	regval = getreg32(NVIC_FPCCR);
+	regval &= ~((1 << 31) | (1 << 30));
+	putreg32(regval, NVIC_FPCCR);
 
-  /* Enable full access to CP10 and CP11 */
+	/* Enable full access to CP10 and CP11 */
 
-  regval = getreg32(NVIC_CPACR);
-  regval |= ((3 << (2*10)) | (3 << (2*11)));
-  putreg32(regval, NVIC_CPACR);
+	regval = getreg32(NVIC_CPACR);
+	regval |= ((3 << (2 * 10)) | (3 << (2 * 11)));
+	putreg32(regval, NVIC_CPACR);
 }
 
 #endif
@@ -193,70 +193,68 @@ static inline void rda_fpuconfig(void)
 
 void __start(void)
 {
-  const uint32_t *src;
-  uint32_t *dest;
+	const uint32_t *src;
+	uint32_t *dest;
 
-  /* Configure the uart so that we can get debug output as soon as possible */
+	/* Configure the uart so that we can get debug output as soon as possible */
 
-  rda_clockconfig();
-  rda_fpuconfig();
-  rda_lowsetup();
-  //showprogress('A');
+	rda_clockconfig();
+	rda_fpuconfig();
+	rda_lowsetup();
+	//showprogress('A');
 
-  /* Clear .bss.  We'll do this inline (vs. calling memset) just to be
-   * certain that there are no issues with the state of global variables.
-   */
+	/* Clear .bss.  We'll do this inline (vs. calling memset) just to be
+	 * certain that there are no issues with the state of global variables.
+	 */
 
-  for (dest = &_sbss; dest < &_ebss; )
-    {
-      *dest++ = 0;
-    }
+	for (dest = &_sbss; dest < &_ebss;) {
+		*dest++ = 0;
+	}
 
-  //showprogress('B');
+	//showprogress('B');
 
-  /* Move the initialized data section from his temporary holding spot in
-   * FLASH into the correct place in SRAM.  The correct place in SRAM is
-   * give by _sdata and _edata.  The temporary location is in FLASH at the
-   * end of all of the other read-only data (.text, .rodata) at _eronly.
-   */
+	/* Move the initialized data section from his temporary holding spot in
+	 * FLASH into the correct place in SRAM.  The correct place in SRAM is
+	 * give by _sdata and _edata.  The temporary location is in FLASH at the
+	 * end of all of the other read-only data (.text, .rodata) at _eronly.
+	 */
 
-  for (src = &_eronly, dest = &_sdata; dest < &_edata; )
-    {
-      *dest++ = *src++;
-    }
+	for (src = &_eronly, dest = &_sdata; dest < &_edata;) {
+		*dest++ = *src++;
+	}
 
-  //showprogress('C');
+	//showprogress('C');
 
-  /* Perform early serial initialization */
+	/* Perform early serial initialization */
 
 #ifdef USE_EARLYSERIALINIT
-  up_earlyserialinit();
+	up_earlyserialinit();
 #endif
-  //showprogress('D');
+	//showprogress('D');
 
-  /* For the case of the separate user-/kernel-space build, perform whatever
-   * platform specific initialization of the user memory is required.
-   * Normally this just means initializing the user space .data and .bss
-   * segments.
-   */
+	/* For the case of the separate user-/kernel-space build, perform whatever
+	 * platform specific initialization of the user memory is required.
+	 * Normally this just means initializing the user space .data and .bss
+	 * segments.
+	 */
 
 #ifdef CONFIG_BUILD_PROTECTED
-  rda_userspace();
-  showprogress('E');
+	rda_userspace();
+	showprogress('E');
 #endif
 
-  /* Initialize onboard resources */
+	/* Initialize onboard resources */
 
-  //board_initialize();
-  //showprogress('F');
+	//board_initialize();
+	//showprogress('F');
 
-  /* Then start NuttX */
+	/* Then start NuttX */
 
-  showprogress('\r');
-  showprogress('\n');
-  os_start();
+	showprogress('\r');
+	showprogress('\n');
+	os_start();
 
-  /* Shouldn't get here */
+	/* Shouldn't get here */
 
-  for (; ; );
+	for (; ;);
 }

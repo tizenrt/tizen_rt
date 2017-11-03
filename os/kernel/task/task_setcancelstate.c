@@ -126,9 +126,9 @@ int task_setcancelstate(int state, FAR int *oldstate)
 			/* If we are using deferred cancellation? */
 
 			if ((tcb->flags & TCB_FLAG_CANCEL_DEFERRED) != 0) {
-			/* Yes.. If we are within a cancellation point, then
-			 * notify of the cancellation.
-			 */
+				/* Yes.. If we are within a cancellation point, then
+				 * notify of the cancellation.
+				 */
 
 				if (tcb->cpcount > 0) {
 					notify_cancellation(tcb);
@@ -136,11 +136,11 @@ int task_setcancelstate(int state, FAR int *oldstate)
 			} else
 #endif
 			{
-			/* No.. We are using asynchronous cancellation.  If the
-			 * cancellation was pending in this case, then just exit.
-			 */
+				/* No.. We are using asynchronous cancellation.  If the
+				 * cancellation was pending in this case, then just exit.
+				 */
 
-			tcb->flags &= ~TCB_FLAG_CANCEL_PENDING;
+				tcb->flags &= ~TCB_FLAG_CANCEL_PENDING;
 
 #ifndef CONFIG_DISABLE_PTHREAD
 				if ((tcb->flags & TCB_FLAG_TTYPE_MASK) == TCB_FLAG_TTYPE_PTHREAD) {
@@ -153,7 +153,7 @@ int task_setcancelstate(int state, FAR int *oldstate)
 			}
 		}
 	} else if (state == TASK_CANCEL_DISABLE) {
-	/* Set the non-cancelable state */
+		/* Set the non-cancelable state */
 
 		tcb->flags |= TCB_FLAG_NONCANCELABLE;
 	} else {

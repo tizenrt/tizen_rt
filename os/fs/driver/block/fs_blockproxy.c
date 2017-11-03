@@ -110,7 +110,7 @@ static FAR char *unique_chardev(void)
 	int ret;
 
 	/* Loop until we get a unique device name */
-	for (; ; ) {
+	for (; ;) {
 		/* Get the semaphore protecting the path number */
 		while (sem_wait(&g_devno_sem) < 0) {
 			DEBUGASSERT(errno == EINTR);
@@ -188,7 +188,7 @@ int block_proxy(FAR const char *blkdev, int oflags)
 	ret = bchdev_register(blkdev, chardev, readonly);
 	if (ret < 0) {
 		fdbg("ERROR: bchdev_register(%s, %s) failed: %d\n",
-				blkdev, chardev, ret);
+			 blkdev, chardev, ret);
 
 		goto errout_with_chardev;
 	}

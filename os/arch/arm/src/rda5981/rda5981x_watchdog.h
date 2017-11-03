@@ -20,17 +20,16 @@
 
 #define     __IO    volatile
 
-typedef struct
-{
-  __IO uint32_t WDTCFG;
+typedef struct {
+	__IO uint32_t WDTCFG;
 } RDA_WDT_TypeDef;
 
 struct wdt_s {
-    RDA_WDT_TypeDef *wdt;
+	RDA_WDT_TypeDef *wdt;
 };
 
 typedef enum {
-    WDT_0  = (int)RDA_WDT_BASE
+	WDT_0  = (int)RDA_WDT_BASE
 } WDTName;
 /** WDT HAL structure
  */

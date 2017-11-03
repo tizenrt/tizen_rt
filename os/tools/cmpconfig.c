@@ -87,15 +87,17 @@ static void compare_variables(struct variable_s *list1, struct variable_s *list2
 	int result;
 
 	while (list1 || list2) {
-		if (list1 && list1->val)
+		if (list1 && list1->val) {
 			varval1 = list1->val;
-		else
+		} else {
 			varval1 = "<NULL>";
+		}
 
-		if (list2 && list2->val)
+		if (list2 && list2->val) {
 			varval2 = list2->val;
-		else
+		} else {
 			varval2 = "<NULL>";
+		}
 
 		if (!list1) {
 			printf("file1:\n");

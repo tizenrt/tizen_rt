@@ -212,16 +212,16 @@ struct s5j_i2c_priv_s {
  * Private Function Prototypes
  ****************************************************************************/
 static void hsi2c_set_hs_timing(unsigned int base, unsigned int nClkDiv,
-				unsigned int tSTART_SU, unsigned int tSTART_HD,
-				unsigned int tSTOP_SU, unsigned int tSDA_SU,
-				unsigned int tDATA_SU, unsigned int tDATA_HD,
-				unsigned int tSCL_L, unsigned int tSCL_H,
-				unsigned int tSR_RELEASE);
+								unsigned int tSTART_SU, unsigned int tSTART_HD,
+								unsigned int tSTOP_SU, unsigned int tSDA_SU,
+								unsigned int tDATA_SU, unsigned int tDATA_HD,
+								unsigned int tSCL_L, unsigned int tSCL_H,
+								unsigned int tSR_RELEASE);
 static void hsi2c_set_fs_timing(unsigned int base, unsigned int nClkDiv,
-				unsigned int tSTART_SU, unsigned int tSTART_HD,
-				unsigned int tSTOP_SU, unsigned int tDATA_SU,
-				unsigned int tDATA_HD, unsigned int tSCL_L,
-				unsigned int tSCL_H, unsigned int tSR_RELEASE);
+								unsigned int tSTART_SU, unsigned int tSTART_HD,
+								unsigned int tSTOP_SU, unsigned int tDATA_SU,
+								unsigned int tDATA_HD, unsigned int tSCL_L,
+								unsigned int tSCL_H, unsigned int tSR_RELEASE);
 static void hsi2c_calculate_timing(unsigned int base, unsigned int nPclk, unsigned int nOpClk);
 static void hsi2c_conf(unsigned int base, unsigned int nOpClk);
 static void hsi2c_enable_int(unsigned int base, unsigned int bit);

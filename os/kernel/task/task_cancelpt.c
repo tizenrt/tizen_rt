@@ -146,8 +146,8 @@ bool enter_cancellation_point(void)
 	 */
 
 	if (((tcb->flags & TCB_FLAG_NONCANCELABLE) == 0 &&
-	(tcb->flags & TCB_FLAG_CANCEL_DEFERRED) != 0) ||
-	tcb->cpcount > 0) {
+		 (tcb->flags & TCB_FLAG_CANCEL_DEFERRED) != 0) ||
+		tcb->cpcount > 0) {
 		/* Check if there is a pending cancellation */
 
 		if ((tcb->flags & TCB_FLAG_CANCEL_PENDING) != 0) {
@@ -296,8 +296,8 @@ void notify_cancellation(FAR struct tcb_s *tcb)
 	 */
 
 	if (((tcb->flags & TCB_FLAG_NONCANCELABLE) == 0 &&
-	(tcb->flags & TCB_FLAG_CANCEL_DEFERRED) != 0) ||
-	tcb->cpcount > 0) {
+		 (tcb->flags & TCB_FLAG_CANCEL_DEFERRED) != 0) ||
+		tcb->cpcount > 0) {
 		/* If the thread is blocked waiting for a semaphore, then the thread
 		 * must be unblocked to handle the cancellation.
 		 */
@@ -312,7 +312,7 @@ void notify_cancellation(FAR struct tcb_s *tcb)
 
 #ifndef CONFIG_DISABLE_MQUEUE
 		if (tcb->task_state == TSTATE_WAIT_MQNOTEMPTY ||
-		tcb->task_state == TSTATE_WAIT_MQNOTFULL) {
+			tcb->task_state == TSTATE_WAIT_MQNOTFULL) {
 			mq_waitirq(tcb, ECANCELED);
 		}
 #endif

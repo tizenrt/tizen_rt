@@ -228,7 +228,7 @@ struct up_dev_s {
  ****************************************************************************/
 static uint32_t s5j_get_sclk_uclk(void)
 {
-		return 26000000;
+	return 26000000;
 }
 
 static inline uint32_t uart_getreg8(struct up_dev_s *priv, int offset)
@@ -237,7 +237,7 @@ static inline uint32_t uart_getreg8(struct up_dev_s *priv, int offset)
 }
 
 static inline void uart_putreg8(struct up_dev_s *priv, int offset,
-				uint32_t value)
+								uint32_t value)
 {
 	putreg8(value, priv->uartbase + offset);
 }
@@ -248,13 +248,13 @@ static inline uint32_t uart_getreg32(struct up_dev_s *priv, int offset)
 }
 
 static inline void uart_putreg32(struct up_dev_s *priv, int offset,
-				uint32_t value)
+								 uint32_t value)
 {
 	putreg32(value, priv->uartbase + offset);
 }
 
 static inline void uart_modifyreg32(struct up_dev_s *priv, int offset,
-				uint32_t clearbits, uint32_t setbits)
+									uint32_t clearbits, uint32_t setbits)
 {
 	modifyreg32(priv->uartbase + offset, clearbits, setbits);
 }
@@ -366,9 +366,9 @@ static int up_setup(struct uart_dev_s *dev)
 
 	/* UCON */
 	regval = UART_UCON_RX_TOUT_32FRAMES |
-			UART_UCON_TX_INTTYPE_LEVEL | UART_UCON_RX_INTTYPE_LEVEL |
-			UART_UCON_RX_TOUTINT_ENABLE | UART_UCON_RX_ERRINT_DISABLE |
-			UART_UCON_TX_MODE_IRQPOLL | UART_UCON_RX_MODE_IRQPOLL;
+			 UART_UCON_TX_INTTYPE_LEVEL | UART_UCON_RX_INTTYPE_LEVEL |
+			 UART_UCON_RX_TOUTINT_ENABLE | UART_UCON_RX_ERRINT_DISABLE |
+			 UART_UCON_TX_MODE_IRQPOLL | UART_UCON_RX_MODE_IRQPOLL;
 
 	uart_putreg32(priv, S5J_UART_UCON_OFFSET, regval);
 
@@ -381,13 +381,13 @@ static int up_setup(struct uart_dev_s *dev)
 
 	/* Mask all interrupts; will be enabled by upper-half */
 	uart_putreg32(priv, S5J_UART_UINTM_OFFSET,
-					UART_UINTM_MODEM_MASK | UART_UINTM_TXD_MASK |
-					UART_UINTM_ERROR_MASK | UART_UINTM_RXD_MASK);
+				  UART_UINTM_MODEM_MASK | UART_UINTM_TXD_MASK |
+				  UART_UINTM_ERROR_MASK | UART_UINTM_RXD_MASK);
 
 	/* Reset TX and RX FIFO and enable FIFO mode */
 	regval = UART_UFCON_FIFO_ENABLE |
-			UART_UFCON_TX_FIFO_RESET | UART_UFCON_RX_FIFO_RESET |
-			UART_UFCON_TX_FIFO_TRIG_4BYTES | UART_UFCON_RX_FIFO_TRIG_4BYTES;
+			 UART_UFCON_TX_FIFO_RESET | UART_UFCON_RX_FIFO_RESET |
+			 UART_UFCON_TX_FIFO_TRIG_4BYTES | UART_UFCON_RX_FIFO_TRIG_4BYTES;
 
 	uart_putreg32(priv, S5J_UART_UFCON_OFFSET, regval);
 
@@ -408,7 +408,7 @@ static void up_shutdown(struct uart_dev_s *dev)
 
 	/* Disable all interrupts */
 	uart_modifyreg32(priv, S5J_UART_UINTM_OFFSET, 0,
-					UART_UINTM_TXD_MASK | UART_UINTM_RXD_MASK);
+					 UART_UINTM_TXD_MASK | UART_UINTM_RXD_MASK);
 
 	s5j_unconfiggpio(priv->rxd);
 	s5j_unconfiggpio(priv->txd);
@@ -970,7 +970,7 @@ void up_lowputc(char ch)
 	while (1) {
 		/* Wait for the transmitter to be available */
 		while ((uart_getreg32(CONSOLE_DEV.priv, S5J_UART_UTRSTAT_OFFSET) &
-					UART_UTRSTAT_TX_BUF_MASK) != UART_UTRSTAT_TX_BUF_EMPTY) {
+				UART_UTRSTAT_TX_BUF_MASK) != UART_UTRSTAT_TX_BUF_EMPTY) {
 			/* Polling */
 		}
 
@@ -981,7 +981,7 @@ void up_lowputc(char ch)
 		flags = irqsave();
 
 		if ((uart_getreg32(CONSOLE_DEV.priv, S5J_UART_UTRSTAT_OFFSET) &
-					UART_UTRSTAT_TX_BUF_MASK) == UART_UTRSTAT_TX_BUF_EMPTY) {
+			 UART_UTRSTAT_TX_BUF_MASK) == UART_UTRSTAT_TX_BUF_EMPTY) {
 			/* Send the character */
 			uart_putreg32(CONSOLE_DEV.priv, S5J_UART_UTXH_OFFSET, ch);
 			irqrestore(flags);

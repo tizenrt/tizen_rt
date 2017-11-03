@@ -260,7 +260,7 @@ FAR struct gpio_lowerhalf_s *rda_gpio_lowerhalf(uint16_t pincfg)
 	struct rda_lowerhalf_s *lower;
 
 	lower = (struct rda_lowerhalf_s *)
-						kmm_malloc(sizeof(struct rda_lowerhalf_s));
+			kmm_malloc(sizeof(struct rda_lowerhalf_s));
 	if (!lower) {
 		return NULL;
 	}

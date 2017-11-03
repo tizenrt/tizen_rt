@@ -186,7 +186,7 @@ static u8_t *const memp_bases[] = {
 static u8_t memp_memory[MEM_ALIGNMENT - 1
 #define LWIP_MEMPOOL(name, num, size, desc) + ((num) * (MEMP_SIZE + MEMP_ALIGN_SIZE(size)))
 #include <net/lwip/memp_std.h>
-];
+					   ];
 
 #endif							/* MEMP_SEPARATE_POOLS */
 

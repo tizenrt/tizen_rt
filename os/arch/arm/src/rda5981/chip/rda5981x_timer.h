@@ -156,12 +156,12 @@
 #define TMR_IR_MR3                (1 << 3)  /* Bit 3:  Match channel 3 interrupt */
 #define TMR_IR_CR0                (1 << 4)  /* Bit 4:  Capture channel 0 interrupt */
 #define TMR_IR_CR1                (1 << 5)  /* Bit 5:  Capture channel 1 interrupt */
-                                            /* Bits 6-31: Reserved */
+/* Bits 6-31: Reserved */
 /* Timer Control Register */
 
 #define TMR_TCR_EN                (1 << 0)  /* Bit 0:  Counter Enable */
 #define TMR_TCR_RESET             (1 << 1)  /* Bit 1:  Counter Reset */
-                                            /* Bits 2-31: Reserved */
+/* Bits 2-31: Reserved */
 /* Match Control Register */
 
 #define TMR_MCR_MR0I              (1 << 0)  /* Bit 0:  Interrupt on MR0 */
@@ -176,7 +176,7 @@
 #define TMR_MCR_MR3I              (1 << 9)  /* Bit 9:  Interrupt on MR3 */
 #define TMR_MCR_MR3R              (1 << 10) /* Bit 10: Reset on MR3 */
 #define TMR_MCR_MR3S              (1 << 11) /* Bit 11: Stop on MR3 */
-                                            /* Bits 12-31: Reserved */
+/* Bits 12-31: Reserved */
 /* Capture Control Register */
 
 #define TMR_CCR_CAP0RE            (1 << 0)  /* Bit 0: Capture on CAPn.0 rising edge */
@@ -185,7 +185,7 @@
 #define TMR_CCR_CAP1RE            (1 << 3)  /* Bit 3: Capture on CAPn.1 rising edge */
 #define TMR_CCR_CAP1FE            (1 << 4)  /* Bit 4: Capture on CAPn.1 falling edge */
 #define TMR_CCR_CAP1I             (1 << 5)  /* Bit 5: Interrupt on CAPn.1 */
-                                            /* Bits 6-31: Reserved */
+/* Bits 6-31: Reserved */
 /* External Match Register */
 
 #define TMR_EMR_NOTHING           (0)       /* Do Nothing */
@@ -221,7 +221,7 @@
 #  define TMR_EMR_EMC3_CLEAR      (TMR_EMR_CLEAR << TMR_EMR_EMC3_SHIFT)
 #  define TMR_EMR_EMC3_SET        (TMR_EMR_SET << TMR_EMR_EMC3_SHIFT)
 #  define TMR_EMR_EMC3_TOGGLE     (TMR_EMR_TOGGLE << TMR_EMR_EMC3_SHIFT)
-                                            /* Bits 12-31: Reserved */
+/* Bits 12-31: Reserved */
 /* Count Control Register */
 
 #define TMR_CTCR_MODE_SHIFT       (0)       /* Bits 0-1: Counter/Timer Mode */
@@ -234,7 +234,7 @@
 #define TMR_CTCR_INPSEL_MASK      (3 << TMR_CTCR_INPSEL_SHIFT)
 #  define TMR_CTCR_INPSEL_CAPNp0  (0 << TMR_CTCR_INPSEL_SHIFT) /* CAPn.0 for TIMERn */
 #  define TMR_CTCR_INPSEL_CAPNp1  (1 << TMR_CTCR_INPSEL_SHIFT) /* CAPn.1 for TIMERn */
-                                            /* Bits 4-31: Reserved */
+/* Bits 4-31: Reserved */
 
 /************************************************************************************
  * Public Types

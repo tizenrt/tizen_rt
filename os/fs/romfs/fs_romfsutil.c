@@ -507,7 +507,7 @@ int romfs_hwconfigure(struct romfs_mountpt_s *rm)
 
 	/* Determine if block driver supports the XIP mode of operation */
 
-	rm->rm_cachesector = (uint32_t)-1;
+	rm->rm_cachesector = (uint32_t) - 1;
 
 	if (inode->u.i_bops->ioctl) {
 		ret = inode->u.i_bops->ioctl(inode, BIOC_XIPBASE, (unsigned long)&rm->rm_xipbase);
@@ -602,7 +602,7 @@ int romfs_fileconfigure(struct romfs_mountpt_s *rm, struct romfs_file_s *rf)
 	} else {
 		/* Nothing in the cache buffer */
 
-		rf->rf_cachesector = (uint32_t)-1;
+		rf->rf_cachesector = (uint32_t) - 1;
 
 		/* Create a file buffer to support partial sector accesses */
 

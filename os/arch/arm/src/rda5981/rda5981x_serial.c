@@ -82,15 +82,14 @@
  * Private Types
  ****************************************************************************/
 
-struct up_dev_s
-{
-  uint32_t uartbase;  /* Base address of UART registers */
-  uint32_t baud;      /* Configured baud */
-  uint32_t ier;       /* Saved IER value */
-  uint8_t  irq;       /* IRQ associated with this UART */
-  uint8_t  parity;    /* 0=none, 1=odd, 2=even */
-  uint8_t  bits;      /* Number of bits (7 or 8) */
-  bool     stopbits2; /* true: Configure with 2 stop bits instead of 1 */
+struct up_dev_s {
+	uint32_t uartbase;  /* Base address of UART registers */
+	uint32_t baud;      /* Configured baud */
+	uint32_t ier;       /* Saved IER value */
+	uint8_t  irq;       /* IRQ associated with this UART */
+	uint8_t  parity;    /* 0=none, 1=odd, 2=even */
+	uint8_t  bits;      /* Number of bits (7 or 8) */
+	bool     stopbits2; /* true: Configure with 2 stop bits instead of 1 */
 };
 
 /****************************************************************************
@@ -138,30 +137,28 @@ static struct uart_ops_s g_uart_ops;
 /* This describes the state of the RDA5981x uart1 port. */
 
 #ifdef CONFIG_RDA5981X_UART1
-static struct up_dev_s g_uart1priv =
-{
-  .uartbase       = RDA_UART1_BASE,
-  .baud           = CONFIG_UART1_BAUD,
-  .irq            = RDA_IRQ_UART1,
-  .parity         = CONFIG_UART1_PARITY,
-  .bits           = CONFIG_UART1_BITS,
-  .stopbits2      = CONFIG_UART1_2STOP,
+static struct up_dev_s g_uart1priv = {
+	.uartbase       = RDA_UART1_BASE,
+	.baud           = CONFIG_UART1_BAUD,
+	.irq            = RDA_IRQ_UART1,
+	.parity         = CONFIG_UART1_PARITY,
+	.bits           = CONFIG_UART1_BITS,
+	.stopbits2      = CONFIG_UART1_2STOP,
 };
 
-static uart_dev_t g_uart1port =
-{
-  .recv     =
-  {
-    .size   = CONFIG_UART1_RXBUFSIZE,
-    .buffer = g_uart1rxbuffer,
-  },
-  .xmit     =
-  {
-    .size   = CONFIG_UART1_TXBUFSIZE,
-    .buffer = g_uart1txbuffer,
-  },
-  .ops      = &g_uart_ops,
-  .priv     = &g_uart1priv,
+static uart_dev_t g_uart1port = {
+	.recv     =
+	{
+		.size   = CONFIG_UART1_RXBUFSIZE,
+		.buffer = g_uart1rxbuffer,
+	},
+	.xmit     =
+	{
+		.size   = CONFIG_UART1_TXBUFSIZE,
+		.buffer = g_uart1txbuffer,
+	},
+	.ops      = &g_uart_ops,
+	.priv     = &g_uart1priv,
 };
 #endif
 
@@ -204,7 +201,7 @@ static uart_dev_t g_uart1port =
 
 static inline uint32_t up_serialin(struct up_dev_s *priv, int offset)
 {
-  return getreg32(priv->uartbase + offset);
+	return getreg32(priv->uartbase + offset);
 }
 
 /****************************************************************************
@@ -214,7 +211,7 @@ static inline uint32_t up_serialin(struct up_dev_s *priv, int offset)
 static inline void up_serialout(struct up_dev_s *priv, int offset, uint32_t value)
 {
 
-  putreg32(value, priv->uartbase + offset);
+	putreg32(value, priv->uartbase + offset);
 }
 
 /****************************************************************************
@@ -223,13 +220,12 @@ static inline void up_serialout(struct up_dev_s *priv, int offset, uint32_t valu
 
 static inline void up_disableuartint(struct up_dev_s *priv, uint32_t *ier)
 {
-  if (ier)
-    {
-      *ier = priv->ier & UART_IER_ALLIE;
-    }
+	if (ier) {
+		*ier = priv->ier & UART_IER_ALLIE;
+	}
 
-  priv->ier &= ~UART_IER_ALLIE;
-  up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
+	priv->ier &= ~UART_IER_ALLIE;
+	up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
 }
 
 /****************************************************************************
@@ -238,8 +234,8 @@ static inline void up_disableuartint(struct up_dev_s *priv, uint32_t *ier)
 
 static inline void up_restoreuartint(struct up_dev_s *priv, uint32_t ier)
 {
-  priv->ier |= ier & UART_IER_ALLIE;
-  up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
+	priv->ier |= ier & UART_IER_ALLIE;
+	up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
 }
 
 /****************************************************************************
@@ -248,18 +244,15 @@ static inline void up_restoreuartint(struct up_dev_s *priv, uint32_t ier)
 
 static inline void up_enablebreaks(struct up_dev_s *priv, bool enable)
 {
-  uint32_t lcr = up_serialin(priv, RDA_UART_LCR_OFFSET);
+	uint32_t lcr = up_serialin(priv, RDA_UART_LCR_OFFSET);
 
-  if (enable)
-    {
-      lcr |= UART_LCR_BRK;
-    }
-  else
-    {
-      lcr &= ~UART_LCR_BRK;
-    }
+	if (enable) {
+		lcr |= UART_LCR_BRK;
+	} else {
+		lcr &= ~UART_LCR_BRK;
+	}
 
-  up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
+	up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
 }
 
 /************************************************************************************
@@ -280,31 +273,31 @@ static inline void up_enablebreaks(struct up_dev_s *priv, bool enable)
 #ifdef CONFIG_RDA5981X_UART0
 static inline void rda_uart0config(void)
 {
-  /* Step 1: Enable power on UART0 */
+	/* Step 1: Enable power on UART0 */
 
-  /* Step 2: Enable clocking on UART */
+	/* Step 2: Enable clocking on UART */
 
-  /* Step 3: Configure I/O pins */
+	/* Step 3: Configure I/O pins */
 
-  rda_configgpio(GPIO_UART0_TXD);
-  rda_configgpio(GPIO_UART0_RXD);
+	rda_configgpio(GPIO_UART0_TXD);
+	rda_configgpio(GPIO_UART0_RXD);
 };
 #endif
 
 #ifdef CONFIG_RDA5981X_UART1
 static inline void rda_uart1config(void)
 {
-  /* Step 1: Enable power on UART1 */
+	/* Step 1: Enable power on UART1 */
 
-  /* Step 2: Enable clocking on UART */
+	/* Step 2: Enable clocking on UART */
 
-  /* Step 3: Configure I/O pins */
+	/* Step 3: Configure I/O pins */
 
-  rda_configgpio(GPIO_UART1_TXD);
-  rda_configgpio(GPIO_UART1_RXD);
+	rda_configgpio(GPIO_UART1_TXD);
+	rda_configgpio(GPIO_UART1_RXD);
 #if defined(CONFIG_UART1_IFLOWCONTROL) || defined(CONFIG_UART1_OFLOWCONTROL)
-  rda_configgpio(GPIO_UART1_CTS);
-  rda_configgpio(GPIO_UART1_RTS);
+	rda_configgpio(GPIO_UART1_CTS);
+	rda_configgpio(GPIO_UART1_RTS);
 #endif
 };
 #endif
@@ -326,14 +319,14 @@ static inline void rda_uart1config(void)
 
 static inline uint32_t rda_uartdl(uint32_t baud, uint8_t *dl2)
 {
-  uint32_t dl;
-  uint8_t mod;
+	uint32_t dl;
+	uint8_t mod;
 
-  dl = (RDA_AHB_CLK_FREQUENCY / baud) >> 4;
-  mod = (uint8_t)((RDA_AHB_CLK_FREQUENCY / baud) & 0x0F);
-  *dl2 = ((mod - (mod >> 1)) << 4) | (mod >> 1);
+	dl = (RDA_AHB_CLK_FREQUENCY / baud) >> 4;
+	mod = (uint8_t)((RDA_AHB_CLK_FREQUENCY / baud) & 0x0F);
+	*dl2 = ((mod - (mod >> 1)) << 4) | (mod >> 1);
 
-  return dl;
+	return dl;
 }
 
 /****************************************************************************
@@ -352,82 +345,74 @@ static inline uint32_t rda_uartdl(uint32_t baud, uint8_t *dl2)
 static int up_setup(struct uart_dev_s *dev)
 {
 #ifndef CONFIG_SUPPRESS_UART_CONFIG
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  uint16_t dl;
-  uint8_t dl2;
-  uint32_t lcr;
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	uint16_t dl;
+	uint8_t dl2;
+	uint32_t lcr;
 
-  /* Clear fifos */
+	/* Clear fifos */
 
-  up_serialout(priv, RDA_UART_FCR_OFFSET, (UART_FCR_RXRST | UART_FCR_TXRST));
+	up_serialout(priv, RDA_UART_FCR_OFFSET, (UART_FCR_RXRST | UART_FCR_TXRST));
 
-  /* Set trigger */
+	/* Set trigger */
 
-  up_serialout(priv, RDA_UART_FCR_OFFSET, (UART_FCR_FIFOEN | UART_FCR_RXTRIGGER_L0));
+	up_serialout(priv, RDA_UART_FCR_OFFSET, (UART_FCR_FIFOEN | UART_FCR_RXTRIGGER_L0));
 
-  /* Set up the IER */
+	/* Set up the IER */
 
-  priv->ier = up_serialin(priv, RDA_UART_IER_OFFSET);
+	priv->ier = up_serialin(priv, RDA_UART_IER_OFFSET);
 
-  /* Set up the LCR */
+	/* Set up the LCR */
 
-  lcr = 0;
+	lcr = 0;
 
-  if (priv->bits == 7)
-    {
-      lcr |= UART_LCR_WLS_7BIT;
-    }
-  else
-    {
-      lcr |= UART_LCR_WLS_8BIT;
-    }
+	if (priv->bits == 7) {
+		lcr |= UART_LCR_WLS_7BIT;
+	} else {
+		lcr |= UART_LCR_WLS_8BIT;
+	}
 
-  if (priv->stopbits2)
-    {
-      lcr |= UART_LCR_STOP;
-    }
+	if (priv->stopbits2) {
+		lcr |= UART_LCR_STOP;
+	}
 
-  if (priv->parity == 1)
-    {
-      lcr |= (UART_LCR_PE | UART_LCR_PS_ODD);
-    }
-  else if (priv->parity == 2)
-    {
-      lcr |= (UART_LCR_PE | UART_LCR_PS_EVEN);
-    }
+	if (priv->parity == 1) {
+		lcr |= (UART_LCR_PE | UART_LCR_PS_ODD);
+	} else if (priv->parity == 2) {
+		lcr |= (UART_LCR_PE | UART_LCR_PS_EVEN);
+	}
 
-  /* Enter DLAB=1 */
+	/* Enter DLAB=1 */
 
-  up_serialout(priv, RDA_UART_LCR_OFFSET, (lcr | UART_LCR_DLAB));
+	up_serialout(priv, RDA_UART_LCR_OFFSET, (lcr | UART_LCR_DLAB));
 
-  /* Set the BAUD divisor */
+	/* Set the BAUD divisor */
 
-  dl = rda_uartdl(priv->baud, &dl2);
-  up_serialout(priv, RDA_UART_DLM_OFFSET, dl >> 8);
-  up_serialout(priv, RDA_UART_DLL_OFFSET, dl & 0xff);
-  up_serialout(priv, RDA_UART_DL2_OFFSET, dl2);
+	dl = rda_uartdl(priv->baud, &dl2);
+	up_serialout(priv, RDA_UART_DLM_OFFSET, dl >> 8);
+	up_serialout(priv, RDA_UART_DLL_OFFSET, dl & 0xff);
+	up_serialout(priv, RDA_UART_DL2_OFFSET, dl2);
 
-  /* Clear DLAB */
+	/* Clear DLAB */
 
-  up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
+	up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
 
-  /* Configure the FIFOs */
+	/* Configure the FIFOs */
 
-  up_serialout(priv, RDA_UART_FCR_OFFSET,
-               (UART_FCR_RXTRIGGER_L0 | UART_FCR_TXRST | UART_FCR_RXRST |
-                UART_FCR_FIFOEN));
+	up_serialout(priv, RDA_UART_FCR_OFFSET,
+				 (UART_FCR_RXTRIGGER_L0 | UART_FCR_TXRST | UART_FCR_RXRST |
+				  UART_FCR_FIFOEN));
 
-  /* Enable Auto Flow Control in the Modem Control Register */
+	/* Enable Auto Flow Control in the Modem Control Register */
 
 #if defined(CONFIG_UART1_IFLOWCONTROL) || defined(CONFIG_UART1_OFLOWCONTROL)
-  if (priv->uartbase == RDA_UART1_BASE)
-    {
-      up_serialout(priv, RDA_UART_MCR_OFFSET, UART_MCR_AFCE | UART_MCR_CSEL);
-    }
+	if (priv->uartbase == RDA_UART1_BASE) {
+		up_serialout(priv, RDA_UART_MCR_OFFSET, UART_MCR_AFCE | UART_MCR_CSEL);
+	}
 #endif
 
 #endif
-  return OK;
+	return OK;
 }
 
 /****************************************************************************
@@ -440,8 +425,8 @@ static int up_setup(struct uart_dev_s *dev)
 
 static void up_shutdown(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  up_disableuartint(priv, NULL);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	up_disableuartint(priv, NULL);
 }
 
 /****************************************************************************
@@ -461,21 +446,20 @@ static void up_shutdown(struct uart_dev_s *dev)
 
 static int up_attach(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  int ret;
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	int ret;
 
-  /* Attach and enable the IRQ */
+	/* Attach and enable the IRQ */
 
-  ret = irq_attach(priv->irq, up_interrupt, dev);
-  if (ret == OK)
-    {
-      /* Enable the interrupt (RX and TX interrupts are still disabled
-       * in the UART
-       */
-      up_enable_irq(priv->irq);
-    }
+	ret = irq_attach(priv->irq, up_interrupt, dev);
+	if (ret == OK) {
+		/* Enable the interrupt (RX and TX interrupts are still disabled
+		 * in the UART
+		 */
+		up_enable_irq(priv->irq);
+	}
 
-  return ret;
+	return ret;
 }
 
 /****************************************************************************
@@ -490,9 +474,9 @@ static int up_attach(struct uart_dev_s *dev)
 
 static void up_detach(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  up_disable_irq(priv->irq);
-  irq_detach(priv->irq);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	up_disable_irq(priv->irq);
+	irq_detach(priv->irq);
 }
 
 /****************************************************************************
@@ -509,92 +493,84 @@ static void up_detach(struct uart_dev_s *dev)
 
 static int up_interrupt(int irq, void *context, void *arg)
 {
-  struct uart_dev_s *dev = (struct uart_dev_s *)arg;
-  struct up_dev_s   *priv;
-  uint32_t           status;
-  int                passes;
+	struct uart_dev_s *dev = (struct uart_dev_s *)arg;
+	struct up_dev_s   *priv;
+	uint32_t           status;
+	int                passes;
 
-  DEBUGASSERT(dev != NULL && dev->priv != NULL);
-  priv = (struct up_dev_s *)dev->priv;
+	DEBUGASSERT(dev != NULL && dev->priv != NULL);
+	priv = (struct up_dev_s *)dev->priv;
 
-  /* Loop until there are no characters to be transferred or,
-   * until we have been looping for a long time.
-   */
+	/* Loop until there are no characters to be transferred or,
+	 * until we have been looping for a long time.
+	 */
 
-  for (passes = 0; passes < 256; passes++)
-    {
-      /* Get the current UART status and check for loop
-       * termination conditions
-       */
+	for (passes = 0; passes < 256; passes++) {
+		/* Get the current UART status and check for loop
+		 * termination conditions
+		 */
 
-       status = up_serialin(priv, RDA_UART_IIR_OFFSET);
+		status = up_serialin(priv, RDA_UART_IIR_OFFSET);
 
-      /* The UART_IIR_INTSTATUS bit should be zero if there are pending
-       * interrupts
-       */
+		/* The UART_IIR_INTSTATUS bit should be zero if there are pending
+		 * interrupts
+		 */
 
-      if ((status & UART_IIR_INTSTATUS) != 0)
-        {
-          /* Break out of the loop when there is no longer a
-           * pending interrupt
-           */
+		if ((status & UART_IIR_INTSTATUS) != 0) {
+			/* Break out of the loop when there is no longer a
+			 * pending interrupt
+			 */
 
-          break;
-        }
+			break;
+		}
 
-      /* Handle the interrupt by its interrupt ID field */
+		/* Handle the interrupt by its interrupt ID field */
 
-      switch (status & UART_IIR_INTID_MASK)
-        {
-          /* Handle incoming, receive bytes (with or without timeout) */
+		switch (status & UART_IIR_INTID_MASK) {
+		/* Handle incoming, receive bytes (with or without timeout) */
 
-          case UART_IIR_INTID_RDA:
-          case UART_IIR_INTID_CTI:
-            {
-              uart_recvchars(dev);
-              break;
-            }
+		case UART_IIR_INTID_RDA:
+		case UART_IIR_INTID_CTI: {
+			uart_recvchars(dev);
+			break;
+		}
 
-          /* Handle outgoing, transmit bytes */
+		/* Handle outgoing, transmit bytes */
 
-          case UART_IIR_INTID_THRE:
-            {
-              uart_xmitchars(dev);
-              break;
-            }
+		case UART_IIR_INTID_THRE: {
+			uart_xmitchars(dev);
+			break;
+		}
 
-          /* Just clear modem status interrupts (UART1 only) */
+		/* Just clear modem status interrupts (UART1 only) */
 
-          case UART_IIR_INTID_MSI:
-            {
-              /* Read the modem status register (MSR) to clear */
+		case UART_IIR_INTID_MSI: {
+			/* Read the modem status register (MSR) to clear */
 
-              status = up_serialin(priv, RDA_UART_MSR_OFFSET);
-              //_info("MSR: %02x\n", status);
-              break;
-            }
+			status = up_serialin(priv, RDA_UART_MSR_OFFSET);
+			//_info("MSR: %02x\n", status);
+			break;
+		}
 
-          /* Just clear any line status interrupts */
+		/* Just clear any line status interrupts */
 
-          case UART_IIR_INTID_RLS:
-            {
-              /* Read the line status register (LSR) to clear */
+		case UART_IIR_INTID_RLS: {
+			/* Read the line status register (LSR) to clear */
 
-              status = up_serialin(priv, RDA_UART_LSR_OFFSET);
-              //_info("LSR: %02x\n", status);
-              break;
-            }
+			status = up_serialin(priv, RDA_UART_LSR_OFFSET);
+			//_info("LSR: %02x\n", status);
+			break;
+		}
 
-          /* There should be no other values */
+		/* There should be no other values */
 
-          default:
-            {
-              //_err("ERROR: Unexpected IIR: %02x\n", status);
-              break;
-            }
-        }
-    }
-    return OK;
+		default: {
+			//_err("ERROR: Unexpected IIR: %02x\n", status);
+			break;
+		}
+		}
+	}
+	return OK;
 }
 
 /****************************************************************************
@@ -607,119 +583,108 @@ static int up_interrupt(int irq, void *context, void *arg)
 
 static int up_ioctl(struct file *filep, int cmd, unsigned long arg)
 {
-  struct inode      *inode = filep->f_inode;
-  struct uart_dev_s *dev   = inode->i_private;
-  struct up_dev_s   *priv  = (struct up_dev_s *)dev->priv;
-  int                ret    = OK;
+	struct inode      *inode = filep->f_inode;
+	struct uart_dev_s *dev   = inode->i_private;
+	struct up_dev_s   *priv  = (struct up_dev_s *)dev->priv;
+	int                ret    = OK;
 
-  switch (cmd)
-    {
+	switch (cmd) {
 #ifdef CONFIG_SERIAL_TIOCSERGSTRUCT
-    case TIOCSERGSTRUCT:
-      {
-        struct up_dev_s *user = (struct up_dev_s *)arg;
-        if (!user)
-          {
-            ret = -EINVAL;
-          }
-        else
-          {
-            memcpy(user, dev, sizeof(struct up_dev_s));
-          }
-      }
-      break;
+	case TIOCSERGSTRUCT: {
+		struct up_dev_s *user = (struct up_dev_s *)arg;
+		if (!user) {
+			ret = -EINVAL;
+		} else {
+			memcpy(user, dev, sizeof(struct up_dev_s));
+		}
+	}
+	break;
 #endif
 
-    case TIOCSBRK:  /* BSD compatibility: Turn break on, unconditionally */
-      {
-       // irqstate_t flags = enter_critical_section();
-        up_enablebreaks(priv, true);
-       // leave_critical_section(flags);
-      }
-      break;
+	case TIOCSBRK: { /* BSD compatibility: Turn break on, unconditionally */
+		// irqstate_t flags = enter_critical_section();
+		up_enablebreaks(priv, true);
+		// leave_critical_section(flags);
+	}
+	break;
 
-    case TIOCCBRK:  /* BSD compatibility: Turn break off, unconditionally */
-      {
-        //irqstate_t flags;
-        //flags = enter_critical_section();
-        up_enablebreaks(priv, false);
-       // leave_critical_section(flags);
-      }
-      break;
+	case TIOCCBRK: { /* BSD compatibility: Turn break off, unconditionally */
+		//irqstate_t flags;
+		//flags = enter_critical_section();
+		up_enablebreaks(priv, false);
+		// leave_critical_section(flags);
+	}
+	break;
 
 #ifdef CONFIG_SERIAL_TERMIOS
-    case TCGETS:
-      {
-        struct termios *termiosp = (struct termios *)arg;
+	case TCGETS: {
+		struct termios *termiosp = (struct termios *)arg;
 
-        if (!termiosp)
-          {
-            ret = -EINVAL;
-            break;
-          }
+		if (!termiosp) {
+			ret = -EINVAL;
+			break;
+		}
 
-        /* TODO:  Other termios fields are not yet returned.
-         * Note that cfsetospeed is not necessary because we have
-         * knowledge that only one speed is supported.
-         * Both cfset(i|o)speed() translate to cfsetspeed.
-         */
+		/* TODO:  Other termios fields are not yet returned.
+		 * Note that cfsetospeed is not necessary because we have
+		 * knowledge that only one speed is supported.
+		 * Both cfset(i|o)speed() translate to cfsetspeed.
+		 */
 
-        cfsetispeed(termiosp, priv->baud);
-      }
-      break;
+		cfsetispeed(termiosp, priv->baud);
+	}
+	break;
 
-    case TCSETS:
-      {
-        struct termios *termiosp = (struct termios *)arg;
-        uint32_t           lcr;  /* Holds current values of line control register */
-        uint16_t           dl;   /* Divisor latch */
-        uint8_t            dl2;  /* Divisor latch adjust */
+	case TCSETS: {
+		struct termios *termiosp = (struct termios *)arg;
+		uint32_t           lcr;  /* Holds current values of line control register */
+		uint16_t           dl;   /* Divisor latch */
+		uint8_t            dl2;  /* Divisor latch adjust */
 
-        if (!termiosp)
-          {
-            ret = -EINVAL;
-            break;
-          }
+		if (!termiosp) {
+			ret = -EINVAL;
+			break;
+		}
 
-        /* TODO:  Handle other termios settings.
-         * Note that only cfgetispeed is used because we have knowledge
-         * that only one speed is supported.
-         */
+		/* TODO:  Handle other termios settings.
+		 * Note that only cfgetispeed is used because we have knowledge
+		 * that only one speed is supported.
+		 */
 
-        /* Get the c_speed field in the termios struct */
+		/* Get the c_speed field in the termios struct */
 
-        priv->baud = cfgetispeed(termiosp);
+		priv->baud = cfgetispeed(termiosp);
 
-        /* TODO: Re-calculate the optimal CCLK divisor for the new baud and
-         * and reset the divider in the CLKSEL0/1 register.
-         */
+		/* TODO: Re-calculate the optimal CCLK divisor for the new baud and
+		 * and reset the divider in the CLKSEL0/1 register.
+		 */
 
-        /* DLAB open latch */
-        /* REVISIT:  Shouldn't we just call up_setup() to do all of the following? */
+		/* DLAB open latch */
+		/* REVISIT:  Shouldn't we just call up_setup() to do all of the following? */
 
-        lcr = getreg32(priv->uartbase + RDA_UART_LCR_OFFSET);
-        up_serialout(priv, RDA_UART_LCR_OFFSET, (lcr | UART_LCR_DLAB));
+		lcr = getreg32(priv->uartbase + RDA_UART_LCR_OFFSET);
+		up_serialout(priv, RDA_UART_LCR_OFFSET, (lcr | UART_LCR_DLAB));
 
-        /* Set the BAUD divisor */
+		/* Set the BAUD divisor */
 
-        dl = rda_uartdl(priv->baud, &dl2);
-        up_serialout(priv, RDA_UART_DLM_OFFSET, dl >> 8);
-        up_serialout(priv, RDA_UART_DLL_OFFSET, dl & 0xff);
-        up_serialout(priv, RDA_UART_DL2_OFFSET, dl2);
+		dl = rda_uartdl(priv->baud, &dl2);
+		up_serialout(priv, RDA_UART_DLM_OFFSET, dl >> 8);
+		up_serialout(priv, RDA_UART_DLL_OFFSET, dl & 0xff);
+		up_serialout(priv, RDA_UART_DL2_OFFSET, dl2);
 
-        /* Clear DLAB */
+		/* Clear DLAB */
 
-        up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
-      }
-      break;
+		up_serialout(priv, RDA_UART_LCR_OFFSET, lcr);
+	}
+	break;
 #endif
 
-    default:
-      ret = -ENOTTY;
-      break;
-    }
+	default:
+		ret = -ENOTTY;
+		break;
+	}
 
-  return ret;
+	return ret;
 }
 
 /****************************************************************************
@@ -734,12 +699,12 @@ static int up_ioctl(struct file *filep, int cmd, unsigned long arg)
 
 static int up_receive(struct uart_dev_s *dev, uint32_t *status)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  uint32_t rbr;
-   
-  *status = up_serialin(priv, RDA_UART_LSR_OFFSET);
-  rbr     = up_serialin(priv, RDA_UART_RBR_OFFSET) &  0x00FFUL;
-  return rbr;
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	uint32_t rbr;
+
+	*status = up_serialin(priv, RDA_UART_LSR_OFFSET);
+	rbr     = up_serialin(priv, RDA_UART_RBR_OFFSET) &  0x00FFUL;
+	return rbr;
 }
 
 /****************************************************************************
@@ -752,20 +717,17 @@ static int up_receive(struct uart_dev_s *dev, uint32_t *status)
 
 static void up_rxint(struct uart_dev_s *dev, bool enable)
 {
- 
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  if (enable)
-    {
-#ifndef CONFIG_SUPPRESS_SERIAL_INTS
-      priv->ier |= UART_IER_RBRIE;
-#endif
-    }
-  else
-    {
-      priv->ier &= ~UART_IER_RBRIE;
-    }
 
-  up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	if (enable) {
+#ifndef CONFIG_SUPPRESS_SERIAL_INTS
+		priv->ier |= UART_IER_RBRIE;
+#endif
+	} else {
+		priv->ier &= ~UART_IER_RBRIE;
+	}
+
+	up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
 }
 
 /****************************************************************************
@@ -778,8 +740,8 @@ static void up_rxint(struct uart_dev_s *dev, bool enable)
 
 static bool up_rxavailable(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_RDR) != 0);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_RDR) != 0);
 }
 
 /****************************************************************************
@@ -792,8 +754,8 @@ static bool up_rxavailable(struct uart_dev_s *dev)
 
 static void up_send(struct uart_dev_s *dev, int ch)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  up_serialout(priv, RDA_UART_THR_OFFSET, (uint32_t)ch);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	up_serialout(priv, RDA_UART_THR_OFFSET, (uint32_t)ch);
 }
 
 /****************************************************************************
@@ -806,31 +768,28 @@ static void up_send(struct uart_dev_s *dev, int ch)
 
 static void up_txint(struct uart_dev_s *dev, bool enable)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
 //  irqstate_t flags;
 
-  //flags = enter_critical_section();
-  if (enable)
-    {
+	//flags = enter_critical_section();
+	if (enable) {
 #ifndef CONFIG_SUPPRESS_SERIAL_INTS
-      priv->ier |= UART_IER_THREIE;
-      up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
+		priv->ier |= UART_IER_THREIE;
+		up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
 
-      /* Fake a TX interrupt here by just calling uart_xmitchars() with
-       * interrupts disabled (note this may recurse).
-       */
+		/* Fake a TX interrupt here by just calling uart_xmitchars() with
+		 * interrupts disabled (note this may recurse).
+		 */
 #if 0
-    	 uart_xmitchars(dev);
+		uart_xmitchars(dev);
 #endif
 #endif
-    }
-  else
-    {
-      priv->ier &= ~UART_IER_THREIE;
-      up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
-    }
+	} else {
+		priv->ier &= ~UART_IER_THREIE;
+		up_serialout(priv, RDA_UART_IER_OFFSET, priv->ier);
+	}
 
-  //leave_critical_section(flags);
+	//leave_critical_section(flags);
 }
 
 /****************************************************************************
@@ -843,8 +802,8 @@ static void up_txint(struct uart_dev_s *dev, bool enable)
 
 static bool up_txready(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_THRE) != 0);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_THRE) != 0);
 }
 
 /****************************************************************************
@@ -857,8 +816,8 @@ static bool up_txready(struct uart_dev_s *dev)
 
 static bool up_txempty(struct uart_dev_s *dev)
 {
-  struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
-  return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_THRE) != 0);
+	struct up_dev_s *priv = (struct up_dev_s *)dev->priv;
+	return ((up_serialin(priv, RDA_UART_LSR_OFFSET) & UART_LSR_THRE) != 0);
 }
 
 /****************************************************************************
@@ -880,58 +839,58 @@ static bool up_txempty(struct uart_dev_s *dev)
 
 void up_earlyserialinit(void)
 {
-  /* Configure all UARTs (except the CONSOLE UART) and disable interrupts */
+	/* Configure all UARTs (except the CONSOLE UART) and disable interrupts */
 
 #ifdef CONFIG_RDA5981X_UART0
 #ifndef CONFIG_UART0_SERIAL_CONSOLE
-  rda_uart0config();
+	rda_uart0config();
 #endif
 
-  g_uart0priv.uartbase       = RDA_UART0_BASE;
-  g_uart0priv.baud           = CONFIG_UART0_BAUD;
-  g_uart0priv.irq            = RDA_IRQ_UART0;
-  g_uart0priv.parity         = CONFIG_UART0_PARITY;
-  g_uart0priv.bits           = CONFIG_UART0_BITS;
-  g_uart0priv.stopbits2      = CONFIG_UART0_2STOP;
-  up_disableuartint(&g_uart0priv, NULL);
+	g_uart0priv.uartbase       = RDA_UART0_BASE;
+	g_uart0priv.baud           = CONFIG_UART0_BAUD;
+	g_uart0priv.irq            = RDA_IRQ_UART0;
+	g_uart0priv.parity         = CONFIG_UART0_PARITY;
+	g_uart0priv.bits           = CONFIG_UART0_BITS;
+	g_uart0priv.stopbits2      = CONFIG_UART0_2STOP;
+	up_disableuartint(&g_uart0priv, NULL);
 #endif
 
 #ifdef CONFIG_RDA5981X_UART1
 #ifndef CONFIG_UART1_SERIAL_CONSOLE
-  rda_uart1config();
+	rda_uart1config();
 #else
 #endif
-  up_disableuartint(&g_uart1priv, NULL);
+	up_disableuartint(&g_uart1priv, NULL);
 #endif
 
-  /* Configuration whichever one is the console */
+	/* Configuration whichever one is the console */
 
-  CONSOLE_DEV.isconsole = true;
-  g_uart_ops.setup = up_setup;
-  g_uart_ops.shutdown = up_shutdown;
-  g_uart_ops.attach  = up_attach;
-  g_uart_ops.detach  = up_detach;
-  g_uart_ops.ioctl    = up_ioctl;
-  g_uart_ops.receive   = up_receive;
-  g_uart_ops.rxint          = up_rxint;
-  g_uart_ops.rxavailable    = up_rxavailable;
+	CONSOLE_DEV.isconsole = true;
+	g_uart_ops.setup = up_setup;
+	g_uart_ops.shutdown = up_shutdown;
+	g_uart_ops.attach  = up_attach;
+	g_uart_ops.detach  = up_detach;
+	g_uart_ops.ioctl    = up_ioctl;
+	g_uart_ops.receive   = up_receive;
+	g_uart_ops.rxint          = up_rxint;
+	g_uart_ops.rxavailable    = up_rxavailable;
 #ifdef CONFIG_SERIAL_IFLOWCONTROL
-  g_uart_ops.rxflowcontrol  = NULL;
+	g_uart_ops.rxflowcontrol  = NULL;
 #endif
-  g_uart_ops.send = up_send;
-  g_uart_ops.txint  = up_txint;
-  g_uart_ops.txready        = up_txready;
-  g_uart_ops.txempty        = up_txempty;
- 
-  g_uart0port.recv.size = CONFIG_UART0_RXBUFSIZE;
-  g_uart0port.recv.buffer = g_uart0rxbuffer;
+	g_uart_ops.send = up_send;
+	g_uart_ops.txint  = up_txint;
+	g_uart_ops.txready        = up_txready;
+	g_uart_ops.txempty        = up_txempty;
 
-  g_uart0port.xmit.size = CONFIG_UART0_TXBUFSIZE;
-  g_uart0port.xmit.buffer = g_uart0txbuffer;
-  g_uart0port.ops      = &g_uart_ops;
-  g_uart0port.priv     = &g_uart0priv;
-  
-  up_setup(&CONSOLE_DEV);
+	g_uart0port.recv.size = CONFIG_UART0_RXBUFSIZE;
+	g_uart0port.recv.buffer = g_uart0rxbuffer;
+
+	g_uart0port.xmit.size = CONFIG_UART0_TXBUFSIZE;
+	g_uart0port.xmit.buffer = g_uart0txbuffer;
+	g_uart0port.ops      = &g_uart_ops;
+	g_uart0port.priv     = &g_uart0priv;
+
+	up_setup(&CONSOLE_DEV);
 }
 
 /****************************************************************************
@@ -946,13 +905,13 @@ void up_earlyserialinit(void)
 void up_serialinit(void)
 {
 #ifdef CONSOLE_DEV
-   (void)uart_register("/dev/console", &CONSOLE_DEV);
+	(void)uart_register("/dev/console", &CONSOLE_DEV);
 #endif
 #ifdef TTYS0_DEV
-  (void)uart_register("/dev/ttyS0", &TTYS0_DEV);
+	(void)uart_register("/dev/ttyS0", &TTYS0_DEV);
 #endif
 #ifdef TTYS1_DEV
-  (void)uart_register("/dev/ttyS1", &TTYS1_DEV);
+	(void)uart_register("/dev/ttyS1", &TTYS1_DEV);
 #endif
 }
 
@@ -967,26 +926,25 @@ void up_serialinit(void)
 int up_putc(int ch)
 {
 #ifdef HAVE_CONSOLE
-  struct up_dev_s *priv = (struct up_dev_s *)CONSOLE_DEV.priv;
-  uint32_t ier;
-  up_disableuartint(priv, &ier);
+	struct up_dev_s *priv = (struct up_dev_s *)CONSOLE_DEV.priv;
+	uint32_t ier;
+	up_disableuartint(priv, &ier);
 #endif
 
-  /* Check for LF */
+	/* Check for LF */
 
-  if (ch == '\n')
-    {
-      /* Add CR */
+	if (ch == '\n') {
+		/* Add CR */
 
-      up_lowputc('\r');
-    }
+		up_lowputc('\r');
+	}
 
-  up_lowputc(ch);
+	up_lowputc(ch);
 #ifdef HAVE_CONSOLE
-  up_restoreuartint(priv, ier);
+	up_restoreuartint(priv, ier);
 #endif
 
-  return ch;
+	return ch;
 }
 
 #else /* USE_SERIALDRIVER */
@@ -1002,18 +960,17 @@ int up_putc(int ch)
 int up_putc(int ch)
 {
 #ifdef HAVE_UART
-  /* Check for LF */
+	/* Check for LF */
 
-  if (ch == '\n')
-    {
-      /* Add CR */
+	if (ch == '\n') {
+		/* Add CR */
 
-      up_lowputc('\r');
-    }
+		up_lowputc('\r');
+	}
 
-  up_lowputc(ch);
+	up_lowputc(ch);
 #endif
-  return ch;
+	return ch;
 }
 
 #endif

@@ -145,20 +145,20 @@ static void s5j_alarm_callback(void)
 #endif /* CONFIG_RTC_ALARM */
 
 static int rtc_rdtime(FAR struct rtc_lowerhalf_s *lower,
-		      FAR struct rtc_time *rtctime)
+					  FAR struct rtc_time *rtctime)
 {
 	return up_rtc_getdatetime((FAR struct tm *)rtctime);
 }
 
 static int rtc_settime(FAR struct rtc_lowerhalf_s *lower,
-		       FAR const struct rtc_time *rtctime)
+					   FAR const struct rtc_time *rtctime)
 {
 	return up_rtc_setdatetime((FAR struct tm *)rtctime);
 }
 
 #ifdef CONFIG_RTC_ALARM
 static int rtc_setalarm(FAR struct rtc_lowerhalf_s *lower,
-			FAR const struct lower_setalarm_s *alarminfo)
+						FAR const struct lower_setalarm_s *alarminfo)
 {
 	FAR struct s5j_lowerhalf_s *priv;
 	FAR struct s5j_cbinfo_s *cbinfo;
@@ -191,7 +191,7 @@ static int rtc_setalarm(FAR struct rtc_lowerhalf_s *lower,
 }
 
 static int rtc_setrelative(FAR struct rtc_lowerhalf_s *lower,
-			   FAR const struct lower_setrelative_s *alarminfo)
+						   FAR const struct lower_setrelative_s *alarminfo)
 {
 	FAR struct s5j_lowerhalf_s *priv;
 	FAR struct s5j_cbinfo_s *cbinfo;

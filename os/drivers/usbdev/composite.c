@@ -165,7 +165,7 @@ static void composite_ep0incomplete(FAR struct usbdev_ep_s *ep, FAR struct usbde
 	/* Just check the result of the transfer */
 
 	if (req->result || req->xfrd != req->len) {
-		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_REQRESULT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_REQRESULT), (uint16_t) - req->result);
 	}
 }
 
@@ -554,7 +554,7 @@ static int composite_setup(FAR struct usbdevclass_driver_s *driver, FAR struct u
 
 		ret = EP_SUBMIT(dev->ep0, ctrlreq);
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_EPRESPQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_EPRESPQ), (uint16_t) - ret);
 			ctrlreq->result = OK;
 			composite_ep0incomplete(dev->ep0, ctrlreq);
 		}
@@ -748,13 +748,13 @@ FAR void *composite_initialize(void)
 
 	ret = DEV1_CLASSOBJECT(&priv->dev1);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_CLASSOBJECT), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_CLASSOBJECT), (uint16_t) - ret);
 		goto errout_with_alloc;
 	}
 
 	ret = DEV2_CLASSOBJECT(&priv->dev2);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_CLASSOBJECT), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_CLASSOBJECT), (uint16_t) - ret);
 		goto errout_with_alloc;
 	}
 
@@ -772,7 +772,7 @@ FAR void *composite_initialize(void)
 
 	ret = usbdev_register(&drvr->drvr);
 	if (ret) {
-		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_DEVREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBCOMPOSITE_TRACEERR_DEVREGISTER), (uint16_t) - ret);
 		goto errout_with_alloc;
 	}
 

@@ -82,93 +82,88 @@ extern "C" {
 #define __IO volatile
 #define __I  volatile
 typedef enum {
-    PWM_0 = 0,
-    PWM_1,
-    PWM_2,
-    PWM_3,
-    PWM_4,
-    PWM_5,
-    PWM_6,
-    PWM_7
+	PWM_0 = 0,
+	PWM_1,
+	PWM_2,
+	PWM_3,
+	PWM_4,
+	PWM_5,
+	PWM_6,
+	PWM_7
 } PWMName;
 
-typedef struct
-{
-  __IO uint32_t CFG;
-  __IO uint32_t D0CMD;
-  __IO uint32_t D1CMD;
+typedef struct {
+	__IO uint32_t CFG;
+	__IO uint32_t D0CMD;
+	__IO uint32_t D1CMD;
 } RDA_SPI_TypeDef;
 
 /*------------- Integrated Interchip Sound (I2S) -----------------------------*/
-typedef struct
-{
-  __IO uint32_t CFG;
-  __IO uint32_t DOUTWR;
-  __I  uint32_t DINRD;
+typedef struct {
+	__IO uint32_t CFG;
+	__IO uint32_t DOUTWR;
+	__I  uint32_t DINRD;
 } RDA_I2S_TypeDef;
 
 /*------------- External Interface (EXIF) ------------------------------------*/
-typedef struct
-{
-  RDA_SPI_TypeDef SPI0;                 /* 0x00 - 0x08 : SPI0 registers group */
-  RDA_I2S_TypeDef I2S;                  /* 0x0C - 0x14 : I2S registers group  */
-  __IO uint32_t MISCSTCFG;              /* 0x18 : Misc status config register */
-  __IO uint32_t SPI1CTRL;               /* 0x1C : SPI1 Control register       */
-       uint32_t RESERVED0[4];
-  __IO uint32_t MISCINTCFG;             /* 0x30 : Misc int config register    */
-  __IO uint32_t MBB2W;                  /* 0x34 : BT to WiFi mailbox register */
-  __IO uint32_t MBW2B;                  /* 0x38 : WiFi to BT mailbox register */
-  __IO uint32_t MISCCFG;                /* 0x3C : Misc configure register     */
-  __IO uint32_t PWM0CFG;                /* 0x40 : PWM0 configure register     */
-  __IO uint32_t PWM1CFG;                /* 0x44 : PWM1 configure register     */
-  __IO uint32_t PWM2CFG;                /* 0x48 : PWM2 configure register     */
-  __IO uint32_t PWM3CFG;                /* 0x4C : PWM3 configure register     */
+typedef struct {
+	RDA_SPI_TypeDef SPI0;                 /* 0x00 - 0x08 : SPI0 registers group */
+	RDA_I2S_TypeDef I2S;                  /* 0x0C - 0x14 : I2S registers group  */
+	__IO uint32_t MISCSTCFG;              /* 0x18 : Misc status config register */
+	__IO uint32_t SPI1CTRL;               /* 0x1C : SPI1 Control register       */
+	uint32_t RESERVED0[4];
+	__IO uint32_t MISCINTCFG;             /* 0x30 : Misc int config register    */
+	__IO uint32_t MBB2W;                  /* 0x34 : BT to WiFi mailbox register */
+	__IO uint32_t MBW2B;                  /* 0x38 : WiFi to BT mailbox register */
+	__IO uint32_t MISCCFG;                /* 0x3C : Misc configure register     */
+	__IO uint32_t PWM0CFG;                /* 0x40 : PWM0 configure register     */
+	__IO uint32_t PWM1CFG;                /* 0x44 : PWM1 configure register     */
+	__IO uint32_t PWM2CFG;                /* 0x48 : PWM2 configure register     */
+	__IO uint32_t PWM3CFG;                /* 0x4C : PWM3 configure register     */
 } RDA_EXIF_TypeDef;
 
 #define RDA_EXIF ((RDA_EXIF_TypeDef*) RDA_EXIF_BASE)
 
 struct pwmout_s {
-    uint32_t channel;
-    uint32_t base_clk;
-    uint32_t period_ticks;
-    uint32_t pulsewidth_ticks;
-    __IO uint32_t *CFGR;
+	uint32_t channel;
+	uint32_t base_clk;
+	uint32_t period_ticks;
+	uint32_t pulsewidth_ticks;
+	__IO uint32_t *CFGR;
 };
 
-typedef struct
-{
-  __IO uint32_t PWTCFG;                 /* 0x00 : PWT Config Register         */
-  __IO uint32_t LPGCFG;                 /* 0x04 : LPG Config Register         */
-  __IO uint32_t PWL0CFG;                /* 0x08 : PWL0 Config Register        */
-  __IO uint32_t PWL1CFG;                /* 0x0C : PWL1 Config Register        */
-  __IO uint32_t CLKR;                   /* 0x10 : Clock Config Register       */
+typedef struct {
+	__IO uint32_t PWTCFG;                 /* 0x00 : PWT Config Register         */
+	__IO uint32_t LPGCFG;                 /* 0x04 : LPG Config Register         */
+	__IO uint32_t PWL0CFG;                /* 0x08 : PWL0 Config Register        */
+	__IO uint32_t PWL1CFG;                /* 0x0C : PWL1 Config Register        */
+	__IO uint32_t CLKR;                   /* 0x10 : Clock Config Register       */
 } RDA_PWM_TypeDef;
 
-typedef struct
-{
-  __IO uint32_t CLKGATE0;               /* 0x00 : Clock Gating 0              */
-  __IO uint32_t PWRCTRL;                /* 0x04 : Power Control               */
-  __IO uint32_t CLKGATE1;               /* 0x08 : Clock Gating 1              */
-  __IO uint32_t CLKGATE2;               /* 0x0C : Clock Gating 2              */
-  __IO uint32_t RESETCTRL;              /* 0x10 : Power Control               */
-  __IO uint32_t CLKGATE3;               /* 0x14 : Clock Gating 3              */
-  __IO uint32_t CORECFG;                /* 0x18 : Core Config                 */
-  __IO uint32_t CPUCFG;                 /* 0x1C : CPU Config                  */
-  __IO uint32_t FTMRINITVAL;            /* 0x20 : Free Timer Initial Value    */
-  __IO uint32_t FTMRTS;                 /* 0x24 : Free Timer Timestamp        */
-  __IO uint32_t CLKGATEBP;              /* 0x28 : Clock Gating Bypass         */
-       uint32_t RESERVED0[2];
-  __IO uint32_t PWMCFG;                 /* 0x34 : PWM Config                  */
-  __IO uint32_t FUN0WAKEVAL;            /* 0x38 : SDIO Func0 Wake Val         */
-  __IO uint32_t FUN1WAKEVAL;            /* 0x3C : SDIO Func1 Wake Val         */
-  __IO uint32_t BOOTJUMPADDR;           /* 0x40 : Boot Jump Addr              */
-  __IO uint32_t SDIOINTVAL;             /* 0x44 : SDIO Int Val                */
-  __IO uint32_t I2SCLKDIV;              /* 0x48 : I2S Clock Divider           */
-  __IO uint32_t BOOTJUMPADDRCFG;        /* 0x4C : Boot Jump Addr Config       */
-  __IO uint32_t FTMRPREVAL;             /* 0x50 : Free Timer Prescale Init Val*/
-  __IO uint32_t PWROPENCFG;             /* 0x54 : Power Open Config           */
-  __IO uint32_t PWRCLOSECFG;            /* 0x58 : Power Close Config          */
- } RDA_SCU_TypeDef;
+typedef struct {
+	__IO uint32_t CLKGATE0;               /* 0x00 : Clock Gating 0              */
+	__IO uint32_t PWRCTRL;                /* 0x04 : Power Control               */
+	__IO uint32_t CLKGATE1;               /* 0x08 : Clock Gating 1              */
+	__IO uint32_t CLKGATE2;               /* 0x0C : Clock Gating 2              */
+	__IO uint32_t RESETCTRL;              /* 0x10 : Power Control               */
+	__IO uint32_t CLKGATE3;               /* 0x14 : Clock Gating 3              */
+	__IO uint32_t CORECFG;                /* 0x18 : Core Config                 */
+	__IO uint32_t CPUCFG;                 /* 0x1C : CPU Config                  */
+	__IO uint32_t FTMRINITVAL;            /* 0x20 : Free Timer Initial Value    */
+	__IO uint32_t FTMRTS;                 /* 0x24 : Free Timer Timestamp        */
+	__IO uint32_t CLKGATEBP;              /* 0x28 : Clock Gating Bypass         */
+	uint32_t RESERVED0[2];
+	__IO uint32_t PWMCFG;                 /* 0x34 : PWM Config                  */
+	__IO uint32_t FUN0WAKEVAL;            /* 0x38 : SDIO Func0 Wake Val         */
+	__IO uint32_t FUN1WAKEVAL;            /* 0x3C : SDIO Func1 Wake Val         */
+	__IO uint32_t BOOTJUMPADDR;           /* 0x40 : Boot Jump Addr              */
+	__IO uint32_t SDIOINTVAL;             /* 0x44 : SDIO Int Val                */
+	__IO uint32_t I2SCLKDIV;              /* 0x48 : I2S Clock Divider           */
+	__IO uint32_t BOOTJUMPADDRCFG;        /* 0x4C : Boot Jump Addr Config       */
+	__IO uint32_t FTMRPREVAL;             /* 0x50 : Free Timer Prescale Init Val*/
+	__IO uint32_t PWROPENCFG;             /* 0x54 : Power Open Config           */
+	__IO uint32_t PWRCLOSECFG;            /* 0x58 : Power Close Config          */
+} RDA_SCU_TypeDef;
 
 
 #define RDA_PWM  ((RDA_PWM_TypeDef *) RDA_PWM_BASE)

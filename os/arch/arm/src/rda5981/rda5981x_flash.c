@@ -166,7 +166,7 @@ ssize_t up_progmem_erasepage(size_t page)
 	if (page >= up_progmem_npages()) {
 		return -EFAULT;
 	}
-	
+
 	addr = up_progmem_getaddress(page);
 
 	/* Disable IRQs while erasing sector */
@@ -212,10 +212,8 @@ ssize_t up_progmem_ispageerased(size_t page)
 
 	bwritten = 0;
 	addr = up_progmem_getaddress(page);
-	for (count = up_progmem_pagesize(page); count; count--)
-	{
-		if (0 == rda5981_read_flash(addr, (char *)&word, sizeof(word)) && word != 0xffffffff)
-		{
+	for (count = up_progmem_pagesize(page); count; count--) {
+		if (0 == rda5981_read_flash(addr, (char *)&word, sizeof(word)) && word != 0xffffffff) {
 			bwritten++;
 		}
 		addr += sizeof(int);
@@ -258,41 +256,28 @@ ssize_t up_progmem_write(size_t addr, const void *buf, size_t count)
 	int32_t result = 0;
 	ssize_t ret = 0;
 	irqstate_t irqs;
-	
+
 	/* Disable IRQs while erasing sector */
 	irqs = irqsave();
 
-	if (0 != up_progmem_isaddresswritable(addr))
-	{
+	if (0 != up_progmem_isaddresswritable(addr)) {
 		ret = -EROFS;
-	}
-	else if ((addr & 0xff) != 0)
-	{
+	} else if ((addr & 0xff) != 0) {
 		//! value should be 256 byte alignment
 		ret = -EFAULT;
-	}
-	else if ((count & 0x3) != 0)
-	{
+	} else if ((count & 0x3) != 0) {
 		ret = -EINVAL;
-	}
-	else
-	{
-		char* adpt_buf = (char* )kmm_malloc(count);
-		if (adpt_buf == NULL)
-		{
+	} else {
+		char *adpt_buf = (char *)kmm_malloc(count);
+		if (adpt_buf == NULL) {
 			printf("fail to alloc memory\n");
 			ret = -EPERM;
-		}
-		else
-		{
+		} else {
 			memcpy(adpt_buf, buf, count);
 			result = rda5981_write_flash(addr, adpt_buf, count);
-			if (result != 0)
-			{
+			if (result != 0) {
 				ret = -EIO;
-			}
-			else
-			{
+			} else {
 				ret = count;
 			}
 		}
@@ -300,8 +285,7 @@ ssize_t up_progmem_write(size_t addr, const void *buf, size_t count)
 
 	/* Restore IRQs */
 	irqrestore(irqs);
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		printf("Errno: %d, addr %d, buf %p, count %d\n", ret, addr, buf, count);
 	}
 	return ret;
@@ -345,45 +329,30 @@ ssize_t up_progmem_read(size_t addr, void *buf, size_t count)
 
 	/* Disable IRQs while erasing sector */
 	irqs = irqsave();
-	if (0 != up_progmem_isaddressreadable(addr))
-	{
+	if (0 != up_progmem_isaddressreadable(addr)) {
 		ret = -EACCES;
-	}
-	else
-	{
-		if ((addr & 0x3) == 0)
-		{
+	} else {
+		if ((addr & 0x3) == 0) {
 			//! if addr is 4 bytes aligned
 			result = rda5981_read_flash(addr, buf, count);
 
-			if (result != 0)
-			{
+			if (result != 0) {
 				ret = -EIO;
-			}
-			else
-			{
+			} else {
 				ret = count;
 			}
-		}
-		else
-		{
+		} else {
 			//! if addr is not 4 bytes aligned
 			uint32_t offset = addr & 0x3;
-			int8_t* aligned_read_buf = (int8_t* )kmm_malloc(count + offset);
-			if (aligned_read_buf == NULL)
-			{
+			int8_t *aligned_read_buf = (int8_t *)kmm_malloc(count + offset);
+			if (aligned_read_buf == NULL) {
 				printf("fail to alloc memory\n");
 				ret = -EPERM;
-			}
-			else
-			{
-				result = rda5981_read_flash((addr & 0xfffffffc), (char*)aligned_read_buf, count + offset);
-				if (result != 0)
-				{
+			} else {
+				result = rda5981_read_flash((addr & 0xfffffffc), (char *)aligned_read_buf, count + offset);
+				if (result != 0) {
 					ret = -EIO;
-				}
-				else
-				{
+				} else {
 					ret = count;
 				}
 
@@ -397,8 +366,7 @@ ssize_t up_progmem_read(size_t addr, void *buf, size_t count)
 	/* Restore IRQs */
 	irqrestore(irqs);
 
-	if (ret < 0)
-	{
+	if (ret < 0) {
 		printf("Errno: %d, addr %d, buf %p, count %d\n", ret, addr, buf, count);
 	}
 	return ret;
@@ -414,6 +382,18 @@ ssize_t up_progmem_read(size_t addr, void *buf, size_t count)
  */
 void rda5981_flash_init(void)
 {
-
+	/**
+	*	Use default chip defined sysdata&userdata partition
+	*		sysdata->  addr: 0x180fb000  size: 4KB
+	*		userdata->addr: 0x180fc000  size: 4KB
+	*	Hence, nothing need to implement here.
+	**********************************************
+	*	If you want to change sysdata&userdata partition,
+	*	try below function call:
+	*		1. int rda5981_set_flash_size(const unsigned int size);
+	*		2. int rda5981_set_user_data_addr(const unsigned int sys_data_addr,
+	*				const unsigned int user_data_addr, const unsigned int user_data_len);
+	*		3. change CONFIG_SIDK_RDA5981_FLASH_PART_XXX to make address match
+	*/
 }
 

@@ -119,9 +119,9 @@ static int     rtc_close(FAR struct file *filep);
 #endif
 
 static ssize_t rtc_read(FAR struct file *filep, FAR char *buffer,
-		size_t buflen);
+						size_t buflen);
 static ssize_t rtc_write(FAR struct file *filep, FAR const char *buffer,
-		size_t buflen);
+						 size_t buflen);
 static int     rtc_ioctl(FAR struct file *filep, int cmd, unsigned long arg);
 
 #ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS
@@ -191,7 +191,7 @@ static void rtc_alarm_callback(FAR void *priv, int alarmid)
 	FAR struct rtc_alarminfo_s *alarminfo;
 
 	DEBUGASSERT(upper != NULL && alarmid >= 0 &&
-					alarmid < CONFIG_RTC_NALARMS);
+				alarmid < CONFIG_RTC_NALARMS);
 	alarminfo = &upper->alarminfo[alarmid];
 
 	/*
@@ -205,10 +205,10 @@ static void rtc_alarm_callback(FAR void *priv, int alarmid)
 
 #ifdef CONFIG_CAN_PASS_STRUCTS
 		(void)sigqueue(alarminfo->pid, alarminfo->signo,
-				alarminfo->sigvalue);
+					   alarminfo->sigvalue);
 #else
 		(void)sigqueue(alarminfo->pid, alarminfo->signo,
-				alarminfo->sigvalue->sival_ptr);
+					   alarminfo->sigvalue->sival_ptr);
 #endif
 	}
 
@@ -298,7 +298,7 @@ static ssize_t rtc_read(FAR struct file *filep, FAR char *buffer, size_t len)
  ****************************************************************************/
 
 static ssize_t rtc_write(FAR struct file *filep, FAR const char *buffer,
-		size_t len)
+						 size_t len)
 {
 	return len; /* Say that everything was written */
 }
@@ -343,7 +343,7 @@ static int rtc_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 
 	case RTC_RD_TIME: {
 		FAR struct rtc_time *rtctime =
-				(FAR struct rtc_time *)((uintptr_t)arg);
+			(FAR struct rtc_time *)((uintptr_t)arg);
 
 		if (ops->rdtime) {
 			ret = ops->rdtime(upper->lower, rtctime);
@@ -615,7 +615,7 @@ int rtc_initialize(int minor, FAR struct rtc_lowerhalf_s *lower)
 	/* Allocate an upper half container structure */
 
 	upper = (FAR struct rtc_upperhalf_s *)kmm_zalloc(
-					sizeof(struct rtc_upperhalf_s));
+				sizeof(struct rtc_upperhalf_s));
 	if (!upper) {
 		return -ENOMEM;
 	}

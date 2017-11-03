@@ -105,10 +105,11 @@ int main(int argc, char **argv, char **envp)
 			show_usage(argv[0]);
 		}
 
-		if (ulvalue >= 0x80000000)
+		if (ulvalue >= 0x80000000) {
 			lvalue = ~ulvalue + 1;
-		else
+		} else {
 			lvalue = ulvalue;
+		}
 
 		fvalue = ((double)lvalue) / 65536.0;
 		printf("0x%08lx -> %10.5f\n", ulvalue, fvalue);

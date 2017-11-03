@@ -100,8 +100,9 @@ static bool check_hdrfile(const char *hdrfile)
 	int i;
 
 	for (i = 0; i < nhdrfiles; i++) {
-		if (strcmp(g_hdrfiles[i], hdrfile) == 0)
+		if (strcmp(g_hdrfiles[i], hdrfile) == 0) {
 			return true;
+		}
 	}
 
 	return false;
@@ -228,8 +229,9 @@ int main(int argc, char **argv, char **envp)
 
 	/* Output all of the require header files */
 
-	for (i = 0; i < nhdrfiles; i++)
+	for (i = 0; i < nhdrfiles; i++) {
 		fprintf(outstream, "#include <%s>\n", g_hdrfiles[i]);
+	}
 
 	/* Now the symbol table itself */
 

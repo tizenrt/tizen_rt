@@ -60,8 +60,8 @@
 /* Common Processor Exceptions (vectors 0-15) */
 
 #define RDA_IRQ_RESERVED        (0) /* Reserved vector (only used with CONFIG_DEBUG_FEATURES) */
-                                    /* Vector  0: Reset stack pointer value */
-                                    /* Vector  1: Reset (not handler as an IRQ) */
+/* Vector  0: Reset stack pointer value */
+/* Vector  1: Reset (not handler as an IRQ) */
 #define RDA_IRQ_NMI             (2) /* Vector  2: Non-Maskable Interrupt (NMI) */
 #define RDA_IRQ_HARDFAULT       (3) /* Vector  3: Hard fault */
 #define RDA_IRQ_MEMFAULT        (4) /* Vector  4: Memory management (MPU) */
@@ -69,7 +69,7 @@
 #define RDA_IRQ_USAGEFAULT      (6) /* Vector  6: Usage fault */
 #define RDA_IRQ_SVCALL         (11) /* Vector 11: SVC call */
 #define RDA_IRQ_DBGMONITOR     (12) /* Vector 12: Debug Monitor */
-                                    /* Vector 13: Reserved */
+/* Vector 13: Reserved */
 #define RDA_IRQ_PENDSV         (14) /* Vector 14: Pendable system service request */
 #define RDA_IRQ_SYSTICK        (15) /* Vector 15: System tick */
 

@@ -296,23 +296,23 @@ struct rtc_ops_s {
 	/* rdtime() returns the current RTC time. */
 
 	CODE int (*rdtime)(FAR struct rtc_lowerhalf_s *lower,
-			   FAR struct rtc_time *rtctime);
+					   FAR struct rtc_time *rtctime);
 
 	/* settime sets the RTC's time */
 
 	CODE int (*settime)(FAR struct rtc_lowerhalf_s *lower,
-			    FAR const struct rtc_time *rtctime);
+						FAR const struct rtc_time *rtctime);
 
 #ifdef CONFIG_RTC_ALARM
 	/* setalarm sets up a new alarm. */
 
 	CODE int (*setalarm)(FAR struct rtc_lowerhalf_s *lower,
-			     FAR const struct lower_setalarm_s *alarminfo);
+						 FAR const struct lower_setalarm_s *alarminfo);
 
 	/* setalarm sets up a new alarm relative to the current time. */
 
 	CODE int (*setrelative)(FAR struct rtc_lowerhalf_s *lower,
-			FAR const struct lower_setrelative_s *alarminfo);
+							FAR const struct lower_setrelative_s *alarminfo);
 
 	/* cancelalarm cancels the current alarm. */
 
@@ -323,7 +323,7 @@ struct rtc_ops_s {
 	/* Support for architecture-specific RTC operations */
 
 	CODE int (*ioctl)(FAR struct rtc_lowerhalf_s *lower, int cmd,
-			  unsigned long arg);
+					  unsigned long arg);
 #endif
 
 #ifndef CONFIG_DISABLE_PSEUDOFS_OPERATIONS

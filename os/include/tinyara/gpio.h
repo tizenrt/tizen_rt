@@ -92,15 +92,15 @@ typedef CODE void (*gpio_handler_t)(FAR struct gpio_upperhalf_s *upper);
 
 struct gpio_lowerhalf_s;
 struct gpio_ops_s {
-	CODE int  (*get)(FAR struct gpio_lowerhalf_s *lower);
+	CODE int (*get)(FAR struct gpio_lowerhalf_s *lower);
 	CODE void (*set)(FAR struct gpio_lowerhalf_s *lower,
 					 FAR unsigned int value);
-	CODE int  (*pull)(FAR struct gpio_lowerhalf_s *lower, unsigned long arg);
-	CODE int  (*setdir)(FAR struct gpio_lowerhalf_s *lower, unsigned long arg);
-	CODE int  (*enable)(FAR struct gpio_lowerhalf_s *lower,
-						int falling, int rising, gpio_handler_t handler);
-	CODE int  (*ioctl)(FAR struct gpio_lowerhalf_s *lower, FAR int cmd,
-					   unsigned long args);
+	CODE int (*pull)(FAR struct gpio_lowerhalf_s *lower, unsigned long arg);
+	CODE int (*setdir)(FAR struct gpio_lowerhalf_s *lower, unsigned long arg);
+	CODE int (*enable)(FAR struct gpio_lowerhalf_s *lower,
+					   int falling, int rising, gpio_handler_t handler);
+	CODE int (*ioctl)(FAR struct gpio_lowerhalf_s *lower, FAR int cmd,
+					  unsigned long args);
 };
 
 struct gpio_lowerhalf_s {

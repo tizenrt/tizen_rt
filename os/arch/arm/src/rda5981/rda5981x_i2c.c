@@ -84,12 +84,11 @@
  * Private Types
  ****************************************************************************/
 
-struct rda5981x_i2cdev_s
-{
-  struct i2c_dev_s  dev;     /* Generic I2C device */
-  uint32_t base;       /* Base address of registers */
-  uint32_t frequency;  /* Current I2C frequency */  
-  int slave_address;
+struct rda5981x_i2cdev_s {
+	struct i2c_dev_s  dev;     /* Generic I2C device */
+	uint32_t base;       /* Base address of registers */
+	uint32_t frequency;  /* Current I2C frequency */
+	int slave_address;
 };
 
 /****************************************************************************
@@ -102,9 +101,9 @@ static int rda5981x_i2c_reset(struct rda5981x_i2cdev_s *priv);
 
 /* I2C device operations */
 static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *priv,
-              uint32_t frequency);
+		uint32_t frequency);
 static int  rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
-              FAR struct i2c_msg_s *msgs, int count);
+								  FAR struct i2c_msg_s *msgs, int count);
 
 static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr, int nbits);
 
@@ -124,181 +123,182 @@ static const struct i2c_ops_s rda5981x_i2c_ops = {
 	.transfer = rda5981x_i2c_transfer,
 };
 
-static void i2c_cmd_cfg(struct rda5981x_i2cdev_s *priv, int start, int stop,int acknowledge, int write, int read)
+static void i2c_cmd_cfg(struct rda5981x_i2cdev_s *priv, int start, int stop, int acknowledge, int write, int read)
 {
-    uint32_t reg_val =  (start << 16) | (stop << 8) | (acknowledge << 0) |
-			(write << 12) | (read << 4);
-    putreg32(reg_val, priv->base + I2C_CMD);
+	uint32_t reg_val = (start << 16) | (stop << 8) | (acknowledge << 0) |
+					   (write << 12) | (read << 4);
+	putreg32(reg_val, priv->base + I2C_CMD);
 }
 
 static void i2c_do_write(struct rda5981x_i2cdev_s *priv, int value)
 {
-    /* write data */
-    putreg32(value, priv->base + I2C_DR);
+	/* write data */
+	putreg32(value, priv->base + I2C_DR);
 }
 
 static void i2c_do_read(struct rda5981x_i2cdev_s *priv)
 {
-    uint32_t reg_val;
+	uint32_t reg_val;
 
-    /* config read number */
-    reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
-    putreg32(reg_val | (0x01UL << 9), priv->base + I2C_CR0);
+	/* config read number */
+	reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
+	putreg32(reg_val | (0x01UL << 9), priv->base + I2C_CR0);
 }
 
 static void i2c_clear_fifo(struct rda5981x_i2cdev_s *priv)
 {
-    uint32_t reg_val;
+	uint32_t reg_val;
 
-    /* clear read number */
-    reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
-    putreg32(reg_val, priv->base + I2C_CR0);
+	/* clear read number */
+	reg_val = getreg32(priv->base + I2C_CR0) & ~(0x1FUL << 9);
+	putreg32(reg_val, priv->base + I2C_CR0);
 
-    /* clear fifo */
-    reg_val = getreg32(priv->base + I2C_CR0) | (0x01UL << 7);
-    putreg32(reg_val, priv->base + I2C_CR0);
+	/* clear fifo */
+	reg_val = getreg32(priv->base + I2C_CR0) | (0x01UL << 7);
+	putreg32(reg_val, priv->base + I2C_CR0);
 
-    reg_val = getreg32(priv->base + I2C_CR0)  & ~(0x01UL << 7);
-    putreg32(reg_val, priv->base + I2C_CR0);
+	reg_val = getreg32(priv->base + I2C_CR0)  & ~(0x01UL << 7);
+	putreg32(reg_val, priv->base + I2C_CR0);
 }
 
 
-static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr, 
-					int nbits)
+static int rda5981x_i2c_setaddress(FAR struct i2c_dev_s *dev, int addr,
+								   int nbits)
 {
-     struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
-     priv->slave_address = addr;
-     return 0;
+	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+	priv->slave_address = addr;
+	return 0;
 }
 
 
-static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev, 
-				FAR uint8_t *buffer, int length)
+static int rda5981x_i2c_read(FAR struct i2c_dev_s *dev,
+							 FAR uint8_t *buffer, int length)
 {
-     struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
-     int count;
-     int stop = 1;
+	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+	int count;
+	int stop = 1;
 
-    /* wait tx fifo empty */
-    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
-        /* timeout */
-        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-            i2c_clear_fifo(priv);
-            return 0;
-        }
-    }
-    i2c_do_write(priv, priv->slave_address | 0x1);
-    i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
+	/* wait tx fifo empty */
+	while (((getreg32(priv->base + I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+		/* timeout */
+		if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+			i2c_clear_fifo(priv);
+			return 0;
+		}
+	}
+	i2c_do_write(priv, priv->slave_address | 0x1);
+	i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
 
-    /* wait tx fifo empty */
-    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
-        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-            i2c_clear_fifo(priv);
-            return 0;
-        }
-    }
+	/* wait tx fifo empty */
+	while (((getreg32(priv->base + I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+		if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+			i2c_clear_fifo(priv);
+			return 0;
+		}
+	}
 
-    /* Read in all except last byte */
-    for (count = 0; count < (length - 1); count++) {
-        i2c_do_read(priv);
-        i2c_cmd_cfg(priv, 0, 0, 0, 0, 1);
-        
-        /* wait data */
-        while ((getreg32(priv->base+I2C_SR) & (0x1F << 21)) == 0) {
-            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-                i2c_clear_fifo(priv);
-                return count;
-            }
-        }
-        buffer[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
-    }
+	/* Read in all except last byte */
+	for (count = 0; count < (length - 1); count++) {
+		i2c_do_read(priv);
+		i2c_cmd_cfg(priv, 0, 0, 0, 0, 1);
+
+		/* wait data */
+		while ((getreg32(priv->base + I2C_SR) & (0x1F << 21)) == 0) {
+			if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+				i2c_clear_fifo(priv);
+				return count;
+			}
+		}
+		buffer[count] = (char)(getreg32(priv->base + I2C_DR) & 0xFF);
+	}
 
 
-    if (stop) {
-        i2c_do_read(priv);
-        i2c_cmd_cfg(priv, 0, 1, 1, 0, 1);
+	if (stop) {
+		i2c_do_read(priv);
+		i2c_cmd_cfg(priv, 0, 1, 1, 0, 1);
 
-        /* wait for i2c idle */
-        while (getreg32(priv->base+I2C_SR) & (0x01UL << 16)) {
-            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-                i2c_clear_fifo(priv);
-                return (length - 1);
-            }
-        }
+		/* wait for i2c idle */
+		while (getreg32(priv->base + I2C_SR) & (0x01UL << 16)) {
+			if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+				i2c_clear_fifo(priv);
+				return (length - 1);
+			}
+		}
 
-        if (getreg32(priv->base+I2C_SR) & (0x1F << 21)) {
-            buffer[count] = (char) (getreg32(priv->base+I2C_DR) & 0xFF);
-            i2c_clear_fifo(priv);
-        } else {
-            i2c_clear_fifo(priv);
-            return (length - 1);
-        }
-    }
+		if (getreg32(priv->base + I2C_SR) & (0x1F << 21)) {
+			buffer[count] = (char)(getreg32(priv->base + I2C_DR) & 0xFF);
+			i2c_clear_fifo(priv);
+		} else {
+			i2c_clear_fifo(priv);
+			return (length - 1);
+		}
+	}
 
-    return length;
+	return length;
 }
 
-static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev, 
-		FAR const uint8_t *buffer, int length)
+static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
+							  FAR const uint8_t *buffer, int length)
 {
-    struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev; 
-    int count; 
-    int stop = 1;
-  
-    if(length == 1)
-	stop = 0;
+	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+	int count;
+	int stop = 1;
 
-    /* wait tx fifo empty */
-    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
-        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-            i2c_clear_fifo(priv);
-            return 0;
-        }
-    }
+	if (length == 1) {
+		stop = 0;
+	}
 
-    i2c_do_write(priv, priv->slave_address);
-    i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
+	/* wait tx fifo empty */
+	while (((getreg32(priv->base + I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+		if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+			i2c_clear_fifo(priv);
+			return 0;
+		}
+	}
 
-    for (count = 0; count < length - 1; count++) {
-        /* wait tx fifo empty */
-       while ((((getreg32(priv->base+I2C_SR)) & (0x1FUL << 26)) >> 26) != 0x1F) {
-            if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-                i2c_clear_fifo(priv);
-                return (count > 0 ? (count - 1) : 0);
-            }
-        }
-        i2c_do_write(priv, buffer[count]);
-        i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
-    }
+	i2c_do_write(priv, priv->slave_address);
+	i2c_cmd_cfg(priv, 1, 0, 0, 1, 0);
 
-    /* wait tx fifo empty */
-    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
-        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-            i2c_clear_fifo(priv);
-            return (count > 0 ? (count - 1) : 0);
-        }
-    }
+	for (count = 0; count < length - 1; count++) {
+		/* wait tx fifo empty */
+		while ((((getreg32(priv->base + I2C_SR)) & (0x1FUL << 26)) >> 26) != 0x1F) {
+			if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+				i2c_clear_fifo(priv);
+				return (count > 0 ? (count - 1) : 0);
+			}
+		}
+		i2c_do_write(priv, buffer[count]);
+		i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
+	}
 
-    i2c_do_write(priv, buffer[length - 1]);
-    if (stop) {
-        i2c_cmd_cfg(priv, 0, 1, 0, 1, 0);
-    } else {
-        i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
-    }
+	/* wait tx fifo empty */
+	while (((getreg32(priv->base + I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+		if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+			i2c_clear_fifo(priv);
+			return (count > 0 ? (count - 1) : 0);
+		}
+	}
 
-    /* wait tx fifo empty */
-    while (((getreg32(priv->base+I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
-        if (getreg32(priv->base+I2C_SR) & (0x01UL << 31)) {
-            i2c_clear_fifo(priv);
-            return (length - 1);
-        }
-    }
-    
-    if (stop) {
-        i2c_clear_fifo(priv);
-    }
-    
-    return length; 	
+	i2c_do_write(priv, buffer[length - 1]);
+	if (stop) {
+		i2c_cmd_cfg(priv, 0, 1, 0, 1, 0);
+	} else {
+		i2c_cmd_cfg(priv, 0, 0, 0, 1, 0);
+	}
+
+	/* wait tx fifo empty */
+	while (((getreg32(priv->base + I2C_SR) & (0x1FUL << 26)) >> 26) != 0x1F) {
+		if (getreg32(priv->base + I2C_SR) & (0x01UL << 31)) {
+			i2c_clear_fifo(priv);
+			return (length - 1);
+		}
+	}
+
+	if (stop) {
+		i2c_clear_fifo(priv);
+	}
+
+	return length;
 }
 
 /****************************************************************************
@@ -310,22 +310,21 @@ static int rda5981x_i2c_write(FAR struct i2c_dev_s *dev,
  ****************************************************************************/
 
 static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *dev,
-                                   uint32_t frequency)
+		uint32_t frequency)
 {
-    struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev; 
-   /* Set I2C frequency */
-  if (frequency != priv->frequency)
-    {
+	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
+	/* Set I2C frequency */
+	if (frequency != priv->frequency) {
 
 
-    uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
-    uint32_t reg_val;
-    
-    reg_val = getreg32(priv->base + I2C_CR0) & ~(0xFFFFUL << 16);
-    putreg32(reg_val |(prescale << 16), priv->base + I2C_CR0);
-    priv->frequency = frequency;
-    }
-    return 0;
+		uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
+		uint32_t reg_val;
+
+		reg_val = getreg32(priv->base + I2C_CR0) & ~(0xFFFFUL << 16);
+		putreg32(reg_val | (prescale << 16), priv->base + I2C_CR0);
+		priv->frequency = frequency;
+	}
+	return 0;
 }
 
 /****************************************************************************
@@ -336,34 +335,32 @@ static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *dev,
  *
  ****************************************************************************/
 static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
-                              FAR struct i2c_msg_s *msgs, int count)
+								 FAR struct i2c_msg_s *msgs, int count)
 {
-  struct i2c_msg_s *pmsg; 
-  int ret;
-  int i;
-  DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
+	struct i2c_msg_s *pmsg;
+	int ret;
+	int i;
+	DEBUGASSERT(dev != NULL && msgs != NULL && count > 0);
 
-  /* Get exclusive access to the I2C bus */
-  
-  for (i = 0; i < count; i++) {
-	pmsg = &msgs[i];
-  
-   rda5981x_i2c_setaddress(dev, pmsg->addr, 7);
-   
-   if (pmsg->flags & I2C_M_READ) 
-   {
-	ret = rda5981x_i2c_read(dev, pmsg->buffer, pmsg->length);
-   }
+	/* Get exclusive access to the I2C bus */
 
-   else 
-   {
-	ret = rda5981x_i2c_write(dev, pmsg->buffer, pmsg->length);
-   }
+	for (i = 0; i < count; i++) {
+		pmsg = &msgs[i];
 
- }
-  /* Perform the transfer */
+		rda5981x_i2c_setaddress(dev, pmsg->addr, 7);
 
-  return ret;
+		if (pmsg->flags & I2C_M_READ) {
+			ret = rda5981x_i2c_read(dev, pmsg->buffer, pmsg->length);
+		}
+
+		else {
+			ret = rda5981x_i2c_write(dev, pmsg->buffer, pmsg->length);
+		}
+
+	}
+	/* Perform the transfer */
+
+	return ret;
 }
 
 /****************************************************************************
@@ -376,8 +373,8 @@ static int rda5981x_i2c_transfer(FAR struct i2c_dev_s *dev,
 
 static int rda5981x_i2c_start(struct rda5981x_i2cdev_s *priv)
 {
-   i2c_cmd_cfg(priv, 1, 0, 0, 0, 0); 
-   return 0;
+	i2c_cmd_cfg(priv, 1, 0, 0, 0, 0);
+	return 0;
 }
 
 /****************************************************************************
@@ -390,7 +387,7 @@ static int rda5981x_i2c_start(struct rda5981x_i2cdev_s *priv)
 
 static void rda5981x_i2c_stop(struct rda5981x_i2cdev_s *priv)
 {
- i2c_cmd_cfg(priv, 0, 1, 0, 0, 0); 
+	i2c_cmd_cfg(priv, 0, 1, 0, 0, 0);
 }
 
 /************************************************************************************
@@ -409,8 +406,8 @@ static void rda5981x_i2c_stop(struct rda5981x_i2cdev_s *priv)
 
 static int rda5981x_i2c_reset(FAR struct rda5981x_i2cdev_s *priv)
 {
-  i2c_cmd_cfg(priv, 0, 1, 0, 0, 0);
-  return 0;
+	i2c_cmd_cfg(priv, 0, 1, 0, 0, 0);
+	return 0;
 }
 
 
@@ -429,41 +426,39 @@ static int rda5981x_i2c_reset(FAR struct rda5981x_i2cdev_s *priv)
 
 struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
 {
-  struct rda5981x_i2cdev_s *priv;
-  uint32_t regval;
+	struct rda5981x_i2cdev_s *priv;
+	uint32_t regval;
 
-  if (port > 1)
-    {
-      i2cerr("ERROR: LPC I2C Only supports ports 0 and 1\n");
-      return NULL;
-    }
+	if (port > 1) {
+		i2cerr("ERROR: LPC I2C Only supports ports 0 and 1\n");
+		return NULL;
+	}
 
-  if (port == 0)
-    {
-      priv        = &g_i2c0dev;
-      priv->base  = RDA_I2C0_BASE;
-      priv->frequency = I2C_DEFAULT_CLOCK;
+	if (port == 0) {
+		priv        = &g_i2c0dev;
+		priv->base  = RDA_I2C0_BASE;
+		priv->frequency = I2C_DEFAULT_CLOCK;
 
-/* Enable I2C clock */
-    regval = getreg32(I2C_CLKGATE_REG1) | (0x01UL << 6);
-    putreg32(regval, I2C_CLKGATE_REG1);
+		/* Enable I2C clock */
+		regval = getreg32(I2C_CLKGATE_REG1) | (0x01UL << 6);
+		putreg32(regval, I2C_CLKGATE_REG1);
 
-/* set default frequency at 100k */
-    rda5981x_i2c_setfrequency(&(priv->dev), 100000);
-    i2c_cmd_cfg(priv, 0, 0, 0, 0, 0);
+		/* set default frequency at 100k */
+		rda5981x_i2c_setfrequency(&(priv->dev), 100000);
+		i2c_cmd_cfg(priv, 0, 0, 0, 0, 0);
 
-/* Enable I2C */
-    regval = getreg32(priv->base + I2C_CR0) |= 0x01UL;    
-    putreg32(regval, priv->base + I2C_CR0);
+		/* Enable I2C */
+		regval = getreg32(priv->base + I2C_CR0) |= 0x01UL;
+		putreg32(regval, priv->base + I2C_CR0);
 
-/* Pin configuration */
-     rda_configgpio(GPIO_I2C0_SCL);
-     rda_configgpio(GPIO_I2C0_SDA);
-    }
+		/* Pin configuration */
+		rda_configgpio(GPIO_I2C0_SCL);
+		rda_configgpio(GPIO_I2C0_SDA);
+	}
 
-/* Install our operations */
-  priv->dev.ops = &rda5981x_i2c_ops;
-  return &priv->dev;
+	/* Install our operations */
+	priv->dev.ops = &rda5981x_i2c_ops;
+	return &priv->dev;
 }
 
 /****************************************************************************
@@ -474,13 +469,13 @@ struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
  *
  ****************************************************************************/
 
-int rda5981x_i2cbus_uninitialize(FAR struct i2c_dev_s * dev)
+int rda5981x_i2cbus_uninitialize(FAR struct i2c_dev_s *dev)
 {
-  struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *) dev;
+	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *) dev;
 
-  /* Disable I2C */
-  putreg32(0, priv->base + I2C_CR0);
-  return OK;
+	/* Disable I2C */
+	putreg32(0, priv->base + I2C_CR0);
+	return OK;
 }
 
 FAR struct i2c_dev_s *up_i2cinitialize(int port)

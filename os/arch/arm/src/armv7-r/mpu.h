@@ -511,14 +511,14 @@ static inline void mpu_priv_stronglyordered(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval =					  /* Not Cacheable  */
-							  /* Not Bufferable */
+		/* Not Bufferable */
 		MPU_RACR_S				| /* Shareable      */
 		MPU_RACR_AP_RWNO;			  /* P:RW   U:None  */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region  */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size    */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size    */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 #endif
@@ -556,8 +556,8 @@ static inline void mpu_user_flash(uintptr_t base, size_t size)
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -589,7 +589,7 @@ static inline void mpu_priv_noncache(uintptr_t base, size_t size)
 	/* The configure the region */
 	/* inner/outer non-cache : TEX(4), C(0), B(0), S(1) */
 	regval =					  /* Not Cacheable  */
-							  /* Not Bufferable */
+		/* Not Bufferable */
 		MPU_RACR_S				| /* Shareable      */
 		MPU_RACR_TEX(4)				| /* TEX */
 		MPU_RACR_AP_RWRW			| /* P:RO   U:None  */
@@ -597,8 +597,8 @@ static inline void mpu_priv_noncache(uintptr_t base, size_t size)
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -629,12 +629,12 @@ static inline void mpu_priv_flash(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval = MPU_RACR_C				| /* Cacheable     */
-		 MPU_RACR_AP_RONO;			  /* P:RO   U:None */
+			 MPU_RACR_AP_RONO;			  /* P:RO   U:None */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -665,13 +665,13 @@ static inline void mpu_user_intsram(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval = MPU_RACR_S				| /* Shareable     */
-		 MPU_RACR_C				| /* Cacheable     */
-		 MPU_RACR_AP_RWRW;			  /* P:RW   U:RW   */
+			 MPU_RACR_C				| /* Cacheable     */
+			 MPU_RACR_AP_RWRW;			  /* P:RW   U:RW   */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -702,13 +702,13 @@ static inline void mpu_priv_intsram(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval = MPU_RACR_S				| /* Shareable     */
-		 MPU_RACR_C				| /* Cacheable     */
-		 MPU_RACR_AP_RWNO;			  /* P:RW   U:None */
+			 MPU_RACR_C				| /* Cacheable     */
+			 MPU_RACR_AP_RWNO;			  /* P:RW   U:None */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -739,14 +739,14 @@ static inline void mpu_user_extsram(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval = MPU_RACR_S				| /* Shareable     */
-		 MPU_RACR_C				| /* Cacheable     */
-		 MPU_RACR_B				| /* Bufferable    */
-		 MPU_RACR_AP_RWRW;			  /* P:RW   U:RW   */
+			 MPU_RACR_C				| /* Cacheable     */
+			 MPU_RACR_B				| /* Bufferable    */
+			 MPU_RACR_AP_RWRW;			  /* P:RW   U:RW   */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -777,14 +777,14 @@ static inline void mpu_priv_extsram(uintptr_t base, size_t size)
 
 	/* The configure the region */
 	regval = MPU_RACR_S				| /* Shareable     */
-		 MPU_RACR_C				| /* Cacheable     */
-		 MPU_RACR_B				| /* Bufferable    */
-		 MPU_RACR_AP_RWNO;			  /* P:RW   U:None */
+			 MPU_RACR_C				| /* Cacheable     */
+			 MPU_RACR_B				| /* Bufferable    */
+			 MPU_RACR_AP_RWNO;			  /* P:RW   U:None */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -815,14 +815,14 @@ static inline void mpu_peripheral(uintptr_t base, size_t size)
 
 	/* Then configure the region */
 	regval = MPU_RACR_S				| /* Shareable     */
-		 MPU_RACR_B				| /* Bufferable    */
-		 MPU_RACR_AP_RWNO			| /* P:RW   U:None */
-		 MPU_RACR_XN;				  /* Instruction access disable */
+			 MPU_RACR_B				| /* Bufferable    */
+			 MPU_RACR_AP_RWNO			| /* P:RW   U:None */
+			 MPU_RACR_XN;				  /* Instruction access disable */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -855,14 +855,14 @@ static inline void mpu_priv_intsram_wb(uintptr_t base, size_t size)
 	/* The configure the region */
 	/* WB/Write Allocate: TEX(5), C(0), B(1), S(1) */
 	regval =					  /* Not Cacheable  */
-		 MPU_RACR_B				| /* Not Bufferable */
-		 MPU_RACR_TEX(5)			| /* TEX */
-		 MPU_RACR_AP_RWNO;			  /* P:RW   U:NO */
+		MPU_RACR_B				| /* Not Bufferable */
+		MPU_RACR_TEX(5)			| /* TEX */
+		MPU_RACR_AP_RWNO;			  /* P:RW   U:NO */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -886,14 +886,14 @@ static inline void mpu_user_intsram_ro(uintptr_t base, size_t size)
 	/* The configure the region */
 	/* WB/Write Allocate: TEX(5), C(0), B(1), S(1) */
 	regval =					  /* Not Cacheable  */
-		 MPU_RACR_B				| /* Not Bufferable */
-		 MPU_RACR_TEX(5)			| /* TEX */
-		 MPU_RACR_AP_RWNO;			  /* P:RW   U:NO */
+		MPU_RACR_B				| /* Not Bufferable */
+		MPU_RACR_TEX(5)			| /* TEX */
+		MPU_RACR_AP_RWNO;			  /* P:RW   U:NO */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 
@@ -926,14 +926,14 @@ static inline void mpu_user_intsram_wb(uintptr_t base, size_t size)
 	/* The configure the region */
 	/* WB/Write Allocate: TEX(5), C(0), B(1), S(1) */
 	regval =					  /* Not Cacheable  */
-		 MPU_RACR_B				| /* Not Bufferable */
-		 MPU_RACR_TEX(5)			| /* TEX            */
-		 MPU_RACR_AP_RWRW;			  /* P:RW   U:RW    */
+		MPU_RACR_B				| /* Not Bufferable */
+		MPU_RACR_TEX(5)			| /* TEX            */
+		MPU_RACR_AP_RWRW;			  /* P:RW   U:RW    */
 	mpu_set_dracr(regval);
 
 	regval = MPU_RASR_ENABLE			| /* Enable region */
-		 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
-		 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
+			 MPU_RASR_RSIZE_LOG2((uint32_t)l2size)	| /* Region size   */
+			 ((uint32_t)subregions << MPU_RASR_SRD_SHIFT); /* Sub-regions */
 	mpu_set_drsr(regval);
 }
 

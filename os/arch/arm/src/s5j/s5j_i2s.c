@@ -202,9 +202,9 @@ struct s5j_i2s_s {
 	uint8_t txp_datalen;		/* Data width (8, 16, or 32) */
 	uint8_t txs_datalen;		/* Data width (8, 16, or 32) */
 
-	uint8_t rxenab:1;			/* True: RX transfers enabled */
-	uint8_t txpenab:1;			/* True: TX primary transfers enabled */
-	uint8_t txsenab:1;			/* True: TX secondary transfers enabled */
+	uint8_t rxenab: 1;			/* True: RX transfers enabled */
+	uint8_t txpenab: 1;			/* True: TX primary transfers enabled */
+	uint8_t txsenab: 1;			/* True: TX secondary transfers enabled */
 
 	uint32_t samplerate;		/* Not actually needed in slave mode */
 
@@ -285,13 +285,13 @@ static int i2s_checkwidth(struct s5j_i2s_s *priv, int bits);
 
 static uint32_t i2s_rxdatawidth(struct i2s_dev_s *dev, int bits);
 static int i2s_receive(struct i2s_dev_s *dev, struct ap_buffer_s *apb,
-				       i2s_callback_t callback, void *arg, uint32_t timeout);
+					   i2s_callback_t callback, void *arg, uint32_t timeout);
 
 static uint32_t i2s_samplerate(struct i2s_dev_s *dev, uint32_t rate);
 
 static uint32_t i2s_txdatawidth(struct i2s_dev_s *dev, int bits);
 static int i2s_send(struct i2s_dev_s *dev, struct ap_buffer_s *apb,
-				    i2s_callback_t callback, void *arg, uint32_t timeout);
+					i2s_callback_t callback, void *arg, uint32_t timeout);
 
 /* Initialization */
 
@@ -681,9 +681,9 @@ static int i2s_rxdma_setup(struct s5j_i2s_s *priv)
 	/* Increment the DMA timeout */
 
 	if (bfcontainer->timeout > 0) {
-			timeout += bfcontainer->timeout;
+		timeout += bfcontainer->timeout;
 	} else {
-			notimeout = true;
+		notimeout = true;
 	}
 
 	/* Add the container to the list of active DMAs */
@@ -1039,9 +1039,9 @@ static int i2s_txpdma_setup(struct s5j_i2s_s *priv)
 	/* Increment the DMA timeout */
 
 	if (bfcontainer->timeout > 0) {
-			timeout += bfcontainer->timeout;
+		timeout += bfcontainer->timeout;
 	} else {
-			notimeout = true;
+		notimeout = true;
 	}
 
 	/* Add the container to the list of active DMAs */

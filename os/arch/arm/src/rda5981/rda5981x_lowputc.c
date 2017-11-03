@@ -130,7 +130,7 @@
  */
 
 #ifdef RDA5981x
-   /* Use AHB CLK frequency */
+/* Use AHB CLK frequency */
 #  define CONSOLE_NUMERATOR RDA_AHB_CLK_FREQUENCY
 #endif /* RDA5981x */
 
@@ -174,13 +174,13 @@
 void up_lowputc(char ch)
 {
 #if defined HAVE_UART && defined HAVE_CONSOLE
-  /* Wait for the transmitter to be available */
+	/* Wait for the transmitter to be available */
 
-  while ((getreg32(CONSOLE_BASE + RDA_UART_LSR_OFFSET) & UART_LSR_THRE) == 0);
+	while ((getreg32(CONSOLE_BASE + RDA_UART_LSR_OFFSET) & UART_LSR_THRE) == 0);
 
-  /* Send the character */
+	/* Send the character */
 
-  putreg32((uint32_t)ch, CONSOLE_BASE + RDA_UART_THR_OFFSET);
+	putreg32((uint32_t)ch, CONSOLE_BASE + RDA_UART_THR_OFFSET);
 #endif
 }
 
@@ -217,62 +217,62 @@ void up_lowputc(char ch)
 void rda_lowsetup(void)
 {
 #ifdef HAVE_UART
-  /* Step 1: Enable power for all console UART and disable power for
-   * other UARTs
-   */
+	/* Step 1: Enable power for all console UART and disable power for
+	 * other UARTs
+	 */
 
-  /* Step 2: Enable peripheral clocking for the console UART and disable
-   * clocking for all other UARTs
-   */
+	/* Step 2: Enable peripheral clocking for the console UART and disable
+	 * clocking for all other UARTs
+	 */
 
-  /* Configure UART pins for the selected CONSOLE */
+	/* Configure UART pins for the selected CONSOLE */
 
 #if defined(CONFIG_UART0_SERIAL_CONSOLE)
-  rda_configgpio(GPIO_UART0_TXD);
-  rda_configgpio(GPIO_UART0_RXD);
+	rda_configgpio(GPIO_UART0_TXD);
+	rda_configgpio(GPIO_UART0_RXD);
 #elif defined(CONFIG_UART1_SERIAL_CONSOLE)
-  rda_configgpio(GPIO_UART1_TXD);
-  rda_configgpio(GPIO_UART1_RXD);
+	rda_configgpio(GPIO_UART1_TXD);
+	rda_configgpio(GPIO_UART1_RXD);
 #if defined(CONFIG_UART1_IFLOWCONTROL) || defined(CONFIG_UART1_OFLOWCONTROL)
-  rda_configgpio(GPIO_UART1_CTS);
-  rda_configgpio(GPIO_UART1_RTS);
+	rda_configgpio(GPIO_UART1_CTS);
+	rda_configgpio(GPIO_UART1_RTS);
 #endif
 #endif
 
-  /* Configure the console (only) */
+	/* Configure the console (only) */
 
 #if defined(HAVE_CONSOLE) && !defined(CONFIG_SUPPRESS_UART_CONFIG)
 
-  /* Clear fifos */
+	/* Clear fifos */
 
-  putreg32(UART_FCR_RXRST | UART_FCR_TXRST,
-           CONSOLE_BASE + RDA_UART_FCR_OFFSET);
+	putreg32(UART_FCR_RXRST | UART_FCR_TXRST,
+			 CONSOLE_BASE + RDA_UART_FCR_OFFSET);
 
-  /* Set trigger */
+	/* Set trigger */
 
-  putreg32(UART_FCR_FIFOEN | UART_FCR_RXTRIGGER_L0,
-           CONSOLE_BASE + RDA_UART_FCR_OFFSET);
+	putreg32(UART_FCR_FIFOEN | UART_FCR_RXTRIGGER_L0,
+			 CONSOLE_BASE + RDA_UART_FCR_OFFSET);
 
-  /* Set up the LCR and set DLAB=1 */
+	/* Set up the LCR and set DLAB=1 */
 
-  putreg32(CONSOLE_LCR_VALUE | UART_LCR_DLAB,
-           CONSOLE_BASE + RDA_UART_LCR_OFFSET);
+	putreg32(CONSOLE_LCR_VALUE | UART_LCR_DLAB,
+			 CONSOLE_BASE + RDA_UART_LCR_OFFSET);
 
-  /* Set the BAUD divisor */
+	/* Set the BAUD divisor */
 
-  putreg32(CONSOLE_DIV >> 8, CONSOLE_BASE + RDA_UART_DLM_OFFSET);
-  putreg32(CONSOLE_DIV & 0xFF, CONSOLE_BASE + RDA_UART_DLL_OFFSET);
-  putreg32(((CONSOLE_MOD - (CONSOLE_MOD>>1))<<4) | (CONSOLE_MOD>>1), CONSOLE_BASE + RDA_UART_DL2_OFFSET);
+	putreg32(CONSOLE_DIV >> 8, CONSOLE_BASE + RDA_UART_DLM_OFFSET);
+	putreg32(CONSOLE_DIV & 0xFF, CONSOLE_BASE + RDA_UART_DLL_OFFSET);
+	putreg32(((CONSOLE_MOD - (CONSOLE_MOD >> 1)) << 4) | (CONSOLE_MOD >> 1), CONSOLE_BASE + RDA_UART_DL2_OFFSET);
 
-  /* Clear DLAB */
+	/* Clear DLAB */
 
-  putreg32(CONSOLE_LCR_VALUE, CONSOLE_BASE + RDA_UART_LCR_OFFSET);
+	putreg32(CONSOLE_LCR_VALUE, CONSOLE_BASE + RDA_UART_LCR_OFFSET);
 
-  /* Configure the FIFOs */
+	/* Configure the FIFOs */
 
-  putreg32(UART_FCR_RXTRIGGER_L0 | UART_FCR_TXRST | UART_FCR_RXRST |
-           UART_FCR_FIFOEN,
-           CONSOLE_BASE + RDA_UART_FCR_OFFSET);
+	putreg32(UART_FCR_RXTRIGGER_L0 | UART_FCR_TXRST | UART_FCR_RXRST |
+			 UART_FCR_FIFOEN,
+			 CONSOLE_BASE + RDA_UART_FCR_OFFSET);
 #endif
 #endif /* HAVE_UART */
 }

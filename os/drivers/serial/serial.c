@@ -843,10 +843,10 @@ static int uart_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 #ifdef CONFIG_SERIAL_IFLOWCONTROL
 				uart_rxflowcontrol(dev, 0, false);
 #endif
-					uart_givesem(&dev->recv.sem);
-					ret = OK;
-				}
-				if (arg == TCIOFLUSH || arg == TCOFLUSH) {
+				uart_givesem(&dev->recv.sem);
+				ret = OK;
+			}
+			if (arg == TCIOFLUSH || arg == TCOFLUSH) {
 				ret = uart_takesem(&dev->xmit.sem, true);
 				if (ret < 0) {
 					break;

@@ -99,11 +99,11 @@ extern "C" {
 /* The IPv6 header. */
 struct ip_hdr {
 #if BYTE_ORDER == LITTLE_ENDIAN
-	u8_t tclass1:4, v:4;
-	u8_t flow1:4, tclass2:4;
+	u8_t tclass1: 4, v: 4;
+	u8_t flow1: 4, tclass2: 4;
 #else
-	u8_t v:4, tclass1:4;
-	u8_t tclass2:8, flow1:4;
+	u8_t v: 4, tclass1: 4;
+	u8_t tclass2: 8, flow1: 4;
 #endif
 	u16_t flow2;
 	u16_t len;				/* payload length */

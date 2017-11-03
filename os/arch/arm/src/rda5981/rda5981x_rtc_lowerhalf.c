@@ -122,13 +122,13 @@ struct rda5981x_lowerhalf_s {
  *
  ****************************************************************************/
 static int rtc_rdtime(FAR struct rtc_lowerhalf_s *lower,
-		      FAR struct rtc_time *rtctime)
+					  FAR struct rtc_time *rtctime)
 {
 	return up_rtc_getdatetime((FAR struct tm *)rtctime);
 }
 
 static int rtc_settime(FAR struct rtc_lowerhalf_s *lower,
-		       FAR const struct rtc_time *rtctime)
+					   FAR const struct rtc_time *rtctime)
 {
 	return up_rtc_setdatetime((FAR struct tm *)rtctime);
 }

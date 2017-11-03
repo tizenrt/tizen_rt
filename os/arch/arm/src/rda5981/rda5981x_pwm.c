@@ -88,238 +88,245 @@ struct rda5981x_pwmtimer_s {
 #define EXIF_PWM_EN_REG         (RDA_EXIF->MISCCFG)
 
 __IO uint32_t *PWM_MATCH[] = {
-    &(RDA_EXIF->PWM0CFG),
-    &(RDA_EXIF->PWM1CFG),
-    &(RDA_EXIF->PWM2CFG),
-    &(RDA_EXIF->PWM3CFG),
-    &( RDA_PWM->PWTCFG ),
-    &( RDA_PWM->LPGCFG ),
-    &( RDA_PWM->PWL0CFG),
-    &( RDA_PWM->PWL1CFG)
+	&(RDA_EXIF->PWM0CFG),
+	&(RDA_EXIF->PWM1CFG),
+	&(RDA_EXIF->PWM2CFG),
+	&(RDA_EXIF->PWM3CFG),
+	&(RDA_PWM->PWTCFG),
+	&(RDA_PWM->LPGCFG),
+	&(RDA_PWM->PWL0CFG),
+	&(RDA_PWM->PWL1CFG)
 };
 
-static uint8_t is_pwmout_started(pwmout_t* obj);
-static void pwmout_start(pwmout_t* obj);
-static void pwmout_stop(pwmout_t* obj);
-static void pwmout_update_cfgreg(pwmout_t* obj);
+static uint8_t is_pwmout_started(pwmout_t *obj);
+static void pwmout_start(pwmout_t *obj);
+static void pwmout_stop(pwmout_t *obj);
+static void pwmout_update_cfgreg(pwmout_t *obj);
 
-void pwmout_init(pwmout_t* obj, int chanel_id)
+void pwmout_init(pwmout_t *obj, int chanel_id)
 {
-    uint32_t reg_val = 0U;
+	uint32_t reg_val = 0U;
 
-  //  if(chanel_id == 0)
-    // 	rda_configgpio(GPIO_PWM_TOUT0);    
+	//  if(chanel_id == 0)
+	// 	rda_configgpio(GPIO_PWM_TOUT0);
 
-    obj->channel = chanel_id;
-    obj->CFGR = PWM_MATCH[chanel_id];
+	obj->channel = chanel_id;
+	obj->CFGR = PWM_MATCH[chanel_id];
 
-    /* Enable PWM Clock-gating */
-    PWM_CLKGATE_REG |= (0x01UL << 2);
+	/* Enable PWM Clock-gating */
+	PWM_CLKGATE_REG |= (0x01UL << 2);
 
-    /* Init PWM clock source and divider */
-    if(PWM_4 >= chanel_id) {
-        /* Src: 20MHz, Divider: (3 + 1) */
-        reg_val = PWM_CLKSRC_REG & ~0x0000FFUL;
-        PWM_CLKSRC_REG = reg_val | (0x01UL << 7) | 0x03UL | (0x01UL << 24);
-        obj->base_clk = (PWM_CLK_SRC_20MHZ >> 2) >> 1;
-    } else if(PWM_5 == chanel_id) {
-        /* Src: 32KHz, Divider: (0 + 1) */
-        reg_val = PWM_CLKSRC_REG & ~0x00FF00UL;
-        PWM_CLKSRC_REG = reg_val | (0x00UL << 8) | (0x01UL << 25);
-        obj->base_clk = PWM_CLK_SRC_32KHZ >> 1;
-    } else {
-        /* Src: 32KHz, Divider: (0 + 1) */
-        reg_val = PWM_CLKSRC_REG & ~0xFF0000UL;
-        PWM_CLKSRC_REG = reg_val | (0x00UL << 16) | (0x01UL << 26);
-        obj->base_clk = PWM_CLK_SRC_32KHZ >> 1;
-    }
+	/* Init PWM clock source and divider */
+	if (PWM_4 >= chanel_id) {
+		/* Src: 20MHz, Divider: (3 + 1) */
+		reg_val = PWM_CLKSRC_REG & ~0x0000FFUL;
+		PWM_CLKSRC_REG = reg_val | (0x01UL << 7) | 0x03UL | (0x01UL << 24);
+		obj->base_clk = (PWM_CLK_SRC_20MHZ >> 2) >> 1;
+	} else if (PWM_5 == chanel_id) {
+		/* Src: 32KHz, Divider: (0 + 1) */
+		reg_val = PWM_CLKSRC_REG & ~0x00FF00UL;
+		PWM_CLKSRC_REG = reg_val | (0x00UL << 8) | (0x01UL << 25);
+		obj->base_clk = PWM_CLK_SRC_32KHZ >> 1;
+	} else {
+		/* Src: 32KHz, Divider: (0 + 1) */
+		reg_val = PWM_CLKSRC_REG & ~0xFF0000UL;
+		PWM_CLKSRC_REG = reg_val | (0x00UL << 16) | (0x01UL << 26);
+		obj->base_clk = PWM_CLK_SRC_32KHZ >> 1;
+	}
 
-    // default to 20ms: standard for servos, and fine for e.g. brightness control
-    pwmout_period_ms(obj, 20);
-    pwmout_write    (obj, 0);
+	// default to 20ms: standard for servos, and fine for e.g. brightness control
+	pwmout_period_ms(obj, 20);
+	pwmout_write(obj, 0);
 
 }
 
-void pwmout_free(pwmout_t* obj)
+void pwmout_free(pwmout_t *obj)
 {
-    /* Disable PWM Clock-gating */
-    PWM_CLKGATE_REG &= ~(0x01UL << 2);
+	/* Disable PWM Clock-gating */
+	PWM_CLKGATE_REG &= ~(0x01UL << 2);
 }
 
-void pwmout_write(pwmout_t* obj, float value)
+void pwmout_write(pwmout_t *obj, float value)
 {
-    uint32_t ticks;
+	uint32_t ticks;
 
-    /* Check if already started */
-    if(is_pwmout_started(obj))
-        pwmout_stop(obj);
+	/* Check if already started */
+	if (is_pwmout_started(obj)) {
+		pwmout_stop(obj);
+	}
 
-    if (value < 0.0f) {
-        value = 0.0;
-    } else if (value > 1.0f) {
-        value = 1.0;
-    }
+	if (value < 0.0f) {
+		value = 0.0;
+	} else if (value > 1.0f) {
+		value = 1.0;
+	}
 
-    /* Set channel match to percentage */
-    ticks = (uint32_t)((float)(obj->period_ticks) * value);
+	/* Set channel match to percentage */
+	ticks = (uint32_t)((float)(obj->period_ticks) * value);
 
-    if (0 == ticks) {
-        obj->pulsewidth_ticks = 0;
-    } else {
-        /* Update Hw reg */
-        if(ticks != obj->pulsewidth_ticks) {
-            obj->pulsewidth_ticks = ticks;
-            pwmout_update_cfgreg(obj);
-        }
+	if (0 == ticks) {
+		obj->pulsewidth_ticks = 0;
+	} else {
+		/* Update Hw reg */
+		if (ticks != obj->pulsewidth_ticks) {
+			obj->pulsewidth_ticks = ticks;
+			pwmout_update_cfgreg(obj);
+		}
 
-        /* Start PWM module */
-        pwmout_start(obj);
-    }
+		/* Start PWM module */
+		pwmout_start(obj);
+	}
 }
 
-float pwmout_read(pwmout_t* obj)
+float pwmout_read(pwmout_t *obj)
 {
-    printf("pw: %u, period %u\n", obj->pulsewidth_ticks, obj->period_ticks); 
-    float v = (float)(obj->pulsewidth_ticks) / (float)(obj->period_ticks);
-    return (v > 1.0f) ? (1.0f) : (v);
+	printf("pw: %u, period %u\n", obj->pulsewidth_ticks, obj->period_ticks);
+	float v = (float)(obj->pulsewidth_ticks) / (float)(obj->period_ticks);
+	return (v > 1.0f) ? (1.0f) : (v);
 }
 
-void pwmout_period(pwmout_t* obj, float seconds)
+void pwmout_period(pwmout_t *obj, float seconds)
 {
-    pwmout_period_us(obj, seconds * 1000000.0f);
+	pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_period_ms(pwmout_t* obj, int ms)
+void pwmout_period_ms(pwmout_t *obj, int ms)
 {
-    pwmout_period_us(obj, ms * 1000);
+	pwmout_period_us(obj, ms * 1000);
 }
 
 /* Set the PWM period, keeping the duty cycle the same. */
-void pwmout_period_us(pwmout_t* obj, int us)
+void pwmout_period_us(pwmout_t *obj, int us)
 {
-    uint32_t ticks;
-    /* Check if already started */
-    if(is_pwmout_started(obj))
-        pwmout_stop(obj);
+	uint32_t ticks;
+	/* Check if already started */
+	if (is_pwmout_started(obj)) {
+		pwmout_stop(obj);
+	}
 
-    /* Calculate number of ticks */
-    ticks = (uint64_t)obj->base_clk * us / 1000000;
+	/* Calculate number of ticks */
+	ticks = (uint64_t)obj->base_clk * us / 1000000;
 
-    if(ticks != obj->period_ticks) {
-        float duty_ratio;
+	if (ticks != obj->period_ticks) {
+		float duty_ratio;
 
-        /* Preserve the duty ratio */
-        duty_ratio = (float)obj->pulsewidth_ticks / (float)obj->period_ticks;
-        obj->period_ticks = ticks;
-        obj->pulsewidth_ticks = (uint32_t)(ticks * duty_ratio);
+		/* Preserve the duty ratio */
+		duty_ratio = (float)obj->pulsewidth_ticks / (float)obj->period_ticks;
+		obj->period_ticks = ticks;
+		obj->pulsewidth_ticks = (uint32_t)(ticks * duty_ratio);
 //        MBED_ASSERT(obj->period_ticks >= obj->pulsewidth_ticks);
-	pwmout_update_cfgreg(obj);
-    }
+		pwmout_update_cfgreg(obj);
+	}
 
-    /* Start PWM module */
-    pwmout_start(obj);
+	/* Start PWM module */
+	pwmout_start(obj);
 }
 
-void pwmout_pulsewidth(pwmout_t* obj, float seconds)
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
+	pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    pwmout_pulsewidth_us(obj, ms * 1000);
+	pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
 /* Set the PWM pulsewidth, keeping the period the same. */
-void pwmout_pulsewidth_us(pwmout_t* obj, int us)
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    uint32_t ticks;
-    /* Check if already started */
-    if(is_pwmout_started(obj))
-        pwmout_stop(obj);
+	uint32_t ticks;
+	/* Check if already started */
+	if (is_pwmout_started(obj)) {
+		pwmout_stop(obj);
+	}
 
-    /* Calculate number of ticks */
-    ticks = (uint64_t)obj->base_clk * us / 1000000;
+	/* Calculate number of ticks */
+	ticks = (uint64_t)obj->base_clk * us / 1000000;
 
-    if(ticks != obj->pulsewidth_ticks) {
-        obj->pulsewidth_ticks = ticks;
-        pwmout_update_cfgreg(obj);
-    }
+	if (ticks != obj->pulsewidth_ticks) {
+		obj->pulsewidth_ticks = ticks;
+		pwmout_update_cfgreg(obj);
+	}
 
-    /* Start PWM module */
-    pwmout_start(obj);
+	/* Start PWM module */
+	pwmout_start(obj);
 }
 
-static uint8_t is_pwmout_started(pwmout_t* obj)
+static uint8_t is_pwmout_started(pwmout_t *obj)
 {
-    uint8_t retVal = 0;
-    uint32_t reg_val;
+	uint8_t retVal = 0;
+	uint32_t reg_val;
 
-    if(PWM_3 >= (PWMName)obj->channel) {
-        reg_val = (EXIF_PWM_EN_REG >> 8) & 0x0FUL;
-        if(reg_val & (0x01UL << obj->channel))
-            retVal = 1;
-    } else if(PWM_4 == (PWMName)obj->channel) {
-        if(*(obj->CFGR) & (0x01UL << 1))
-            retVal = 1;
-    } else if(PWM_5 == (PWMName)obj->channel) {
-        retVal = 1;
-    } else {
-        if(*(obj->CFGR) & (0x01UL << 16))
-            retVal = 1;
-    }
-    return retVal;
+	if (PWM_3 >= (PWMName)obj->channel) {
+		reg_val = (EXIF_PWM_EN_REG >> 8) & 0x0FUL;
+		if (reg_val & (0x01UL << obj->channel)) {
+			retVal = 1;
+		}
+	} else if (PWM_4 == (PWMName)obj->channel) {
+		if (*(obj->CFGR) & (0x01UL << 1)) {
+			retVal = 1;
+		}
+	} else if (PWM_5 == (PWMName)obj->channel) {
+		retVal = 1;
+	} else {
+		if (*(obj->CFGR) & (0x01UL << 16)) {
+			retVal = 1;
+		}
+	}
+	return retVal;
 }
 
-static void pwmout_start(pwmout_t* obj)
+static void pwmout_start(pwmout_t *obj)
 {
-    if(PWM_3 >= (PWMName)obj->channel) {
-        EXIF_PWM_EN_REG |= (0x01UL << (8 + obj->channel));
-    } else if(PWM_4 == (PWMName)obj->channel) {
-        *(obj->CFGR) |= 0x01UL;
-    } else if(PWM_5 == (PWMName)obj->channel) {
-        /* Nothing to be done */
-    } else {
-        *(obj->CFGR) |= (0x01UL << 16);
-    }
+	if (PWM_3 >= (PWMName)obj->channel) {
+		EXIF_PWM_EN_REG |= (0x01UL << (8 + obj->channel));
+	} else if (PWM_4 == (PWMName)obj->channel) {
+		*(obj->CFGR) |= 0x01UL;
+	} else if (PWM_5 == (PWMName)obj->channel) {
+		/* Nothing to be done */
+	} else {
+		*(obj->CFGR) |= (0x01UL << 16);
+	}
 }
 
-static void pwmout_stop(pwmout_t* obj)
+static void pwmout_stop(pwmout_t *obj)
 {
-    if(PWM_3 >= (PWMName)obj->channel) {
-        EXIF_PWM_EN_REG &= ~(0x01UL << (8 + obj->channel));
-    } else if(PWM_4 == (PWMName)(obj->channel)) {
-        *(obj->CFGR) &= ~0x01UL;
-    } else if(PWM_5 == (PWMName)(obj->channel)) {
-        /* Nothing to be done */
-    } else {
-        *(obj->CFGR) &= ~(0x01UL << 16);
-    }
+	if (PWM_3 >= (PWMName)obj->channel) {
+		EXIF_PWM_EN_REG &= ~(0x01UL << (8 + obj->channel));
+	} else if (PWM_4 == (PWMName)(obj->channel)) {
+		*(obj->CFGR) &= ~0x01UL;
+	} else if (PWM_5 == (PWMName)(obj->channel)) {
+		/* Nothing to be done */
+	} else {
+		*(obj->CFGR) &= ~(0x01UL << 16);
+	}
 }
 
-static void pwmout_update_cfgreg(pwmout_t* obj)
+static void pwmout_update_cfgreg(pwmout_t *obj)
 {
-    if(PWM_3 >= (obj->channel)) {
-        if (obj->period_ticks == obj->pulsewidth_ticks) {
-            *(obj->CFGR) = ((obj->pulsewidth_ticks - 1) << 16);
-        } else {
-            *(obj->CFGR) = ((obj->period_ticks - obj->pulsewidth_ticks - 1) & 0xFFFFUL) |
-                ((obj->pulsewidth_ticks - 1) << 16);
-        }
-    } else if(PWM_4 == (obj->channel)) {
-        if (obj->pulsewidth_ticks < 8)
-            obj->pulsewidth_ticks = 8;
-        //MBED_ASSERT(((obj->period_ticks >> 1) >= obj->pulsewidth_ticks) &&
-          //  (obj->pulsewidth_ticks >= 8));
-        *(obj->CFGR) = ((obj->pulsewidth_ticks & 0x3FFUL) << 4) | ((obj->period_ticks & 0x7FF) << 16);
-    } else if(PWM_5 == (obj->channel)) {
-        /* TBD */
-        uint32_t reg_val = *(obj->CFGR) & ~(0xFUL << 4) & ~(0x7UL << 16);
-        uint32_t lpg_field_ontime = (0x01UL << 4) & (0xFUL << 4); // to be confirm
-        uint32_t lpg_field_period = (obj->period_ticks << 4) & (0x7UL << 16);
-        *(obj->CFGR) = reg_val | lpg_field_ontime | lpg_field_period;
-    } else {
-    }
+	if (PWM_3 >= (obj->channel)) {
+		if (obj->period_ticks == obj->pulsewidth_ticks) {
+			*(obj->CFGR) = ((obj->pulsewidth_ticks - 1) << 16);
+		} else {
+			*(obj->CFGR) = ((obj->period_ticks - obj->pulsewidth_ticks - 1) & 0xFFFFUL) |
+						   ((obj->pulsewidth_ticks - 1) << 16);
+		}
+	} else if (PWM_4 == (obj->channel)) {
+		if (obj->pulsewidth_ticks < 8) {
+			obj->pulsewidth_ticks = 8;
+		}
+		//MBED_ASSERT(((obj->period_ticks >> 1) >= obj->pulsewidth_ticks) &&
+		//  (obj->pulsewidth_ticks >= 8));
+		*(obj->CFGR) = ((obj->pulsewidth_ticks & 0x3FFUL) << 4) | ((obj->period_ticks & 0x7FF) << 16);
+	} else if (PWM_5 == (obj->channel)) {
+		/* TBD */
+		uint32_t reg_val = *(obj->CFGR) & ~(0xFUL << 4) & ~(0x7UL << 16);
+		uint32_t lpg_field_ontime = (0x01UL << 4) & (0xFUL << 4); // to be confirm
+		uint32_t lpg_field_period = (obj->period_ticks << 4) & (0x7UL << 16);
+		*(obj->CFGR) = reg_val | lpg_field_ontime | lpg_field_period;
+	} else {
+	}
 }
 
 #if 0
@@ -334,7 +341,7 @@ static void pwm_putreg32(struct rda5981x_pwmtimer_s *priv, int offset, uint32_t 
 }
 
 static void pwm_modifyreg32(struct rda5981x_pwmtimer_s *priv, int offset,
-				uint32_t clearbits, uint32_t setbits)
+							uint32_t clearbits, uint32_t setbits)
 {
 	modifyreg32(priv->base + offset, clearbits, setbits);
 }
@@ -364,7 +371,7 @@ static int rda5981x_pwm_setup(FAR struct pwm_lowerhalf_s *dev)
 	FAR struct rda5981x_pwmtimer_s *priv = (FAR struct rda5981x_pwmtimer_s *)dev;
 	rda_configgpio(priv->pincfg);
 	pwmout_init(&(priv->obj), priv->id);
-	return 0;	
+	return 0;
 }
 
 /****************************************************************************
@@ -382,10 +389,10 @@ static int rda5981x_pwm_setup(FAR struct pwm_lowerhalf_s *dev)
  *
  ****************************************************************************/
 static int rda5981x_pwm_start(FAR struct pwm_lowerhalf_s *dev,
-				FAR const struct pwm_info_s *info)
+							  FAR const struct pwm_info_s *info)
 {
 	FAR struct rda5981x_pwmtimer_s *priv = (FAR struct rda5981x_pwmtimer_s *)dev;
-        pwmout_start(&(priv->obj));		 	
+	pwmout_start(&(priv->obj));
 	return OK;
 }
 
@@ -457,7 +464,7 @@ static int rda5981x_pwm_shutdown(FAR struct pwm_lowerhalf_s *dev)
  *
  ****************************************************************************/
 static int rda5981x_pwm_ioctl(FAR struct pwm_lowerhalf_s *dev, int cmd,
-						 unsigned long arg)
+							  unsigned long arg)
 {
 	return -ENOTTY;
 }
@@ -523,20 +530,17 @@ FAR struct pwm_lowerhalf_s *rda5981x_pwminitialize(int timer)
 
 	if (timer == 0) {
 		lower = (struct pwm_lowerhalf_s *)&g_pwm0;
-	} 
+	}
 
 	else if (timer == 1) {
 		lower = (struct pwm_lowerhalf_s *)&g_pwm1;
-	} 
+	}
 
 	else if (timer == 2) {
 		lower = (struct pwm_lowerhalf_s *)&g_pwm2;
-	} 
-	else if (timer == 3) {
+	} else if (timer == 3) {
 		lower = (struct pwm_lowerhalf_s *)&g_pwm3;
-	} 
-	else
-	{
+	} else {
 		lldbg("ERROR: invalid PWM is requested\n");
 	}
 	return lower;

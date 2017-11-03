@@ -56,115 +56,118 @@
 #include "rda5981x_ticker.h"
 
 //Define rda ticker pai
-void ticker_set_handler(const ticker_data_t *const data, ticker_event_handler handler) {
-    data->interface->init();
+void ticker_set_handler(const ticker_data_t *const data, ticker_event_handler handler)
+{
+	data->interface->init();
 
-    data->queue->event_handler = handler;
+	data->queue->event_handler = handler;
 }
 
-void ticker_irq_handler(const ticker_data_t *const data) {
-    data->interface->clear_interrupt();
+void ticker_irq_handler(const ticker_data_t *const data)
+{
+	data->interface->clear_interrupt();
 
-    /* Go through all the pending TimerEvents */
-    while (1) {
-        if (data->queue->head == NULL) {
-            // There are no more TimerEvents left, so disable matches.
-            data->interface->disable_interrupt();
-            return;
-        }
+	/* Go through all the pending TimerEvents */
+	while (1) {
+		if (data->queue->head == NULL) {
+			// There are no more TimerEvents left, so disable matches.
+			data->interface->disable_interrupt();
+			return;
+		}
 
-        if ((int)(data->queue->head->timestamp - data->interface->read()) <= 0) {
-            // This event was in the past:
-            //      point to the following one and execute its handler
-            ticker_event_t *p = data->queue->head;
-            data->queue->head = data->queue->head->next;
-            if (data->queue->event_handler != NULL) {
-                (*data->queue->event_handler)(p->id); // NOTE: the handler can set new events
-            }
-            /* Note: We continue back to examining the head because calling the
-             * event handler may have altered the chain of pending events. */
-        } else {
-            // This event and the following ones in the list are in the future:
-            //      set it as next interrupt and return
-            data->interface->set_interrupt(data->queue->head->timestamp);
-            return;
-        }
-    }
+		if ((int)(data->queue->head->timestamp - data->interface->read()) <= 0) {
+			// This event was in the past:
+			//      point to the following one and execute its handler
+			ticker_event_t *p = data->queue->head;
+			data->queue->head = data->queue->head->next;
+			if (data->queue->event_handler != NULL) {
+				(*data->queue->event_handler)(p->id); // NOTE: the handler can set new events
+			}
+			/* Note: We continue back to examining the head because calling the
+			 * event handler may have altered the chain of pending events. */
+		} else {
+			// This event and the following ones in the list are in the future:
+			//      set it as next interrupt and return
+			data->interface->set_interrupt(data->queue->head->timestamp);
+			return;
+		}
+	}
 }
 
-void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
-    /* disable interrupts for the duration of the function */
+void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, timestamp_t timestamp, uint32_t id)
+{
+	/* disable interrupts for the duration of the function */
 
-    // initialise our data
-    obj->timestamp = timestamp;
-    obj->id = id;
+	// initialise our data
+	obj->timestamp = timestamp;
+	obj->id = id;
 
-    /* Go through the list until we either reach the end, or find
-       an element this should come before (which is possibly the
-       head). */
-    ticker_event_t *prev = NULL, *p = data->queue->head;
-    while (p != NULL) {
-        /* check if we come before p */
-        if ((int)(timestamp - p->timestamp) < 0) {
-            break;
-        }
-        /* go to the next element */
-        prev = p;
-        p = p->next;
-    }
-    /* if prev is NULL we're at the head */
-    if (prev == NULL) {
-        data->queue->head = obj;
-        data->interface->set_interrupt(timestamp);
-    } else {
-        prev->next = obj;
-    }
-    /* if we're at the end p will be NULL, which is correct */
-    obj->next = p;
+	/* Go through the list until we either reach the end, or find
+	   an element this should come before (which is possibly the
+	   head). */
+	ticker_event_t *prev = NULL, *p = data->queue->head;
+	while (p != NULL) {
+		/* check if we come before p */
+		if ((int)(timestamp - p->timestamp) < 0) {
+			break;
+		}
+		/* go to the next element */
+		prev = p;
+		p = p->next;
+	}
+	/* if prev is NULL we're at the head */
+	if (prev == NULL) {
+		data->queue->head = obj;
+		data->interface->set_interrupt(timestamp);
+	} else {
+		prev->next = obj;
+	}
+	/* if we're at the end p will be NULL, which is correct */
+	obj->next = p;
 
 }
 
 void ticker_remove_event(const ticker_data_t *const data, ticker_event_t *obj)
 {
-    // remove this object from the list
-    if (data->queue->head == obj) {
-        // first in the list, so just drop me
-        data->queue->head = obj->next;
-        if (data->queue->head == NULL) {
-            data->interface->disable_interrupt();
-        } else {
-            data->interface->set_interrupt(data->queue->head->timestamp);
-        }
-    } else {
-        // find the object before me, then drop me
-        ticker_event_t* p = data->queue->head;
-        while (p != NULL) {
-            if (p->next == obj) {
-                p->next = obj->next;
-                break;
-            }
-            p = p->next;
-        }
-    }
+	// remove this object from the list
+	if (data->queue->head == obj) {
+		// first in the list, so just drop me
+		data->queue->head = obj->next;
+		if (data->queue->head == NULL) {
+			data->interface->disable_interrupt();
+		} else {
+			data->interface->set_interrupt(data->queue->head->timestamp);
+		}
+	} else {
+		// find the object before me, then drop me
+		ticker_event_t *p = data->queue->head;
+		while (p != NULL) {
+			if (p->next == obj) {
+				p->next = obj->next;
+				break;
+			}
+			p = p->next;
+		}
+	}
 
 }
 
 timestamp_t ticker_read(const ticker_data_t *const data)
 {
-    return data->interface->read();
+	return data->interface->read();
 }
 
 int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *timestamp)
 {
-    int ret = 0;
+	int ret = 0;
 
-    /* if head is NULL, there are no pending events */
-    if (data->queue->head != NULL) {
-        *timestamp = data->queue->head->timestamp;
-        ret = 1;
-    }
+	/* if head is NULL, there are no pending events */
+	if (data->queue->head != NULL) {
+		*timestamp = data->queue->head->timestamp;
+		ret = 1;
+	}
 
-    return ret;
+	return ret;
 }
 
 

@@ -8,9 +8,8 @@
 /*------------- Wlan Monitor (WLANMON) ---------------------------------------*/
 
 
-typedef struct
-{
-  __IO uint32_t PHYSELGRP[4];           /* 0x00-0x0C : PHY select group 0 - 3 */
+typedef struct {
+	__IO uint32_t PHYSELGRP[4];           /* 0x00-0x0C : PHY select group 0 - 3 */
 } RDA_WLANMON_TypeDef;
 
 /** Macros
@@ -96,728 +95,749 @@ static inline void clear_i2s_rx_int(void);
 
 void rda_i2s_init(i2s_t *obj)
 {
-    uint32_t reg_val = 0x00;
- //   I2SName i2s_bclk, i2s_ws, i2s_sd, i2s_tx_sel, i2s_rx_sel, i2s_mclk;
+	uint32_t reg_val = 0x00;
+//   I2SName i2s_bclk, i2s_ws, i2s_sd, i2s_tx_sel, i2s_rx_sel, i2s_mclk;
 
-    /* Determine the I2S to use */
- #if 0 
-   i2s_bclk = (I2SName)pinmap_peripheral(tx_bclk, PinMap_I2S_TX_BCLK);
-    i2s_ws   = (I2SName)pinmap_peripheral(tx_ws, PinMap_I2S_TX_WS);
-    i2s_sd   = (I2SName)pinmap_peripheral(tx_sd, PinMap_I2S_TX_SD);
+	/* Determine the I2S to use */
+#if 0
+	i2s_bclk = (I2SName)pinmap_peripheral(tx_bclk, PinMap_I2S_TX_BCLK);
+	i2s_ws   = (I2SName)pinmap_peripheral(tx_ws, PinMap_I2S_TX_WS);
+	i2s_sd   = (I2SName)pinmap_peripheral(tx_sd, PinMap_I2S_TX_SD);
 
-    i2s_tx_sel = (I2SName)pinmap_merge(i2s_bclk, i2s_ws);
-    i2s_tx_sel = (I2SName)pinmap_merge(i2s_tx_sel, i2s_sd);
+	i2s_tx_sel = (I2SName)pinmap_merge(i2s_bclk, i2s_ws);
+	i2s_tx_sel = (I2SName)pinmap_merge(i2s_tx_sel, i2s_sd);
 
-    i2s_bclk = (I2SName)pinmap_peripheral(rx_bclk, PinMap_I2S_RX_BCLK);
-    i2s_ws   = (I2SName)pinmap_peripheral(rx_ws, PinMap_I2S_RX_WS);
-    i2s_sd   = (I2SName)pinmap_peripheral(rx_sd, PinMap_I2S_RX_SD);
+	i2s_bclk = (I2SName)pinmap_peripheral(rx_bclk, PinMap_I2S_RX_BCLK);
+	i2s_ws   = (I2SName)pinmap_peripheral(rx_ws, PinMap_I2S_RX_WS);
+	i2s_sd   = (I2SName)pinmap_peripheral(rx_sd, PinMap_I2S_RX_SD);
 
-    i2s_rx_sel = (I2SName)pinmap_merge(i2s_bclk, i2s_ws);
-    i2s_rx_sel = (I2SName)pinmap_merge(i2s_rx_sel, i2s_sd);
+	i2s_rx_sel = (I2SName)pinmap_merge(i2s_bclk, i2s_ws);
+	i2s_rx_sel = (I2SName)pinmap_merge(i2s_rx_sel, i2s_sd);
 
-    i2s_mclk = (I2SName)pinmap_peripheral(mclk, PinMap_I2S_MCLK);
+	i2s_mclk = (I2SName)pinmap_peripheral(mclk, PinMap_I2S_MCLK);
 #endif
-    obj->hw.i2s  = (RDA_I2S_TypeDef *)RDA_I2S_BASE;
-    rda_configgpio(I2S_TX_SD);
-    rda_configgpio(I2S_TX_WS);
-    rda_configgpio(I2S_TX_BCLK);
-    rda_configgpio(I2S_RX_SD);
-    rda_configgpio(I2S_MCLK);
+	obj->hw.i2s  = (RDA_I2S_TypeDef *)RDA_I2S_BASE;
+	rda_configgpio(I2S_TX_SD);
+	rda_configgpio(I2S_TX_WS);
+	rda_configgpio(I2S_TX_BCLK);
+	rda_configgpio(I2S_RX_SD);
+	rda_configgpio(I2S_MCLK);
 
-    I2S_CLKGATE_REG2 |= (0x01UL << 17);
-    I2S_CLKGATE_REG2 |= (0x01UL << 16);
+	I2S_CLKGATE_REG2 |= (0x01UL << 17);
+	I2S_CLKGATE_REG2 |= (0x01UL << 16);
 
-    /* Make sure SPI MOSI pin is not PB_3 when using I2S MCLK pin */
-        int port, idx = 0, ofst = 0;
+	/* Make sure SPI MOSI pin is not PB_3 when using I2S MCLK pin */
+	int port, idx = 0, ofst = 0;
 	reg_val = RDA_GPIO->CTRL & ~(0x0FUL /*<< 0*/);
-        RDA_GPIO->CTRL = reg_val |  (0x06UL /*<< 0*/);
-        reg_val = RDA_SCU->CLKGATE3 & ~(0x0FUL << 8);
-        RDA_SCU->CLKGATE3 = reg_val |  (0x02UL << 8);
-        port =  ((int)i2s_mclk) >> PORT_SHIFT;
-        idx  = (((int)i2s_mclk) >> 2) & 0x0003;
-        ofst = (((int)i2s_mclk) & 0x0003) << 3;
-        if(4 == port) {
-            idx += 3;
-        }
-        reg_val = RDA_MON->PHYSELGRP[idx] & ~(0x3FUL << ofst);
-        RDA_MON->PHYSELGRP[idx] = reg_val |  (0x02UL << ofst);
+	RDA_GPIO->CTRL = reg_val | (0x06UL /*<< 0*/);
+	reg_val = RDA_SCU->CLKGATE3 & ~(0x0FUL << 8);
+	RDA_SCU->CLKGATE3 = reg_val | (0x02UL << 8);
+	port = ((int)i2s_mclk) >> PORT_SHIFT;
+	idx  = (((int)i2s_mclk) >> 2) & 0x0003;
+	ofst = (((int)i2s_mclk) & 0x0003) << 3;
+	if (4 == port) {
+		idx += 3;
+	}
+	reg_val = RDA_MON->PHYSELGRP[idx] & ~(0x3FUL << ofst);
+	RDA_MON->PHYSELGRP[idx] = reg_val | (0x02UL << ofst);
 
-    /* Enable I2S clock */
-    I2S_CLKGATE_REG1 |= (0x01UL << 1);
+	/* Enable I2S clock */
+	I2S_CLKGATE_REG1 |= (0x01UL << 1);
 
-    /* Set exif interrupt irq handler */
-    rda_exif_irq_set();
+	/* Set exif interrupt irq handler */
+	rda_exif_irq_set();
 
-    /* Config I2S interrupt status config reg */
-    reg_val = EXIF_MISC_STCFG_REG | I2S_TXFIFO_ALMOSTEMPTY_ENBIT | I2S_RXFIFO_ENBITS;
-    EXIF_MISC_STCFG_REG = reg_val;
+	/* Config I2S interrupt status config reg */
+	reg_val = EXIF_MISC_STCFG_REG | I2S_TXFIFO_ALMOSTEMPTY_ENBIT | I2S_RXFIFO_ENBITS;
+	EXIF_MISC_STCFG_REG = reg_val;
 
-    /* Auto-clear almost-empty flag, hw autogen data[31], start from left channel */
-    reg_val  = EXIF_MISC_CFG_REG | (0x01UL << 5) | (0x01UL << 17);
-    reg_val &= ~(0x01UL << 18);
-    EXIF_MISC_CFG_REG = reg_val;
+	/* Auto-clear almost-empty flag, hw autogen data[31], start from left channel */
+	reg_val  = EXIF_MISC_CFG_REG | (0x01UL << 5) | (0x01UL << 17);
+	reg_val &= ~(0x01UL << 18);
+	EXIF_MISC_CFG_REG = reg_val;
 
-    obj->sw_tx.state = I2S_ST_RESET;
-    obj->sw_rx.state = I2S_ST_RESET;
+	obj->sw_tx.state = I2S_ST_RESET;
+	obj->sw_rx.state = I2S_ST_RESET;
 
-    /* Store i2s object to global variable */
-    rda_i2s_obj = obj;
-    
-    /* Create I2S tx and rx semaphore */    
-    sem_init(&tx_sem_id, 0, 0);
-    sem_init(&rx_sem_id, 0, 0);
+	/* Store i2s object to global variable */
+	rda_i2s_obj = obj;
+
+	/* Create I2S tx and rx semaphore */
+	sem_init(&tx_sem_id, 0, 0);
+	sem_init(&rx_sem_id, 0, 0);
 }
 
 void rda_i2s_deinit(i2s_t *obj)
 {
-    /* Disable I2S TX/RX */
-    obj->hw.i2s->CFG &= ~(0x01UL | (0x01UL << 16));
+	/* Disable I2S TX/RX */
+	obj->hw.i2s->CFG &= ~(0x01UL | (0x01UL << 16));
 
-    /* Disable I2S clock */
-    I2S_CLKGATE_REG1 &= ~(0x01UL << 1);
+	/* Disable I2S clock */
+	I2S_CLKGATE_REG1 &= ~(0x01UL << 1);
 
-    I2S_CLKGATE_REG2 &= ~((0x01L << 17) | (0x01L << 16));
+	I2S_CLKGATE_REG2 &= ~((0x01L << 17) | (0x01L << 16));
 
-    /* Disable I2S interrupt */
-    EXIF_MISC_INTCFG_REG &= ~(I2S_TXINT_ENBIT | I2S_RXINT_ENBIT);
+	/* Disable I2S interrupt */
+	EXIF_MISC_INTCFG_REG &= ~(I2S_TXINT_ENBIT | I2S_RXINT_ENBIT);
 
-    /* Clear I2S RX interrupt */
-    if (EXIF_MISC_STCFG_REG & I2S_RXFIFO_ALMOSTFULL_BIT) {
-        EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
-        EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_ALMOSTFULL_BIT | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
-    }
+	/* Clear I2S RX interrupt */
+	if (EXIF_MISC_STCFG_REG & I2S_RXFIFO_ALMOSTFULL_BIT) {
+		EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
+		EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_ALMOSTFULL_BIT | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
+	}
 
-    /* Clear I2S TX interrupt */
-    if (EXIF_MISC_STCFG_REG & I2S_TXFIFO_ALMOSTEMPTY_BIT) {
-        EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_ALMOSTEMPTY_BIT;
-    }
+	/* Clear I2S TX interrupt */
+	if (EXIF_MISC_STCFG_REG & I2S_TXFIFO_ALMOSTEMPTY_BIT) {
+		EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_ALMOSTEMPTY_BIT;
+	}
 
-    /* Delete I2S tx and rx semaphore */
-    rda_i2s_sem_delete(TX_SEM);
-    rda_i2s_sem_delete(RX_SEM);
+	/* Delete I2S tx and rx semaphore */
+	rda_i2s_sem_delete(TX_SEM);
+	rda_i2s_sem_delete(RX_SEM);
 }
 
 void rda_i2s_format(i2s_t *obj, i2s_cfg_t *cfg)
 {
-    uint32_t reg_val = 0x00;
+	uint32_t reg_val = 0x00;
 
-    if (I2S_MD_MASTER_RX == cfg->mode) {
-        /*i2s_clk/ws out, i2s_data in */
-        MEM_CFG_REG |= (0x01UL << 10);
+	if (I2S_MD_MASTER_RX == cfg->mode) {
+		/*i2s_clk/ws out, i2s_data in */
+		MEM_CFG_REG |= (0x01UL << 10);
 
-        /* Re-config I2S mode to init hw */
-        cfg->mode |= 0x03;
-    }
+		/* Re-config I2S mode to init hw */
+		cfg->mode |= 0x03;
+	}
 
-    if (I2S_MD_MASTER_TX & cfg->mode) {
-        /* Enable I2S TX clock */
-        I2S_CLKGATE_REG2 |= (0x01UL << 17);
+	if (I2S_MD_MASTER_TX & cfg->mode) {
+		/* Enable I2S TX clock */
+		I2S_CLKGATE_REG2 |= (0x01UL << 17);
 
-        /* Get I2S params and calculate I2S cfg reg value*/
-        if((uint8_t)I2S_32FS == cfg->tx.fs)
-            reg_val |= (0x01UL << 1);
+		/* Get I2S params and calculate I2S cfg reg value*/
+		if ((uint8_t)I2S_32FS == cfg->tx.fs) {
+			reg_val |= (0x01UL << 1);
+		}
 
-        if((uint8_t)I2S_WS_POS == cfg->tx.ws_polarity)
-            reg_val |= (0x01UL << 2);
+		if ((uint8_t)I2S_WS_POS == cfg->tx.ws_polarity) {
+			reg_val |= (0x01UL << 2);
+		}
 
-        if((uint8_t)I2S_STD_M == cfg->tx.std_mode)
-            reg_val |= (0x01UL << 3);
+		if ((uint8_t)I2S_STD_M == cfg->tx.std_mode) {
+			reg_val |= (0x01UL << 3);
+		}
 
-        if((uint8_t)I2S_LEFT_JM == cfg->tx.justified_mode)
-            reg_val |= (0x01UL << 4);
+		if ((uint8_t)I2S_LEFT_JM == cfg->tx.justified_mode) {
+			reg_val |= (0x01UL << 4);
+		}
 
-        if((uint8_t)I2S_DL_20b == cfg->tx.data_len)
-            reg_val |= (0x01UL << 5);
-        else if((uint8_t)I2S_DL_24b == cfg->tx.data_len)
-            reg_val |= (0x02UL << 5);
+		if ((uint8_t)I2S_DL_20b == cfg->tx.data_len) {
+			reg_val |= (0x01UL << 5);
+		} else if ((uint8_t)I2S_DL_24b == cfg->tx.data_len) {
+			reg_val |= (0x02UL << 5);
+		}
 
-        if((uint8_t)I2S_MSB == cfg->tx.msb_lsb)
-            reg_val |= (0x01UL << 7);
+		if ((uint8_t)I2S_MSB == cfg->tx.msb_lsb) {
+			reg_val |= (0x01UL << 7);
+		}
 
-        if((uint8_t)I2S_WF_CNTLFT_2W == cfg->tx.wrfifo_cntleft)
-            reg_val |= (0x01UL << 9);
-        else if((uint8_t)I2S_WF_CNTLFT_4W == cfg->tx.wrfifo_cntleft)
-            reg_val |= (0x02UL << 9);
-        else if((uint8_t)I2S_WF_CNTLFT_8W == cfg->tx.wrfifo_cntleft)
-            reg_val |= (0x03UL << 9);
+		if ((uint8_t)I2S_WF_CNTLFT_2W == cfg->tx.wrfifo_cntleft) {
+			reg_val |= (0x01UL << 9);
+		} else if ((uint8_t)I2S_WF_CNTLFT_4W == cfg->tx.wrfifo_cntleft) {
+			reg_val |= (0x02UL << 9);
+		} else if ((uint8_t)I2S_WF_CNTLFT_8W == cfg->tx.wrfifo_cntleft) {
+			reg_val |= (0x03UL << 9);
+		}
 
-        obj->sw_tx.regBitOfst = 16 - (cfg->tx.data_len << 2);
+		obj->sw_tx.regBitOfst = 16 - (cfg->tx.data_len << 2);
 
-        switch (cfg->tx.data_len) {
-        case I2S_DL_8b:
-            obj->sw_tx.dataWidth = 1;
-            break;
-        case I2S_DL_12b:
-        case I2S_DL_16b:
-            obj->sw_tx.dataWidth = 2;
-            break;
-        case I2S_DL_20b:
-        case I2S_DL_24b:
-            obj->sw_tx.dataWidth = 4;
-            break;
-        default:
-            obj->sw_tx.dataWidth = 2;
-            break;
-        }
-        obj->sw_tx.fifoThreshold = 32 - (0x01 << cfg->tx.wrfifo_cntleft);
-        obj->sw_tx.state = I2S_ST_READY;
-    }
+		switch (cfg->tx.data_len) {
+		case I2S_DL_8b:
+			obj->sw_tx.dataWidth = 1;
+			break;
+		case I2S_DL_12b:
+		case I2S_DL_16b:
+			obj->sw_tx.dataWidth = 2;
+			break;
+		case I2S_DL_20b:
+		case I2S_DL_24b:
+			obj->sw_tx.dataWidth = 4;
+			break;
+		default:
+			obj->sw_tx.dataWidth = 2;
+			break;
+		}
+		obj->sw_tx.fifoThreshold = 32 - (0x01 << cfg->tx.wrfifo_cntleft);
+		obj->sw_tx.state = I2S_ST_READY;
+	}
 
-    if (I2S_MD_SLAVE_RX & cfg->mode) {
-        /* Enable I2S RX clock */
-        I2S_CLKGATE_REG2 |= (0x01UL << 16);
+	if (I2S_MD_SLAVE_RX & cfg->mode) {
+		/* Enable I2S RX clock */
+		I2S_CLKGATE_REG2 |= (0x01UL << 16);
 
-        /* Get I2S params and calculate I2S cfg reg value*/
-        if((uint8_t)I2S_32FS == cfg->rx.fs)
-            reg_val |= (0x01UL << 17);
+		/* Get I2S params and calculate I2S cfg reg value*/
+		if ((uint8_t)I2S_32FS == cfg->rx.fs) {
+			reg_val |= (0x01UL << 17);
+		}
 
-        if((uint8_t)I2S_WS_POS == cfg->rx.ws_polarity)
-            reg_val |= (0x01UL << 18);
+		if ((uint8_t)I2S_WS_POS == cfg->rx.ws_polarity) {
+			reg_val |= (0x01UL << 18);
+		}
 
-        if((uint8_t)I2S_STD_M == cfg->rx.std_mode)
-            reg_val |= (0x01UL << 19);
+		if ((uint8_t)I2S_STD_M == cfg->rx.std_mode) {
+			reg_val |= (0x01UL << 19);
+		}
 
-        if((uint8_t)I2S_LEFT_JM == cfg->rx.justified_mode)
-            reg_val |= (0x01UL << 20);
+		if ((uint8_t)I2S_LEFT_JM == cfg->rx.justified_mode) {
+			reg_val |= (0x01UL << 20);
+		}
 
-        if((uint8_t)I2S_DL_20b == cfg->rx.data_len)
-            reg_val |= (0x01UL << 21);
-        else if((uint8_t)I2S_DL_24b == cfg->rx.data_len)
-            reg_val |= (0x02UL << 21);
+		if ((uint8_t)I2S_DL_20b == cfg->rx.data_len) {
+			reg_val |= (0x01UL << 21);
+		} else if ((uint8_t)I2S_DL_24b == cfg->rx.data_len) {
+			reg_val |= (0x02UL << 21);
+		}
 
-        if((uint8_t)I2S_MSB == cfg->rx.msb_lsb)
-            reg_val |= (0x01UL << 23);
+		if ((uint8_t)I2S_MSB == cfg->rx.msb_lsb) {
+			reg_val |= (0x01UL << 23);
+		}
 
-        obj->sw_rx.regBitOfst = 16 - (cfg->rx.data_len << 2);
+		obj->sw_rx.regBitOfst = 16 - (cfg->rx.data_len << 2);
 
-        switch (cfg->rx.data_len) {
-        case I2S_DL_8b:
-            obj->sw_rx.dataWidth = 1;
-            break;
-        case I2S_DL_12b:
-        case I2S_DL_16b:
-            obj->sw_rx.dataWidth = 2;
-            break;
-        case I2S_DL_20b:
-        case I2S_DL_24b:
-            obj->sw_rx.dataWidth = 4;
-            break;
-        default:
-            obj->sw_rx.dataWidth = 2;
-            break;
-        }
-        obj->sw_rx.fifoThreshold = DFLT_RXFIFO_ALMOSTFULL_WDLEN;
-        obj->sw_rx.state = I2S_ST_READY;
-    }
+		switch (cfg->rx.data_len) {
+		case I2S_DL_8b:
+			obj->sw_rx.dataWidth = 1;
+			break;
+		case I2S_DL_12b:
+		case I2S_DL_16b:
+			obj->sw_rx.dataWidth = 2;
+			break;
+		case I2S_DL_20b:
+		case I2S_DL_24b:
+			obj->sw_rx.dataWidth = 4;
+			break;
+		default:
+			obj->sw_rx.dataWidth = 2;
+			break;
+		}
+		obj->sw_rx.fifoThreshold = DFLT_RXFIFO_ALMOSTFULL_WDLEN;
+		obj->sw_rx.state = I2S_ST_READY;
+	}
 
-    /* Config I2S cfg reg */
-    obj->hw.i2s->CFG = reg_val;
+	/* Config I2S cfg reg */
+	obj->hw.i2s->CFG = reg_val;
 }
 
 void rda_i2s_enable_tx(i2s_t *obj)
 {
-    uint32_t reg_val = obj->hw.i2s->CFG;
-    reg_val |= 0x01UL;
-    obj->hw.i2s->CFG = reg_val;
-    i2s_tx_enabled = TRUE;
+	uint32_t reg_val = obj->hw.i2s->CFG;
+	reg_val |= 0x01UL;
+	obj->hw.i2s->CFG = reg_val;
+	i2s_tx_enabled = TRUE;
 }
 
 void rda_i2s_disable_tx(i2s_t *obj)
 {
-    uint32_t reg_val = obj->hw.i2s->CFG;
-    reg_val &= ~0x01UL;
-    obj->hw.i2s->CFG = reg_val;
-    i2s_tx_enabled = FALSE;
-    disable_i2s_tx_int();
-    clear_i2s_tx_int();
+	uint32_t reg_val = obj->hw.i2s->CFG;
+	reg_val &= ~0x01UL;
+	obj->hw.i2s->CFG = reg_val;
+	i2s_tx_enabled = FALSE;
+	disable_i2s_tx_int();
+	clear_i2s_tx_int();
 }
 
 void rda_i2s_enable_rx(i2s_t *obj)
 {
-    uint32_t reg_val = obj->hw.i2s->CFG;
-    reg_val |= (0x01UL << 16);
-    obj->hw.i2s->CFG = reg_val;
-    i2s_rx_enabled = TRUE;
+	uint32_t reg_val = obj->hw.i2s->CFG;
+	reg_val |= (0x01UL << 16);
+	obj->hw.i2s->CFG = reg_val;
+	i2s_rx_enabled = TRUE;
 }
 
 void rda_i2s_disable_rx(i2s_t *obj)
 {
-    uint32_t reg_val = obj->hw.i2s->CFG;
-    reg_val &= ~(0x01UL << 16);
-    obj->hw.i2s->CFG = reg_val;
-    i2s_rx_enabled = FALSE;
-    disable_i2s_rx_int();
-    clear_i2s_rx_int();
+	uint32_t reg_val = obj->hw.i2s->CFG;
+	reg_val &= ~(0x01UL << 16);
+	obj->hw.i2s->CFG = reg_val;
+	i2s_rx_enabled = FALSE;
+	disable_i2s_rx_int();
+	clear_i2s_rx_int();
 }
 
 void rda_i2s_enable_master_rx(void)
 {
-    /* i2s_clk/ws out, i2s_data in */
-    MEM_CFG_REG |= (0x01UL << 10);
+	/* i2s_clk/ws out, i2s_data in */
+	MEM_CFG_REG |= (0x01UL << 10);
 }
 
 void rda_i2s_disable_master_rx(void)
 {
-    /* i2s_clk/ws/data all in(out) */
-    MEM_CFG_REG &= ~(0x01UL << 10);
+	/* i2s_clk/ws/data all in(out) */
+	MEM_CFG_REG &= ~(0x01UL << 10);
 }
 
 void rda_i2s_out_mute(i2s_t *obj)
 {
-    __O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
-    *rTxFifo = 0;
-    *rTxFifo = 0;
+	__O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
+	*rTxFifo = 0;
+	*rTxFifo = 0;
 }
 
 uint8_t rda_i2s_set_channel(i2s_t *obj, uint8_t channel)
 {
-    if ((channel > 2) && (channel < 1)) {
-        return 1;
-    }
+	if ((channel > 2) && (channel < 1)) {
+		return 1;
+	}
 
-    obj->sw_tx.channel = channel;
-    obj->sw_rx.channel = channel;
+	obj->sw_tx.channel = channel;
+	obj->sw_rx.channel = channel;
 
-    return 0;
+	return 0;
 }
 
 uint8_t rda_i2s_set_tx_channel(i2s_t *obj, uint8_t channel)
 {
-    if ((channel > 2) && (channel < 1)) {
-        return 1;
-    }
+	if ((channel > 2) && (channel < 1)) {
+		return 1;
+	}
 
-    obj->sw_tx.channel = channel;
+	obj->sw_tx.channel = channel;
 
-    return 0;
+	return 0;
 }
 
 uint8_t rda_i2s_set_rx_channel(i2s_t *obj, uint8_t channel)
 {
-    if ((channel > 2) && (channel < 1)) {
-        return 1;
-    }
+	if ((channel > 2) && (channel < 1)) {
+		return 1;
+	}
 
-    obj->sw_rx.channel = channel;
+	obj->sw_rx.channel = channel;
 
-    return 0;
+	return 0;
 }
 
 uint8_t rda_i2s_set_ws(i2s_t *obj, uint32_t ws, uint32_t ratio)
 {
-    uint32_t bclk;
-    uint32_t int_div1 = 2;
-    uint32_t int_div0;
-    uint32_t frac_div0;
-    uint32_t mclk;
-    uint8_t  fs;// ws/bclk
+	uint32_t bclk;
+	uint32_t int_div1 = 2;
+	uint32_t int_div0;
+	uint32_t frac_div0;
+	uint32_t mclk;
+	uint8_t  fs;// ws/bclk
 
-    fs = (obj->hw.i2s->CFG & (0x01UL << 1)) ? 32 : 64;
+	fs = (obj->hw.i2s->CFG & (0x01UL << 1)) ? 32 : 64;
 
-    if ((ws *ratio) > 40000000)
-        return 1;
+	if ((ws * ratio) > 40000000) {
+		return 1;
+	}
 
-    if (32 == fs) {//32FS
-        if (ratio < 64)
-            return 2;
-    } else {//64FS
-        if (ratio < 128)
-            return 2;
-    }
+	if (32 == fs) {//32FS
+		if (ratio < 64) {
+			return 2;
+		}
+	} else {//64FS
+		if (ratio < 128) {
+			return 2;
+		}
+	}
 
-    bclk = ws * fs;
+	bclk = ws * fs;
 
-    int_div1 = ratio / fs - 2;
+	int_div1 = ratio / fs - 2;
 
-    mclk = bclk * (int_div1 + 2);
+	mclk = bclk * (int_div1 + 2);
 
-    int_div0 = 160000000 / mclk;
+	int_div0 = 160000000 / mclk;
 
-    float tmp = 160000000 / (float) mclk;
+	float tmp = 160000000 / (float) mclk;
 
-    frac_div0 = (tmp - int_div0) * 65535;
+	frac_div0 = (tmp - int_div0) * 65535;
 
-    I2S_CLK_DIV_REG = (int_div1 << 24) | (int_div0 << 16) | (frac_div0 & 0xFFFF);
+	I2S_CLK_DIV_REG = (int_div1 << 24) | (int_div0 << 16) | (frac_div0 & 0xFFFF);
 
-    return 0;
+	return 0;
 }
 
 uint8_t rda_i2s_blk_send(i2s_t *obj, uint32_t *buf, uint16_t size)
 {
-    if((NULL == buf) || (0 == size))
-        return 1;   /* Error args */
+	if ((NULL == buf) || (0 == size)) {
+		return 1;    /* Error args */
+	}
 
-    if(I2S_ST_READY == obj->sw_tx.state) {
-        obj->sw_tx.state = I2S_ST_BUSY;
-        obj->sw_tx.buffer = buf;
-        obj->sw_tx.bufferSize = size;
-        obj->sw_tx.bufferCntr = 0;
+	if (I2S_ST_READY == obj->sw_tx.state) {
+		obj->sw_tx.state = I2S_ST_BUSY;
+		obj->sw_tx.buffer = buf;
+		obj->sw_tx.bufferSize = size;
+		obj->sw_tx.bufferCntr = 0;
 
-        block_transmit(obj);
+		block_transmit(obj);
 
-        obj->sw_tx.state = I2S_ST_READY;
+		obj->sw_tx.state = I2S_ST_READY;
 
-        return 0;   /* Send done */
-    } else {
-        return 2;   /* Busy */
-    }
+		return 0;   /* Send done */
+	} else {
+		return 2;   /* Busy */
+	}
 }
 
 uint8_t rda_i2s_blk_recv(i2s_t *obj, uint32_t *buf, uint16_t size)
 {
-    if((NULL == buf) || (0 == size))
-        return 1;   /* Error args */
+	if ((NULL == buf) || (0 == size)) {
+		return 1;    /* Error args */
+	}
 
-    if(I2S_ST_READY == obj->sw_rx.state) {
-        obj->sw_rx.state = I2S_ST_BUSY;
-        obj->sw_rx.buffer = buf;
-        obj->sw_rx.bufferSize = size;
-        obj->sw_rx.bufferCntr = 0;
+	if (I2S_ST_READY == obj->sw_rx.state) {
+		obj->sw_rx.state = I2S_ST_BUSY;
+		obj->sw_rx.buffer = buf;
+		obj->sw_rx.bufferSize = size;
+		obj->sw_rx.bufferCntr = 0;
 
-        block_receive(obj);
+		block_receive(obj);
 
-        obj->sw_rx.state = I2S_ST_READY;
+		obj->sw_rx.state = I2S_ST_READY;
 
-        return 0;   /* Recv done */
-    } else {
-        return 2;   /* Busy */
-    }
+		return 0;   /* Recv done */
+	} else {
+		return 2;   /* Busy */
+	}
 }
 
 uint8_t rda_i2s_int_send(i2s_t *obj, uint32_t *buf, uint16_t size)
 {
-    if((NULL == buf) || (0 == size))
-        return 1;   /* Error args */
+	if ((NULL == buf) || (0 == size)) {
+		return 1;    /* Error args */
+	}
 
-    if(I2S_ST_READY == obj->sw_tx.state) {
-        obj->sw_tx.state = I2S_ST_BUSY;
-        obj->sw_tx.buffer = buf;
-        obj->sw_tx.bufferSize = size;
-        obj->sw_tx.bufferCntr = 0;
-        
-if(obj->sw_tx.bufferSize > (obj->sw_tx.fifoThreshold * obj->sw_tx.dataWidth / sizeof(uint32_t) / (obj->sw_tx.channel == 1 ? 2 : 1))) {
-		 enable_i2s_tx_int();
-        } else {
-            
-	    block_transmit(obj);
-            obj->sw_tx.state = I2S_ST_READY;
-        }
+	if (I2S_ST_READY == obj->sw_tx.state) {
+		obj->sw_tx.state = I2S_ST_BUSY;
+		obj->sw_tx.buffer = buf;
+		obj->sw_tx.bufferSize = size;
+		obj->sw_tx.bufferCntr = 0;
 
-        return 0;   /* Send done */
-    } else {
-        return 2;   /* Busy */
-    }
+		if (obj->sw_tx.bufferSize > (obj->sw_tx.fifoThreshold * obj->sw_tx.dataWidth / sizeof(uint32_t) / (obj->sw_tx.channel == 1 ? 2 : 1))) {
+			enable_i2s_tx_int();
+		} else {
+
+			block_transmit(obj);
+			obj->sw_tx.state = I2S_ST_READY;
+		}
+
+		return 0;   /* Send done */
+	} else {
+		return 2;   /* Busy */
+	}
 }
 
 
 uint8_t rda_i2s_int_recv(i2s_t *obj, uint32_t *buf, uint16_t size)
 {
-    if((NULL == buf) || (0 == size))
-        return 1;   /* Error args */
+	if ((NULL == buf) || (0 == size)) {
+		return 1;    /* Error args */
+	}
 
-    if(I2S_ST_READY == obj->sw_rx.state) {
-        obj->sw_rx.state = I2S_ST_BUSY;
-        obj->sw_rx.buffer = buf;
-        obj->sw_rx.bufferSize = size;
-        obj->sw_rx.bufferCntr = 0;
+	if (I2S_ST_READY == obj->sw_rx.state) {
+		obj->sw_rx.state = I2S_ST_BUSY;
+		obj->sw_rx.buffer = buf;
+		obj->sw_rx.bufferSize = size;
+		obj->sw_rx.bufferCntr = 0;
 
-        if(obj->sw_rx.bufferSize > (obj->sw_rx.fifoThreshold * obj->sw_rx.dataWidth / sizeof(uint32_t) / (obj->sw_rx.channel == 1 ? 2 : 1))) {
-            enable_i2s_rx_int();
-        } else {
-            block_receive(obj);
-            obj->sw_rx.state = I2S_ST_READY;
-        }
+		if (obj->sw_rx.bufferSize > (obj->sw_rx.fifoThreshold * obj->sw_rx.dataWidth / sizeof(uint32_t) / (obj->sw_rx.channel == 1 ? 2 : 1))) {
+			enable_i2s_rx_int();
+		} else {
+			block_receive(obj);
+			obj->sw_rx.state = I2S_ST_READY;
+		}
 
-        return 0;   /* Recv done */
-    } else {
-        return 2;   /* Busy */
-    }
+		return 0;   /* Recv done */
+	} else {
+		return 2;   /* Busy */
+	}
 }
 
 void rda_i2s_irq_handler(uint32_t int_status)
 {
 #if 1
-    i2s_t *obj = rda_i2s_obj;
-     uint32_t i, j;
-    if (int_status & I2S_RXFIFO_WRITEWHENFULL_BIT) {
-        __I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
-        for (i = 0; i < 16; i++) {
-            uint32_t tmp_val = *rRxFifo;
-            tmp_val = tmp_val;
-        }
-        /* Clear I2S RX interrupt */
-        EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
-        EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_BITS | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
-    }
+	i2s_t *obj = rda_i2s_obj;
+	uint32_t i, j;
+	if (int_status & I2S_RXFIFO_WRITEWHENFULL_BIT) {
+		__I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
+		for (i = 0; i < 16; i++) {
+			uint32_t tmp_val = *rRxFifo;
+			tmp_val = tmp_val;
+		}
+		/* Clear I2S RX interrupt */
+		EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
+		EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_BITS | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
+	}
 
-    /* Get RX FIFO flag */
-    if(int_status & I2S_RXFIFO_ALMOSTFULL_BIT) {
-        uint16_t start_cnt = obj->sw_rx.bufferCntr;
-        uint16_t end_cnt   = start_cnt + (obj->sw_rx.fifoThreshold * obj->sw_rx.dataWidth / sizeof(uint32_t) / (obj->sw_rx.channel == 1 ? 2 : 1));
-        __I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
-        uint32_t tmp_val = 0;
+	/* Get RX FIFO flag */
+	if (int_status & I2S_RXFIFO_ALMOSTFULL_BIT) {
+		uint16_t start_cnt = obj->sw_rx.bufferCntr;
+		uint16_t end_cnt   = start_cnt + (obj->sw_rx.fifoThreshold * obj->sw_rx.dataWidth / sizeof(uint32_t) / (obj->sw_rx.channel == 1 ? 2 : 1));
+		__I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
+		uint32_t tmp_val = 0;
 
-        obj->sw_rx.bufferCntr = (end_cnt >= obj->sw_rx.bufferSize) ? obj->sw_rx.bufferSize : end_cnt;
+		obj->sw_rx.bufferCntr = (end_cnt >= obj->sw_rx.bufferSize) ? obj->sw_rx.bufferSize : end_cnt;
 
-        /* Read RX FIFO register */
-        if(1 == obj->sw_rx.dataWidth) {
-            /* byte format data buffer */
-            while (start_cnt < obj->sw_rx.bufferCntr) {
-                tmp_val = 0;
-                for (i = 0; i < 32; i += 8) {
-                    for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                        tmp_val |= (((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i);
-                    }
-                }
-                *(obj->sw_rx.buffer + start_cnt) = tmp_val;
-                start_cnt++;
-            }
-        } else if (2 == obj->sw_rx.dataWidth) {
-            /* half-word format data buffer, bufferSize is the times of 2, read twice one loop */
-            while (start_cnt < obj->sw_rx.bufferCntr) {
-                tmp_val = 0;
-                for (i = 0; i < 32; i += 16) {
-                    for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                        tmp_val |= (((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i);
-                    }
-                }
-                *(obj->sw_rx.buffer + start_cnt) = tmp_val;
-                start_cnt++;
-            }
-        } else if (4 == obj->sw_rx.dataWidth) {
-            /* word format data buffer */
-            while (start_cnt < obj->sw_rx.bufferCntr) {
-		for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    tmp_val = *rRxFifo & 0x00FFFFFF;
-                }
-                *(obj->sw_rx.buffer + start_cnt) = tmp_val;
-                start_cnt++;
-            }
-        }
+		/* Read RX FIFO register */
+		if (1 == obj->sw_rx.dataWidth) {
+			/* byte format data buffer */
+			while (start_cnt < obj->sw_rx.bufferCntr) {
+				tmp_val = 0;
+				for (i = 0; i < 32; i += 8) {
+					for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+						tmp_val |= (((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i);
+					}
+				}
+				*(obj->sw_rx.buffer + start_cnt) = tmp_val;
+				start_cnt++;
+			}
+		} else if (2 == obj->sw_rx.dataWidth) {
+			/* half-word format data buffer, bufferSize is the times of 2, read twice one loop */
+			while (start_cnt < obj->sw_rx.bufferCntr) {
+				tmp_val = 0;
+				for (i = 0; i < 32; i += 16) {
+					for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+						tmp_val |= (((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i);
+					}
+				}
+				*(obj->sw_rx.buffer + start_cnt) = tmp_val;
+				start_cnt++;
+			}
+		} else if (4 == obj->sw_rx.dataWidth) {
+			/* word format data buffer */
+			while (start_cnt < obj->sw_rx.bufferCntr) {
+				for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+					tmp_val = *rRxFifo & 0x00FFFFFF;
+				}
+				*(obj->sw_rx.buffer + start_cnt) = tmp_val;
+				start_cnt++;
+			}
+		}
 
 
-        if(end_cnt >= obj->sw_rx.bufferSize) {
-            disable_i2s_rx_int();
-            obj->sw_rx.state = I2S_ST_READY;
-            if (rx_waiting) {
-                rda_i2s_sem_release(RX_SEM);
-                rx_waiting = FALSE;
-            }
-        }
-        /* Clear I2S RX interrupt */
-        EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
-        EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_ALMOSTFULL_BIT | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
-    }
+		if (end_cnt >= obj->sw_rx.bufferSize) {
+			disable_i2s_rx_int();
+			obj->sw_rx.state = I2S_ST_READY;
+			if (rx_waiting) {
+				rda_i2s_sem_release(RX_SEM);
+				rx_waiting = FALSE;
+			}
+		}
+		/* Clear I2S RX interrupt */
+		EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
+		EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_ALMOSTFULL_BIT | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
+	}
 
-    /* Get TX FIFO flag */
-    if(int_status & I2S_TXFIFO_ALMOSTEMPTY_BIT) {
-        uint16_t start_cnt = obj->sw_tx.bufferCntr;
-        uint16_t end_cnt   = start_cnt + (obj->sw_tx.fifoThreshold * obj->sw_tx.dataWidth / sizeof(uint32_t) / (obj->sw_tx.channel == 1 ? 2 : 1));
-        __O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
-        uint32_t tmp_val = 0;
+	/* Get TX FIFO flag */
+	if (int_status & I2S_TXFIFO_ALMOSTEMPTY_BIT) {
+		uint16_t start_cnt = obj->sw_tx.bufferCntr;
+		uint16_t end_cnt   = start_cnt + (obj->sw_tx.fifoThreshold * obj->sw_tx.dataWidth / sizeof(uint32_t) / (obj->sw_tx.channel == 1 ? 2 : 1));
+		__O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
+		uint32_t tmp_val = 0;
 
-        obj->sw_tx.bufferCntr = (end_cnt >= obj->sw_tx.bufferSize) ? obj->sw_tx.bufferSize : end_cnt;
+		obj->sw_tx.bufferCntr = (end_cnt >= obj->sw_tx.bufferSize) ? obj->sw_tx.bufferSize : end_cnt;
 
-        if (1 == obj->sw_tx.dataWidth) {
-            /* byte format data buffer */
-            while (start_cnt < obj->sw_tx.bufferCntr) {
-                tmp_val = *(obj->sw_tx.buffer + start_cnt);
-                for (i = 0; i < 32; i += 8) {
-                    for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                        *rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
-                    }
-                }
-                start_cnt++;
-            }
-        } else if (2 == obj->sw_tx.dataWidth) {
-            /* half-word format data buffer */
-            while (start_cnt < obj->sw_tx.bufferCntr) {
-                tmp_val = *(obj->sw_tx.buffer + start_cnt);
-                for (i = 0; i < 32; i += 16) {
-                    for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                        *rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
-                    }
-                }
-                start_cnt++;
-            }
-        } else if (4 == obj->sw_tx.dataWidth) {
-            /* word format data buffer */
-            while (start_cnt < obj->sw_tx.bufferCntr) {
-                tmp_val = *(obj->sw_tx.buffer + start_cnt);
-                for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    *rTxFifo = tmp_val << obj->sw_tx.regBitOfst;
-                }
-                start_cnt++;
-            }
-        }
+		if (1 == obj->sw_tx.dataWidth) {
+			/* byte format data buffer */
+			while (start_cnt < obj->sw_tx.bufferCntr) {
+				tmp_val = *(obj->sw_tx.buffer + start_cnt);
+				for (i = 0; i < 32; i += 8) {
+					for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+						*rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
+					}
+				}
+				start_cnt++;
+			}
+		} else if (2 == obj->sw_tx.dataWidth) {
+			/* half-word format data buffer */
+			while (start_cnt < obj->sw_tx.bufferCntr) {
+				tmp_val = *(obj->sw_tx.buffer + start_cnt);
+				for (i = 0; i < 32; i += 16) {
+					for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+						*rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
+					}
+				}
+				start_cnt++;
+			}
+		} else if (4 == obj->sw_tx.dataWidth) {
+			/* word format data buffer */
+			while (start_cnt < obj->sw_tx.bufferCntr) {
+				tmp_val = *(obj->sw_tx.buffer + start_cnt);
+				for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+					*rTxFifo = tmp_val << obj->sw_tx.regBitOfst;
+				}
+				start_cnt++;
+			}
+		}
 
-        if(end_cnt >= obj->sw_tx.bufferSize) {
-            disable_i2s_tx_int();
-            obj->sw_tx.state = I2S_ST_READY;
-            if (tx_waiting) {
-                rda_i2s_sem_release(TX_SEM);
-                tx_waiting = FALSE;
-            }
-        }
-        /* Clear I2S TX interrupt */
-        EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_ALMOSTEMPTY_BIT;
-    }
+		if (end_cnt >= obj->sw_tx.bufferSize) {
+			disable_i2s_tx_int();
+			obj->sw_tx.state = I2S_ST_READY;
+			if (tx_waiting) {
+				rda_i2s_sem_release(TX_SEM);
+				tx_waiting = FALSE;
+			}
+		}
+		/* Clear I2S TX interrupt */
+		EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_ALMOSTEMPTY_BIT;
+	}
 #endif
 }
-#define RDA_EXIF_BASE1 ( (0x40000000UL) + 0x13000) 
+#define RDA_EXIF_BASE1 ( (0x40000000UL) + 0x13000)
 #define INTCFG_OFFSET 0x30
 static inline void enable_i2s_tx_int(void)
 {
-    printf("0x%x\n", (int)EXIF_MISC_INTCFG_REG);
-     
-  uint32_t regval = getreg32(RDA_EXIF_BASE1 + INTCFG_OFFSET);  
- regval |= I2S_TXINT_ENBIT;   
- putreg32(regval, RDA_EXIF_BASE1 + INTCFG_OFFSET); 
-    
+	printf("0x%x\n", (int)EXIF_MISC_INTCFG_REG);
+
+	uint32_t regval = getreg32(RDA_EXIF_BASE1 + INTCFG_OFFSET);
+	regval |= I2S_TXINT_ENBIT;
+	putreg32(regval, RDA_EXIF_BASE1 + INTCFG_OFFSET);
+
 // while(1);
-   // EXIF_MISC_INTCFG_REG |= I2S_TXINT_ENBIT;
+	// EXIF_MISC_INTCFG_REG |= I2S_TXINT_ENBIT;
 }
 
 static inline void disable_i2s_tx_int(void)
 {
-    EXIF_MISC_INTCFG_REG &= ~I2S_TXINT_ENBIT;
+	EXIF_MISC_INTCFG_REG &= ~I2S_TXINT_ENBIT;
 }
 
 static inline void enable_i2s_rx_int(void)
 {
-   printf("0x%x\n", (int)EXIF_MISC_INTCFG_REG);
+	printf("0x%x\n", (int)EXIF_MISC_INTCFG_REG);
 
-   EXIF_MISC_INTCFG_REG |= I2S_RXINT_ENBIT;
+	EXIF_MISC_INTCFG_REG |= I2S_RXINT_ENBIT;
 }
 
 static inline void disable_i2s_rx_int(void)
 {
-    EXIF_MISC_INTCFG_REG &= ~I2S_RXINT_ENBIT;
+	EXIF_MISC_INTCFG_REG &= ~I2S_RXINT_ENBIT;
 }
 
 static inline void clear_i2s_tx_int(void)
 {
-    EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_BITS;
+	EXIF_MISC_STCFG_REG &= ~I2S_TXFIFO_BITS;
 }
 
 static inline void clear_i2s_rx_int(void)
 {
-    EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
-    EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_BITS | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
+	EXIF_MISC_STCFG_REG |= I2S_RXFIFO_ALMOSTFULL_CLR_BIT;
+	EXIF_MISC_STCFG_REG &= ~(I2S_RXFIFO_BITS | I2S_RXFIFO_ALMOSTFULL_CLR_BIT);
 }
 
 static inline void block_transmit(i2s_t *obj)
 {
-    while(obj->sw_tx.bufferCntr < obj->sw_tx.bufferSize) {
-        __O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
-        uint32_t tmp_val = 0;
+	while (obj->sw_tx.bufferCntr < obj->sw_tx.bufferSize) {
+		__O uint32_t *rTxFifo = &(obj->hw.i2s->DOUTWR);
+		uint32_t tmp_val = 0;
 
-        /* Loop forever if TX FIFO is full */
-        while(EXIF_MISC_STCFG_REG & I2S_TXFIFO_FULL_BIT);
+		/* Loop forever if TX FIFO is full */
+		while (EXIF_MISC_STCFG_REG & I2S_TXFIFO_FULL_BIT);
 
-        /* Write TX FIFO register */
-        if (1 == obj->sw_tx.dataWidth) {
-            /* byte format data buffer */
-            tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
-            int8_t i,j;
-            for (i = 0; i < 32; i += 8) {
-                for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    *rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
-                }
-            }
-        } else if (2 == obj->sw_tx.dataWidth) {
-            /* half-word format data buffer */
-            tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
-	    int8_t i, j;
-            for (i = 0; i < 32; i += 16) {
-                for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    *rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
-                }
-            }
-        } else if (4 == obj->sw_tx.dataWidth) {
-            /* word format data buffer */
-            tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
-            uint8_t j;
-	 for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
-                *rTxFifo = tmp_val << obj->sw_tx.regBitOfst;
-            }
-        }
-        obj->sw_tx.bufferCntr++;
-    }
+		/* Write TX FIFO register */
+		if (1 == obj->sw_tx.dataWidth) {
+			/* byte format data buffer */
+			tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
+			int8_t i, j;
+			for (i = 0; i < 32; i += 8) {
+				for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+					*rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
+				}
+			}
+		} else if (2 == obj->sw_tx.dataWidth) {
+			/* half-word format data buffer */
+			tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
+			int8_t i, j;
+			for (i = 0; i < 32; i += 16) {
+				for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+					*rTxFifo = (tmp_val >> i) << obj->sw_tx.regBitOfst;
+				}
+			}
+		} else if (4 == obj->sw_tx.dataWidth) {
+			/* word format data buffer */
+			tmp_val = *(obj->sw_tx.buffer + obj->sw_tx.bufferCntr);
+			uint8_t j;
+			for (j = (obj->sw_tx.channel == 1 ? 2 : 1); j > 0; j--) {
+				*rTxFifo = tmp_val << obj->sw_tx.regBitOfst;
+			}
+		}
+		obj->sw_tx.bufferCntr++;
+	}
 }
 
 static inline void block_receive(i2s_t *obj)
 {
-    while(obj->sw_rx.bufferCntr < obj->sw_rx.bufferSize) {
-        __I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
-        uint32_t tmp_val = 0;
+	while (obj->sw_rx.bufferCntr < obj->sw_rx.bufferSize) {
+		__I uint32_t *rRxFifo = &(obj->hw.i2s->DINRD);
+		uint32_t tmp_val = 0;
 
-        /* Loop forever if RX FIFO is not empty, check almost-full flag here */
-        while(!(EXIF_MISC_STCFG_REG & I2S_RXFIFO_ALMOSTFULL_BIT));
+		/* Loop forever if RX FIFO is not empty, check almost-full flag here */
+		while (!(EXIF_MISC_STCFG_REG & I2S_RXFIFO_ALMOSTFULL_BIT));
 
-        /* Read RX FIFO register */
-        if(1 == obj->sw_rx.dataWidth) {
-            /* byte format data buffer */
-             int8_t i, j;
-            for ( i = 0; i < 32; i += 8) {
-                for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    tmp_val |= ((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i;
-                }
-            }
-        } else if (2 == obj->sw_rx.dataWidth) {
-            /* half-word format data buffer, bufferSize is the times of 2, read twice one loop */
-         int8_t i,j;    
-	 for ( i = 0; i < 32; i += 16) {
-                for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                    tmp_val |= ((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i;
-                }
-            }
-        } else if (4 == obj->sw_rx.dataWidth) {
-            /* word format data buffer */
-            uint8_t j;
-            for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
-                tmp_val = *rRxFifo & 0x00FFFFFF;
-            }
-        }
-        *(obj->sw_rx.buffer + obj->sw_rx.bufferCntr) = tmp_val;
-        obj->sw_rx.bufferCntr++;
-    }
+		/* Read RX FIFO register */
+		if (1 == obj->sw_rx.dataWidth) {
+			/* byte format data buffer */
+			int8_t i, j;
+			for (i = 0; i < 32; i += 8) {
+				for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+					tmp_val |= ((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i;
+				}
+			}
+		} else if (2 == obj->sw_rx.dataWidth) {
+			/* half-word format data buffer, bufferSize is the times of 2, read twice one loop */
+			int8_t i, j;
+			for (i = 0; i < 32; i += 16) {
+				for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+					tmp_val |= ((*rRxFifo & 0x00FFFF00) >> obj->sw_rx.regBitOfst) << i;
+				}
+			}
+		} else if (4 == obj->sw_rx.dataWidth) {
+			/* word format data buffer */
+			uint8_t j;
+			for (j = (obj->sw_rx.channel == 1 ? 2 : 1); j > 0; j--) {
+				tmp_val = *rRxFifo & 0x00FFFFFF;
+			}
+		}
+		*(obj->sw_rx.buffer + obj->sw_rx.bufferCntr) = tmp_val;
+		obj->sw_rx.bufferCntr++;
+	}
 }
 
 int32_t rda_i2s_sem_wait(RDA_I2S_SEM_T i2s_sem)
 {
-    int32_t ret;
-    if (TX_SEM == i2s_sem) {
-        tx_waiting = TRUE;
-        ret = sem_wait(&tx_sem_id);
-        tx_waiting = FALSE;
-    } else {
-        rx_waiting = TRUE;
-        ret = sem_wait(&rx_sem_id);
-        rx_waiting = FALSE;
-    }
-    return ret;
+	int32_t ret;
+	if (TX_SEM == i2s_sem) {
+		tx_waiting = TRUE;
+		ret = sem_wait(&tx_sem_id);
+		tx_waiting = FALSE;
+	} else {
+		rx_waiting = TRUE;
+		ret = sem_wait(&rx_sem_id);
+		rx_waiting = FALSE;
+	}
+	return ret;
 }
 
 int rda_i2s_sem_release(RDA_I2S_SEM_T i2s_sem)
 {
-    int status;
-    if (TX_SEM == i2s_sem)
-        status = sem_post(&tx_sem_id);
-    else
-        status = sem_post(&rx_sem_id);
-    return status;
+	int status;
+	if (TX_SEM == i2s_sem) {
+		status = sem_post(&tx_sem_id);
+	} else {
+		status = sem_post(&rx_sem_id);
+	}
+	return status;
 }
 
 int rda_i2s_sem_delete(RDA_I2S_SEM_T i2s_sem)
 {
-    int status;
-    if (TX_SEM == i2s_sem) {
-        status =  sem_destroy(&tx_sem_id);
-    } else {
-        status =  sem_destroy(&rx_sem_id);
-    }
-    return status;
+	int status;
+	if (TX_SEM == i2s_sem) {
+		status =  sem_destroy(&tx_sem_id);
+	} else {
+		status =  sem_destroy(&rx_sem_id);
+	}
+	return status;
 }
 
 

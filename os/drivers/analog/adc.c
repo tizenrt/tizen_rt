@@ -86,10 +86,10 @@
 static int     adc_open(FAR struct file *filep);
 static int     adc_close(FAR struct file *filep);
 static ssize_t adc_read(FAR struct file *fielp, FAR char *buffer,
-			size_t buflen);
+						size_t buflen);
 static int     adc_ioctl(FAR struct file *filep, int cmd, unsigned long arg);
 static int     adc_receive(FAR struct adc_dev_s *dev, uint8_t ch,
-			   int32_t data);
+						   int32_t data);
 
 /****************************************************************************
  * Private Data
@@ -225,7 +225,7 @@ static int adc_close(FAR struct file *filep)
  * Name: adc_read
  ****************************************************************************/
 static ssize_t adc_read(FAR struct file *filep, FAR char *buffer,
-			size_t buflen)
+						size_t buflen)
 {
 	FAR struct inode     *inode = filep->f_inode;
 	FAR struct adc_dev_s *dev   = inode->i_private;
@@ -236,18 +236,19 @@ static ssize_t adc_read(FAR struct file *filep, FAR char *buffer,
 
 	avdbg("buflen: %d\n", (int)buflen);
 
-	if (buflen % 5 == 0)
+	if (buflen % 5 == 0) {
 		msglen = 5;
-	else if (buflen % 4 == 0)
+	} else if (buflen % 4 == 0) {
 		msglen = 4;
-	else if (buflen % 3 == 0)
+	} else if (buflen % 3 == 0) {
 		msglen = 3;
-	else if (buflen % 2 == 0)
+	} else if (buflen % 2 == 0) {
 		msglen = 2;
-	else if (buflen == 1)
+	} else if (buflen == 1) {
 		msglen = 1;
-	else
+	} else {
 		msglen = 5;
+	}
 
 	if (buflen >= msglen) {
 		/*
@@ -282,7 +283,7 @@ static ssize_t adc_read(FAR struct file *filep, FAR char *buffer,
 		nread = 0;
 		do {
 			FAR struct adc_msg_s *msg =
-				&dev->ad_recv.af_buffer[dev->ad_recv.af_head];
+					&dev->ad_recv.af_buffer[dev->ad_recv.af_head];
 
 			/*
 			 * Will the next message in the FIFO fit into the
@@ -304,12 +305,12 @@ static ssize_t adc_read(FAR struct file *filep, FAR char *buffer,
 			} else if (msglen == 2) {
 				/* Only one channel, read highest 16-bits */
 				*(int16_t *)&buffer[nread] =
-							msg->am_data >> 16;
+					msg->am_data >> 16;
 			} else if (msglen == 3) {
 				/* Read channel highest 16-bits */
 				buffer[nread] = msg->am_channel;
 				*(int16_t *)&buffer[nread + 1] =
-							msg->am_data >> 16;
+					msg->am_data >> 16;
 			} else if (msglen == 4) {
 				/* read channel highest 24-bits */
 				*(int32_t *)&buffer[nread] = msg->am_data;

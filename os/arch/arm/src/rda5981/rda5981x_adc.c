@@ -94,9 +94,9 @@ struct rda_dev_s {
 };
 
 typedef enum {
-    ADC0_0 = 0,
-    ADC0_1,
-    ADC0_2
+	ADC0_0 = 0,
+	ADC0_1,
+	ADC0_2
 } ADCName;
 
 
@@ -132,14 +132,15 @@ static void adc_conversion(void *arg)
 	if (priv->cb != NULL) {
 		DEBUGASSERT(priv->cb->au_receive != NULL);
 		priv->cb->au_receive(priv->dev,
-				priv->chanlist[priv->current], sample);
+							 priv->chanlist[priv->current], sample);
 	}
 
 	/* Set the next channel to be sampled */
 	priv->current++;
 
-	if (priv->current >= priv->nchannels)
+	if (priv->current >= priv->nchannels) {
 		priv->current = 0;
+	}
 
 	/* Change to the next channel */
 	modifyreg32(S5J_ADC_CON2, ADC_CON2_ACHSEL_MASK,
@@ -179,7 +180,7 @@ static int adc_interrupt(int irq, FAR void *context, void *arg)
 		 */
 		if (work_available(&priv->work)) {
 			ret = work_queue(LPWORK, &priv->work, adc_conversion,
-							priv, 0);
+							 priv, 0);
 			if (ret != 0) {
 				lldbg("ERROR: failed to queue work: %d\n", ret);
 			}
@@ -248,7 +249,7 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
 		/* REVISIT: changing channel is not supported for now */
 
 		for (i = 0; i < priv->cchannels &&
-					priv->chanlist[i] != ch - 1; i++);
+			 priv->chanlist[i] != ch - 1; i++);
 
 		if (i >= priv->cchannels) {
 			return -ENODEV;
@@ -273,7 +274,7 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
  *
  ****************************************************************************/
 static int adc_bind(FAR struct adc_dev_s *dev,
-		    FAR const struct adc_callback_s *callback)
+					FAR const struct adc_callback_s *callback)
 {
 #if 0
 
@@ -461,56 +462,57 @@ static struct adc_dev_s g_adcdev;
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-void analogin_init(void) 
+void analogin_init(void)
 {
-   //use Port B pin6
-    unsigned char gp = 6U;  //PortB 6pin
+	//use Port B pin6
+	unsigned char gp = 6U;  //PortB 6pin
 
-    /* Init ADC */
-    if(0 == adc_inited_cnt) {
-        rda_ccfg_adc_init();
-    }
-    adc_inited_cnt++;
+	/* Init ADC */
+	if (0 == adc_inited_cnt) {
+		rda_ccfg_adc_init();
+	}
+	adc_inited_cnt++;
 
-    rda_ccfg_gp(gp, 0x00U);
-    rda_ccfg_adc_gp(gp, 0x00U);
+	rda_ccfg_gp(gp, 0x00U);
+	rda_ccfg_adc_gp(gp, 0x00U);
 
-    rda_configgpio(GPIO_RDA_ADC);
+	rda_configgpio(GPIO_RDA_ADC);
 }
 
-uint16_t analogin_read_u16(void) 
-{printf("analogin_read_u16\n");
-    uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
-    return (value); // 10 bit
+uint16_t analogin_read_u16(void)
+{
+	printf("analogin_read_u16\n");
+	uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
+	return (value); // 10 bit
 }
 
-float analogin_read(void) 
+float analogin_read(void)
 {
-  printf("analogin_read\n");
-    uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
-    return (float)value * (1.0f / (float)RDA_ADC_RANGE);
+	printf("analogin_read\n");
+	uint16_t value = rda_ccfg_adc_read((unsigned char)ADC0_0);
+	return (float)value * (1.0f / (float)RDA_ADC_RANGE);
 }
 
-void analogin_free(void) 
+void analogin_free(void)
 {
-    unsigned char gp = 6U;
-    adc_inited_cnt--;
-    if(0 == adc_inited_cnt) {
-        rda_ccfg_adc_free();
-    }
+	unsigned char gp = 6U;
+	adc_inited_cnt--;
+	if (0 == adc_inited_cnt) {
+		rda_ccfg_adc_free();
+	}
 #if 0	// because we only use ADC0_0
-    if(ADC0_2 == obj->adc) {
-        return;
-    }
-    if(ADC0_1 == obj->adc) {
-        if(0U == adc1_gp) {
-            return;
-        }
-        gp = adc1_gp;
-    }
-#endif	
-    rda_ccfg_adc_gp(gp, 0x01U);
-    rda_ccfg_gp(gp, 0x01U);
+	if (ADC0_2 == obj->adc) {
+		return;
+	}
+	if (ADC0_1 == obj->adc) {
+		if (0U == adc1_gp) {
+			return;
+		}
+		gp = adc1_gp;
+	}
+#endif
+	rda_ccfg_adc_gp(gp, 0x01U);
+	rda_ccfg_gp(gp, 0x01U);
 }
 
 
@@ -543,14 +545,14 @@ struct adc_dev_s *rda5981x_adc_initialize(void)
 #if 0
 	if (cchannels > RDA5981X_ADC_MAX_CHANNELS) {
 		lldbg("RDA5981 has maximum %d ADC channels.\n",
-						RDA5981X_ADC_MAX_CHANNELS);
+			  RDA5981X_ADC_MAX_CHANNELS);
 		return NULL;
 	}
 
 	memcpy(priv->chanlist, chanlist, cchannels);
 #endif
 
-	analogin_init(); 
+	analogin_init();
 
 	return &g_adcdev;
 }

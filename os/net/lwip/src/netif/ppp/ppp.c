@@ -469,10 +469,10 @@ void pppSetAuth(enum pppAuthType authType, const char *user, const char *passwd)
 	case PPPAUTHTYPE_NONE:
 	default:
 #ifdef LWIP_PPP_STRICT_PAP_REJECT
-				ppp_settings.refuse_pap = 1;
+		ppp_settings.refuse_pap = 1;
 #else							/* LWIP_PPP_STRICT_PAP_REJECT */
-				/* some providers request pap and accept an empty login/pw */
-				ppp_settings.refuse_pap = 0;
+		/* some providers request pap and accept an empty login/pw */
+		ppp_settings.refuse_pap = 0;
 #endif							/* LWIP_PPP_STRICT_PAP_REJECT */
 		ppp_settings.refuse_chap = 1;
 		break;
@@ -1819,19 +1819,19 @@ static void pppInProc(PPPControlRx *pcrx, u_char *s, int l)
 					break;
 				}
 
-				/* Fall through */
+			/* Fall through */
 			case PDSTART:		/* Process start flag. */
 				/* Prepare for a new packet. */
 				pcrx->inFCS = PPP_INITFCS;
 
-				/* Fall through */
+			/* Fall through */
 			case PDADDRESS:	/* Process address field. */
 				if (curChar == PPP_ALLSTATIONS) {
 					pcrx->inState = PDCONTROL;
 					break;
 				}
-				/* Else assume compressed address and control fields so
-				 * fall through to get the protocol... */
+			/* Else assume compressed address and control fields so
+			 * fall through to get the protocol... */
 			case PDCONTROL:	/* Process control field. */
 				/* If we don't get a valid control code, restart. */
 				if (curChar == PPP_UI) {

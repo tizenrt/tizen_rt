@@ -119,7 +119,7 @@ typedef enum {
  *
  ****************************************************************************/
 struct adc_dev_s *s5j_adc_initialize(FAR const uint8_t *chanlist,
-				     int cchannels);
+									 int cchannels);
 
 #undef EXTERN
 #if defined(__cplusplus)

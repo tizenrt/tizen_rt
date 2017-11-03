@@ -172,20 +172,20 @@ int open(const char *path, int oflags, ...)
 	} else
 #endif
 
-	/* Verify that the inode is valid and either a "normal" character driver or a
-	 * mountpoint.  We specifically exclude block drivers and and "special"
-	 * inodes (semaphores, message queues, shared memory).
-	 */
+		/* Verify that the inode is valid and either a "normal" character driver or a
+		 * mountpoint.  We specifically exclude block drivers and and "special"
+		 * inodes (semaphores, message queues, shared memory).
+		 */
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
-	if ((!INODE_IS_DRIVER(inode) && !INODE_IS_MOUNTPT(inode)) || !inode->u.i_ops)
+		if ((!INODE_IS_DRIVER(inode) && !INODE_IS_MOUNTPT(inode)) || !inode->u.i_ops)
 #else
-	if (!INODE_IS_DRIVER(inode) || !inode->u.i_ops)
+		if (!INODE_IS_DRIVER(inode) || !inode->u.i_ops)
 #endif
-	{
-		ret = ENXIO;
-		goto errout_with_inode;
-	}
+		{
+			ret = ENXIO;
+			goto errout_with_inode;
+		}
 
 	/* Make sure that the inode supports the requested access */
 

@@ -30,7 +30,7 @@
 
 uint8_t logm_status;
 int logm_bufsize = LOGM_BUFFER_SIZE;
-char * g_logm_rsvbuf = NULL;
+char *g_logm_rsvbuf = NULL;
 volatile int logm_print_interval = LOGM_PRINT_INTERVAL * 1000;
 
 static int logm_change_bufsize(int buflen)

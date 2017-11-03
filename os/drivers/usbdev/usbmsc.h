@@ -435,8 +435,8 @@ struct usbmsc_req_s {
 struct usbmsc_lun_s {
 	struct inode
 		*inode;						/* Inode structure of open'ed block driver */
-	uint8_t readonly:1;			/* Media is read-only */
-	uint8_t locked:1;			/* Media removal is prevented */
+	uint8_t readonly: 1;			/* Media is read-only */
+	uint8_t locked: 1;			/* Media removal is prevented */
 	uint16_t sectorsize;		/* The size of one sector */
 	uint32_t sd;				/* Sense data */
 	uint32_t sdinfo;			/* Sense data information */
@@ -464,7 +464,7 @@ struct usbmsc_dev_s {
 
 	/* Storage class configuration and state */
 
-	uint8_t nluns:4;			/* Number of LUNs */
+	uint8_t nluns: 4;			/* Number of LUNs */
 	uint8_t config;				/* Configuration number */
 
 	/* Endpoints */
@@ -479,9 +479,9 @@ struct usbmsc_dev_s {
 	struct usbmsc_lun_s *lun;	/* Currently selected LUN */
 	struct usbmsc_lun_s *luntab;	/* Allocated table of all LUNs */
 	uint8_t cdb[USBMSC_MAXCDBLEN];	/* Command data (cdb[]) from CBW */
-	uint8_t phaseerror:1;		/* Need to send phase sensing status */
-	uint8_t shortpacket:1;		/* Host transmission stopped unexpectedly */
-	uint8_t cbwdir:2;			/* Direction from CBW. See USBMSC_FLAGS_DIR* definitions */
+	uint8_t phaseerror: 1;		/* Need to send phase sensing status */
+	uint8_t shortpacket: 1;		/* Host transmission stopped unexpectedly */
+	uint8_t cbwdir: 2;			/* Direction from CBW. See USBMSC_FLAGS_DIR* definitions */
 	uint8_t cdblen;				/* Length of cdb[] from CBW */
 	uint8_t cbwlun;				/* LUN from the CBW */
 	uint16_t nsectbytes;		/* Bytes buffered in iobuffer[] */

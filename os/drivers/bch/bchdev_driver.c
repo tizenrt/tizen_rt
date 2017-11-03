@@ -334,8 +334,8 @@ static int bch_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
 #ifdef CONFIG_BCH_ENCRYPTION
 	/* Is this a request to set the encryption key? */
 	else if (cmd == DIOC_SETKEY) {
-			memcpy(bch->key, (FAR void *)arg, CONFIG_BCH_ENCRYPTION_KEY_SIZE);
-			ret = OK;
+		memcpy(bch->key, (FAR void *)arg, CONFIG_BCH_ENCRYPTION_KEY_SIZE);
+		ret = OK;
 	}
 #endif
 	/* Otherwise, pass the IOCTL command on to the contained block driver */

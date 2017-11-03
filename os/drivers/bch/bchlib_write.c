@@ -143,7 +143,7 @@ ssize_t bchlib_write(FAR void *handle, FAR const char *buffer, size_t offset, si
 
 		/* Write the contiguous sectors */
 		ret = bch->inode->u.i_bops->write(bch->inode, (FAR uint8_t *)buffer,
-				sector, nsectors);
+										  sector, nsectors);
 		if (ret < 0) {
 			fdbg("ERROR: Write failed: %d\n", ret);
 			return ret;

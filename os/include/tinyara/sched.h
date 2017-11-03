@@ -154,14 +154,14 @@
 #define TCB_FLAG_CANCEL_DEFERRED   (1 << 3)	/* Bit 3: Deferred (vs asynch) cancellation type */
 #define TCB_FLAG_CANCEL_PENDING    (1 << 4)	/* Bit 4: Pthread cancel is pending */
 #define TCB_FLAG_POLICY_SHIFT      (5) /* Bit 5-6: Scheduling policy */
- #define TCB_FLAG_POLICY_MASK       (3 << TCB_FLAG_POLICY_SHIFT)
- #  define TCB_FLAG_SCHED_FIFO      (0 << TCB_FLAG_POLICY_SHIFT) /* FIFO scheding policy */
- #  define TCB_FLAG_ROUND_ROBIN     (1 << TCB_FLAG_POLICY_SHIFT) /* Round robin scheding policy */
- #  define TCB_FLAG_SCHED_SPORADIC  (2 << TCB_FLAG_POLICY_SHIFT) /* Sporadic scheding policy */
- #  define TCB_FLAG_SCHED_OTHER     (3 << TCB_FLAG_POLICY_SHIFT) /* Other scheding policy */
+#define TCB_FLAG_POLICY_MASK       (3 << TCB_FLAG_POLICY_SHIFT)
+#  define TCB_FLAG_SCHED_FIFO      (0 << TCB_FLAG_POLICY_SHIFT) /* FIFO scheding policy */
+#  define TCB_FLAG_ROUND_ROBIN     (1 << TCB_FLAG_POLICY_SHIFT) /* Round robin scheding policy */
+#  define TCB_FLAG_SCHED_SPORADIC  (2 << TCB_FLAG_POLICY_SHIFT) /* Sporadic scheding policy */
+#  define TCB_FLAG_SCHED_OTHER     (3 << TCB_FLAG_POLICY_SHIFT) /* Other scheding policy */
 #define TCB_FLAG_CPU_LOCKED        (1 << 7) /* Bit 7: Locked to this CPU */
 #define TCB_FLAG_EXIT_PROCESSING   (1 << 8) /* Bit 8: Exitting */
-											/* Bits 9-15: Available */
+/* Bits 9-15: Available */
 
 /* Values for struct task_group tg_flags */
 

@@ -62,7 +62,7 @@
 size_t up_progmem_npages(void)
 {
 	return CONFIG_SIDK_S5JT200_FLASH_CAPACITY /
-				CONFIG_SIDK_S5JT200_FLASH_PAGE_SIZE;
+		   CONFIG_SIDK_S5JT200_FLASH_PAGE_SIZE;
 }
 
 bool up_progmem_isuniform(void)

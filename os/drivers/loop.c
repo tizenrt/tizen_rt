@@ -250,7 +250,7 @@ static ssize_t loop_read(FAR struct inode *inode, FAR unsigned char *buffer, siz
 
 	offset = start_sector * dev->sectsize + dev->offset;
 	ret = lseek(dev->fd, offset, SEEK_SET);
-	if (ret == (off_t)-1) {
+	if (ret == (off_t) - 1) {
 		dbg("Seek failed for offset=%d: %d\n", (int)offset, get_errno());
 		return -EIO;
 	}
@@ -292,7 +292,7 @@ static ssize_t loop_write(FAR struct inode *inode, FAR const unsigned char *buff
 
 	offset = start_sector * dev->sectsize + dev->offset;
 	ret = lseek(dev->fd, offset, SEEK_SET);
-	if (ret == (off_t)-1) {
+	if (ret == (off_t) - 1) {
 		dbg("Seek failed for offset=%d: %d\n", (int)offset, get_errno());
 	}
 

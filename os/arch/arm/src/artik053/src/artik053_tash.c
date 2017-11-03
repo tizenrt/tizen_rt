@@ -174,25 +174,25 @@ static void artik053_configure_partitions(void)
 		} else
 #endif
 #if defined(CONFIG_MTD_CONFIG)
-		if (!strncmp(types, "config,", 7)) {
-			mtdconfig_register(mtd_part);
-		} else
+			if (!strncmp(types, "config,", 7)) {
+				mtdconfig_register(mtd_part);
+			} else
 #endif
 #if defined(CONFIG_MTD_SMART) && defined(CONFIG_FS_SMARTFS)
-		if (!strncmp(types, "smartfs,", 8)) {
-			char partref[4];
-			snprintf(partref, sizeof(partref), "p%d", partno);
-			smart_initialize(CONFIG_ARTIK053_FLASH_MINOR, mtd_part, partref);
-		} else
+				if (!strncmp(types, "smartfs,", 8)) {
+					char partref[4];
+					snprintf(partref, sizeof(partref), "p%d", partno);
+					smart_initialize(CONFIG_ARTIK053_FLASH_MINOR, mtd_part, partref);
+				} else
 #endif
 #if defined(CONFIG_FS_ROMFS) && defined(CONFIG_FS_SMARTFS)
-		if (!strncmp(types, "romfs,", 6)) {
-			ftl_initialize(partno, mtd_part);
-		} else
+					if (!strncmp(types, "romfs,", 6)) {
+						ftl_initialize(partno, mtd_part);
+					} else
 
 #endif
-		{
-		}
+					{
+					}
 
 #if defined(CONFIG_MTD_PARTITION_NAMES)
 		if (strcmp(names, "")) {

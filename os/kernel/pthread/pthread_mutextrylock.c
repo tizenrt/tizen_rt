@@ -186,7 +186,7 @@ int pthread_mutex_trylock(FAR pthread_mutex_t *mutex)
 
 				if (mutex->pid > 0 &&
 					((mutex->flags & _PTHREAD_MFLAGS_ROBUST) != 0 ||
-					mutex->type != PTHREAD_MUTEX_NORMAL) &&
+					 mutex->type != PTHREAD_MUTEX_NORMAL) &&
 					sched_gettcb(mutex->pid) == NULL)
 #else /* CONFIG_PTHREAD_MUTEX_TYPES */
 				/* Check if this NORMAL mutex is robust */
@@ -213,20 +213,20 @@ int pthread_mutex_trylock(FAR pthread_mutex_t *mutex)
 					ret = EOWNERDEAD;
 				}
 
-				/* The mutex is locked by another, active thread */
+			/* The mutex is locked by another, active thread */
 
 				else
 #endif /* CONFIG_PTHREAD_MUTEX_UNSAFE */
 				{
-						ret = EBUSY;
+					ret = EBUSY;
 				}
 
-			}
+		}
 
-			/* Some other, unhandled error occurred */
-			else {
-				ret = status;
-			}
+		/* Some other, unhandled error occurred */
+		else {
+			ret = status;
+		}
 
 		sched_unlock();
 	}

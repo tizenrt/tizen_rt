@@ -1165,7 +1165,7 @@ static void set_allowed_addrs(int unit, struct wordlist *addrs)
 			} else {
 				a = inet_addr(p);
 			}
-			if (a != (u32_t)-1) {
+			if (a != (u32_t) - 1) {
 				wo->hisaddr = a;
 			}
 		}

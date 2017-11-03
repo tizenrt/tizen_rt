@@ -134,7 +134,7 @@ static int rtc_bcd2bin(uint32_t value)
 }
 
 static void rtc_breakout(FAR const struct tm *tm,
-		FAR struct rtc_regvals_s *regvals)
+						 FAR struct rtc_regvals_s *regvals)
 {
 	regvals->bcdsec     = rtc_bin2bcd(tm->tm_sec);
 	regvals->bcdmin     = rtc_bin2bcd(tm->tm_min);
@@ -166,7 +166,7 @@ static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
 
 		/* Disable alarm */
 		modifyreg32(S5J_RTC_RTCALM, RTC_RTCALM_ALMEN_MASK,
-						RTC_RTCALM_ALMEN_DISABLE);
+					RTC_RTCALM_ALMEN_DISABLE);
 
 		/* Alarm callback */
 		g_alarmcb();
@@ -348,10 +348,10 @@ int s5j_rtc_setalarm(FAR const struct timespec *tp, alarmcb_t callback)
 
 	/* Enable RTC alarm */
 	putreg32(RTC_RTCALM_ALMEN_ENABLE | RTC_RTCALM_YEAREN_ENABLE |
-		 RTC_RTCALM_MONEN_ENABLE | RTC_RTCALM_DAYEN_ENABLE |
-		 RTC_RTCALM_HOUREN_ENABLE | RTC_RTCALM_MINEN_ENABLE |
-		 RTC_RTCALM_SECEN_ENABLE,
-		 S5J_RTC_RTCALM);
+			 RTC_RTCALM_MONEN_ENABLE | RTC_RTCALM_DAYEN_ENABLE |
+			 RTC_RTCALM_HOUREN_ENABLE | RTC_RTCALM_MINEN_ENABLE |
+			 RTC_RTCALM_SECEN_ENABLE,
+			 S5J_RTC_RTCALM);
 
 	/* save the callback function pointer */
 	g_alarmcb = callback;
@@ -378,12 +378,13 @@ int s5j_rtc_setalarm(FAR const struct timespec *tp, alarmcb_t callback)
  ****************************************************************************/
 int s5j_rtc_cancelalarm(void)
 {
-	if (g_alarmcb == NULL)
+	if (g_alarmcb == NULL) {
 		return -ENODATA;
+	}
 
 	/* Disable alarm */
 	modifyreg32(S5J_RTC_RTCALM, RTC_RTCALM_ALMEN_MASK,
-						RTC_RTCALM_ALMEN_DISABLE);
+				RTC_RTCALM_ALMEN_DISABLE);
 
 	g_alarmcb = NULL;
 
@@ -417,12 +418,12 @@ int up_rtc_initialize(void)
 
 	/* Reset to all initial state */
 	modifyreg32(S5J_RTC_RTCCON,
-			RTC_RTCCON_TICCKSEL0_MASK | RTC_RTCCON_CLKRST_MASK |
-			RTC_RTCCON_CNTSEL_MASK | RTC_RTCCON_CLKSEL_MASK,
-			RTC_RTCCON_TICCKSEL0_32768HZ |
-			RTC_RTCCON_CLKRST_ENABLE |
-			RTC_RTCCON_CNTSEL_MERGE_BCDCNT |
-			RTC_RTCCON_CLKSEL_DIV32768);
+				RTC_RTCCON_TICCKSEL0_MASK | RTC_RTCCON_CLKRST_MASK |
+				RTC_RTCCON_CNTSEL_MASK | RTC_RTCCON_CLKSEL_MASK,
+				RTC_RTCCON_TICCKSEL0_32768HZ |
+				RTC_RTCCON_CLKRST_ENABLE |
+				RTC_RTCCON_CNTSEL_MERGE_BCDCNT |
+				RTC_RTCCON_CLKSEL_DIV32768);
 
 	/* Fix invalid reset value of BCDDAY and BCDMON which is based 1. */
 	if (getreg32(S5J_RTC_BCDDAY) == 0) {

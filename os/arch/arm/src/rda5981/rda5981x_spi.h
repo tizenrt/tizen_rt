@@ -60,7 +60,7 @@
 #include <chip.h>
 #include "chip/rda5981x_gpio.h"
 #include "chip/rda5981x_memorymap.h"
-#include "chip/rda5981x_pinconn.h" 
+#include "chip/rda5981x_pinconn.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,8 +79,8 @@ typedef struct _SPI_SFR {
 
 
 struct spi_s {
-    SPI_SFR *spi;
-    uint8_t bit_ofst[2];
+	SPI_SFR *spi;
+	uint8_t bit_ofst[2];
 };
 
 

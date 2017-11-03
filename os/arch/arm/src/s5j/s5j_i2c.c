@@ -205,11 +205,11 @@ static struct s5j_i2c_priv_s s5j_i2c3_priv = {
  * Private Functions
  ****************************************************************************/
 static void hsi2c_set_hs_timing(unsigned int base, unsigned int nClkDiv,
-				unsigned int tSTART_SU, unsigned int tSTART_HD,
-				unsigned int tSTOP_SU, unsigned int tSDA_SU,
-				unsigned int tDATA_SU, unsigned int tDATA_HD,
-				unsigned int tSCL_L, unsigned int tSCL_H,
-				unsigned int tSR_RELEASE)
+								unsigned int tSTART_SU, unsigned int tSTART_HD,
+								unsigned int tSTOP_SU, unsigned int tSDA_SU,
+								unsigned int tDATA_SU, unsigned int tDATA_HD,
+								unsigned int tSCL_L, unsigned int tSCL_H,
+								unsigned int tSR_RELEASE)
 {
 	tSTART_SU &= 0xFF;
 	tSTART_HD &= 0xFF;
@@ -231,10 +231,10 @@ static void hsi2c_set_hs_timing(unsigned int base, unsigned int nClkDiv,
 }
 
 static void hsi2c_set_fs_timing(unsigned int base, unsigned int nClkDiv,
-				unsigned int tSTART_SU, unsigned int tSTART_HD,
-				unsigned int tSTOP_SU, unsigned int tDATA_SU,
-				unsigned int tDATA_HD, unsigned int tSCL_L,
-				unsigned int tSCL_H, unsigned int tSR_RELEASE)
+								unsigned int tSTART_SU, unsigned int tSTART_HD,
+								unsigned int tSTOP_SU, unsigned int tDATA_SU,
+								unsigned int tDATA_HD, unsigned int tSCL_L,
+								unsigned int tSCL_H, unsigned int tSR_RELEASE)
 {
 	tSTART_SU &= 0xFF;
 	tSTART_HD &= 0xFF;
@@ -255,7 +255,7 @@ static void hsi2c_set_fs_timing(unsigned int base, unsigned int nClkDiv,
 }
 
 static void hsi2c_calculate_timing(unsigned int base, unsigned int nPclk,
-				unsigned int nOpClk)
+								   unsigned int nOpClk)
 {
 	unsigned int reg;
 	unsigned int nClkDiv;
@@ -306,10 +306,10 @@ static void hsi2c_calculate_timing(unsigned int base, unsigned int nPclk,
 		/* 400Khz setting for Extended ID */
 		hsi2c_set_fs_timing(base, 1, 38, 38, 38, 19, 19, 38, 38, 76);
 		hsi2c_set_hs_timing(base, nClkDiv, tSTART_SU, tSTART_HD, tSTOP_SU,
-					tSDA_SU, tDATA_SU, tDATA_HD, tSCL_L, tSCL_H, tSR_RELEASE);
+							tSDA_SU, tDATA_SU, tDATA_HD, tSCL_L, tSCL_H, tSR_RELEASE);
 	} else {
 		hsi2c_set_fs_timing(base, nClkDiv, tSTART_SU, tSTART_HD, tSTOP_SU,
-					tDATA_SU, tDATA_HD, tSCL_L, tSCL_H, tSR_RELEASE);
+							tDATA_SU, tDATA_HD, tSCL_L, tSCL_H, tSR_RELEASE);
 	}
 }
 
@@ -355,7 +355,7 @@ static unsigned int hsi2c_read_int_status(unsigned int base)
 }
 
 static void hsi2c_set_slave_addr(unsigned int base, u16 addr,
-				unsigned int is_master)
+								 unsigned int is_master)
 {
 	unsigned int val;
 
@@ -626,7 +626,7 @@ static void hsi2c_tx_fifo_reset(unsigned int base, int resetb)
 }
 
 static void hsi2c_set_auto_config(unsigned int base, unsigned int stop,
-				unsigned int tx, unsigned int len)
+								  unsigned int tx, unsigned int len)
 {
 	unsigned int val = getreg32(base + I2C_AUTO_CONF);
 
@@ -647,7 +647,7 @@ static void hsi2c_set_auto_config(unsigned int base, unsigned int stop,
 }
 
 static void hsi2c_set_trans_mode(unsigned int base, unsigned int master,
-				unsigned int tx)
+								 unsigned int tx)
 {
 	unsigned int val = getreg32(base + CTL);
 
@@ -810,7 +810,7 @@ static void hsi2c_set_fifo_level(unsigned int base)
 }
 
 static void hsi2c_master_setup(struct s5j_i2c_priv_s *priv, unsigned int mode,
-				unsigned int speed, unsigned int slave_addr)
+							   unsigned int speed, unsigned int slave_addr)
 {
 	if (priv->mode == I2C_POLLING) {
 		priv->xfer_speed = speed;
@@ -831,7 +831,7 @@ static void hsi2c_master_setup(struct s5j_i2c_priv_s *priv, unsigned int mode,
 }
 
 static void hsi2c_slave_setup(struct s5j_i2c_priv_s *priv, unsigned int mode,
-				unsigned int speed, unsigned int slave_addr)
+							  unsigned int speed, unsigned int slave_addr)
 {
 	priv->slave_test_data = (struct slave_data *)malloc(sizeof(struct slave_data));
 
@@ -884,7 +884,7 @@ static void hsi2c_slave_cleanup(struct s5j_i2c_priv_s *priv)
 }
 
 static int hsi2c_setup(struct s5j_i2c_priv_s *priv, unsigned int master,
-				unsigned int mode, unsigned int speed, unsigned int slave_addr)
+					   unsigned int mode, unsigned int speed, unsigned int slave_addr)
 {
 	priv->master = master;
 	priv->mode = mode;
@@ -1230,7 +1230,7 @@ int s5j_i2c_read(FAR struct i2c_dev_s *dev, FAR uint8_t *buffer, int buflen)
 }
 
 int s5j_i2c_write(FAR struct i2c_dev_s *dev, FAR const uint8_t *buffer,
-				int buflen)
+				  int buflen)
 {
 	struct s5j_i2c_priv_s *priv = (struct s5j_i2c_priv_s *)dev;
 	struct i2c_msg_s msg;

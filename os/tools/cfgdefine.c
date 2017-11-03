@@ -101,8 +101,9 @@ static const char *dequote_list[] = {
 
 static char *skip_space(char *ptr)
 {
-	while (*ptr && isspace((int)*ptr))
+	while (*ptr && isspace((int)*ptr)) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -110,8 +111,9 @@ static char *skip_space(char *ptr)
 
 static char *find_name_end(char *ptr)
 {
-	while (*ptr && (isalnum((int)*ptr) || *ptr == '_'))
+	while (*ptr && (isalnum((int)*ptr) || *ptr == '_')) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -121,15 +123,16 @@ static char *find_value_end(char *ptr)
 {
 	while (*ptr && !isspace((int)*ptr)) {
 		if (*ptr == '"') {
-			do
+			do {
 				ptr++;
-			while (*ptr && *ptr != '"');
-			if (*ptr)
+			} while (*ptr && *ptr != '"');
+			if (*ptr) {
 				ptr++;
+			}
 		} else {
-			do
+			do {
 				ptr++;
-			while (*ptr && !isspace((int)*ptr) && *ptr != '"');
+			} while (*ptr && !isspace((int)*ptr) && *ptr != '"');
 		}
 	}
 	return ptr;
@@ -137,18 +140,19 @@ static char *find_value_end(char *ptr)
 
 /* Read the next line from the configuration file */
 
-static char *read_line(FILE * stream)
+static char *read_line(FILE *stream)
 {
 	char *ptr;
 
 	for (;;) {
 		line[LINESIZE] = '\0';
-		if (!fgets(line, LINESIZE, stream))
+		if (!fgets(line, LINESIZE, stream)) {
 			return NULL;
-		else {
+		} else {
 			ptr = skip_space(line);
-			if (*ptr && *ptr != '#' && *ptr != '\n')
+			if (*ptr && *ptr != '#' && *ptr != '\n') {
 				return ptr;
+			}
 		}
 	}
 }
@@ -224,8 +228,9 @@ static char *dequote_value(const char *varname, char *varval)
 		/* Check if the variable name is in the list of strings to be dequoated */
 
 		for (dqnam = dequote_list; *dqnam; dqnam++) {
-			if (strcmp(*dqnam, varname) == 0)
+			if (strcmp(*dqnam, varname) == 0) {
 				break;
+			}
 		}
 
 		/* Did we find the variable name in the list of configuration variables
@@ -254,8 +259,9 @@ static char *dequote_value(const char *varname, char *varval)
 
 			/* Handle the case where nothing is left after dequoting */
 
-			if (len <= 0)
+			if (len <= 0) {
 				dqval = NULL;
+			}
 		}
 	}
 
@@ -266,7 +272,7 @@ static char *dequote_value(const char *varname, char *varval)
  * Public Functions
  ****************************************************************************/
 
-void generate_definitions(FILE * stream)
+void generate_definitions(FILE *stream)
 {
 	char *varname;
 	char *varval;
@@ -294,20 +300,23 @@ void generate_definitions(FILE * stream)
 				 * then undefine the configuration variable.
 				 */
 
-				if (!varval || strcmp(varval, "n") == 0)
+				if (!varval || strcmp(varval, "n") == 0) {
 					printf("#undef %s\n", varname);
+				}
 
 				/* Simply define the configuration variable if it has the special
 				 * value "y"
 				 */
 
-				else if (strcmp(varval, "y") == 0)
+				else if (strcmp(varval, "y") == 0) {
 					printf("#define %s 1\n", varname);
+				}
 
 				/* Otherwise, use the value as provided */
 
-				else
+				else {
 					printf("#define %s %s\n", varname, varval);
+				}
 			}
 		}
 	} while (ptr);

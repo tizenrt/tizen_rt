@@ -252,7 +252,7 @@ FAR struct gpio_lowerhalf_s *s5j_gpio_lowerhalf(uint16_t pincfg)
 	struct s5j_lowerhalf_s *lower;
 
 	lower = (struct s5j_lowerhalf_s *)
-						kmm_malloc(sizeof(struct s5j_lowerhalf_s));
+			kmm_malloc(sizeof(struct s5j_lowerhalf_s));
 	if (!lower) {
 		return NULL;
 	}

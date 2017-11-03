@@ -1011,8 +1011,7 @@ int lwip_sendto(int s, const void *data, size_t size, int flags, const struct so
 	return (err == ERR_OK ? short_size : -1);
 }
 
-int argument_validation(int domain, int type, int protocol)
-{
+int argument_validation(int domain, int type, int protocol) {
 	if (domain == AF_AX25 || domain == AF_X25) {
 		return -1;
 	}
@@ -1048,8 +1047,7 @@ int argument_validation(int domain, int type, int protocol)
 	return 0;
 }
 
-int lwip_socket(int domain, int type, int protocol)
-{
+int lwip_socket(int domain, int type, int protocol) {
 	struct netconn *conn;
 	int i;
 	if (argument_validation(domain, type, protocol) == -1) {
@@ -1102,8 +1100,7 @@ int lwip_socket(int domain, int type, int protocol)
 	return i;
 }
 
-int lwip_write(int s, const void * data, size_t size)
-{
+int lwip_write(int s, const void *data, size_t size) {
 	return lwip_send(s, data, size, 0);
 }
 
@@ -1125,8 +1122,7 @@ int lwip_write(int s, const void * data, size_t size)
  * @param exceptset_out: set os sockets that had error events
  * @return number of sockets that had events (read/write/exception) (>= 0)
  */
-static int lwip_selscan(int maxfdp1, fd_set * readset_in, fd_set * writeset_in, fd_set * exceptset_in, fd_set * readset_out, fd_set * writeset_out, fd_set * exceptset_out)
-{
+static int lwip_selscan(int maxfdp1, fd_set * readset_in, fd_set * writeset_in, fd_set * exceptset_in, fd_set * readset_out, fd_set * writeset_out, fd_set * exceptset_out) {
 	int i, nready = 0;
 	fd_set lreadset, lwriteset, lexceptset;
 	struct socket *sock;
@@ -1185,8 +1181,7 @@ static int lwip_selscan(int maxfdp1, fd_set * readset_in, fd_set * writeset_in, 
 /**
  * Processing exceptset is not yet implemented.
  */
-int lwip_select(int maxfdp1, fd_set * readset, fd_set * writeset, fd_set * exceptset, struct timeval * timeout)
-{
+int lwip_select(int maxfdp1, fd_set * readset, fd_set * writeset, fd_set * exceptset, struct timeval * timeout) {
 	u32_t waitres = 0;
 	int nready;
 	fd_set lreadset, lwriteset, lexceptset;
@@ -1196,7 +1191,7 @@ int lwip_select(int maxfdp1, fd_set * readset, fd_set * writeset, fd_set * excep
 	int maxfdp2;
 	SYS_ARCH_DECL_PROTECT(lev);
 
-	LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_select(%d, %p, %p, %p, tvsec=%" S32_F " tvusec=%" S32_F ")\n", maxfdp1, (void *)readset, (void *)writeset, (void *)exceptset, timeout ? (s32_t)timeout->tv_sec : (s32_t)-1, timeout ? (s32_t)timeout->tv_usec : (s32_t)-1));
+	LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_select(%d, %p, %p, %p, tvsec=%" S32_F " tvusec=%" S32_F ")\n", maxfdp1, (void *)readset, (void *)writeset, (void *)exceptset, timeout ? (s32_t)timeout->tv_sec : (s32_t) - 1, timeout ? (s32_t)timeout->tv_usec : (s32_t) - 1));
 
 	/* Go through each socket in each list to count number of sockets which
 	   currently match */
@@ -1358,8 +1353,7 @@ return_copy_fdsets:
 
 #else
 
-static int lwip_poll_scan(int fd, struct socket * sock, struct pollfd * fds)
-{
+static int lwip_poll_scan(int fd, struct socket * sock, struct pollfd * fds) {
 
 	void *lastdata = NULL;
 	s16_t rcvevent = 0;
@@ -1398,8 +1392,7 @@ static int lwip_poll_scan(int fd, struct socket * sock, struct pollfd * fds)
 	return nready;
 }
 
-static int lwip_poll_setup(int fd, struct socket * sock, struct pollfd * fds)
-{
+static int lwip_poll_setup(int fd, struct socket * sock, struct pollfd * fds) {
 	int nready = 0;
 	int scb_size = 0;
 	struct lwip_select_cb *select_cb = NULL;
@@ -1474,8 +1467,7 @@ static int lwip_poll_setup(int fd, struct socket * sock, struct pollfd * fds)
 	return 0;
 }
 
-static int lwip_poll_teardown(int fd, struct socket * sock, struct pollfd * fds)
-{
+static int lwip_poll_teardown(int fd, struct socket * sock, struct pollfd * fds) {
 	struct lwip_select_cb *select_cb = NULL;
 	SYS_ARCH_DECL_PROTECT(lev);
 
@@ -1529,8 +1521,7 @@ static int lwip_poll_teardown(int fd, struct socket * sock, struct pollfd * fds)
  *
  ****************************************************************************/
 
-int lwip_poll(int fd, struct pollfd * fds, bool setup)
-{
+int lwip_poll(int fd, struct pollfd * fds, bool setup) {
 
 	int ret = 0;
 
@@ -1563,8 +1554,7 @@ int lwip_poll(int fd, struct pollfd * fds, bool setup)
  * Callback registered in the netconn layer for each socket-netconn.
  * Processes recvevent (data available) and wakes up tasks waiting for select.
  */
-static void event_callback(struct netconn * conn, enum netconn_evt evt, u16_t len)
-{
+static void event_callback(struct netconn * conn, enum netconn_evt evt, u16_t len) {
 	int s;
 	struct socket *sock;
 	struct lwip_select_cb *scb;
@@ -1707,8 +1697,7 @@ again:
  * Unimplemented: Close one end of a full-duplex connection.
  * Currently, the full connection is closed.
  */
-int lwip_shutdown(int s, int how)
-{
+int lwip_shutdown(int s, int how) {
 	struct socket *sock;
 	err_t err;
 	u8_t shut_rx = 0, shut_tx = 0;
@@ -1747,8 +1736,7 @@ int lwip_shutdown(int s, int how)
 	return (err == ERR_OK ? 0 : -1);
 }
 
-static int lwip_getaddrname(int s, struct sockaddr * name, socklen_t * namelen, u8_t local)
-{
+static int lwip_getaddrname(int s, struct sockaddr * name, socklen_t *namelen, u8_t local) {
 	struct socket *sock;
 	struct sockaddr_in sin;
 	ip_addr_t naddr;
@@ -1781,18 +1769,15 @@ static int lwip_getaddrname(int s, struct sockaddr * name, socklen_t * namelen, 
 	return 0;
 }
 
-int lwip_getpeername(int s, struct sockaddr * name, socklen_t * namelen)
-{
+int lwip_getpeername(int s, struct sockaddr * name, socklen_t *namelen) {
 	return lwip_getaddrname(s, name, namelen, 0);
 }
 
-int lwip_getsockname(int s, struct sockaddr * name, socklen_t * namelen)
-{
+int lwip_getsockname(int s, struct sockaddr * name, socklen_t *namelen) {
 	return lwip_getaddrname(s, name, namelen, 1);
 }
 
-int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * optlen)
-{
+int lwip_getsockopt(int s, int level, int optname, void *optval, socklen_t *optlen) {
 	err_t err = ERR_OK;
 	struct socket *sock = get_socket(s);
 	struct lwip_setgetsockopt_data data;
@@ -1809,14 +1794,14 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 	/* Do length and type checks for the various options first, to keep it readable. */
 	switch (level) {
 
-		/* Level: SOL_SOCKET */
+	/* Level: SOL_SOCKET */
 	case SOL_SOCKET:
 		switch (optname) {
 
 		case SO_ACCEPTCONN:
 		case SO_BROADCAST:
-			/* UNIMPL case SO_DEBUG: */
-			/* UNIMPL case SO_DONTROUTE: */
+		/* UNIMPL case SO_DEBUG: */
+		/* UNIMPL case SO_DONTROUTE: */
 		case SO_ERROR:
 		case SO_KEEPALIVE:
 			/* UNIMPL case SO_CONTIMEO: */
@@ -1867,12 +1852,12 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 		}						/* switch (optname) */
 		break;
 
-		/* Level: IPPROTO_IP */
+	/* Level: IPPROTO_IP */
 	case IPPROTO_IP:
 		switch (optname) {
-			/* UNIMPL case IP_HDRINCL: */
-			/* UNIMPL case IP_RCVDSTADDR: */
-			/* UNIMPL case IP_RCVIF: */
+		/* UNIMPL case IP_HDRINCL: */
+		/* UNIMPL case IP_RCVDSTADDR: */
+		/* UNIMPL case IP_RCVIF: */
 		case IP_TTL:
 		case IP_TOS:
 			if (*optlen < sizeof(int)) {
@@ -1907,7 +1892,7 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 		break;
 
 #if LWIP_TCP
-		/* Level: IPPROTO_TCP */
+	/* Level: IPPROTO_TCP */
 	case IPPROTO_TCP:
 		if (*optlen < sizeof(int)) {
 			err = EINVAL;
@@ -1936,7 +1921,7 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 		break;
 #endif							/* LWIP_TCP */
 #if LWIP_UDP && LWIP_UDPLITE
-		/* Level: IPPROTO_UDPLITE */
+	/* Level: IPPROTO_UDPLITE */
 	case IPPROTO_UDPLITE:
 		if (*optlen < sizeof(int)) {
 			err = EINVAL;
@@ -1959,7 +1944,7 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 		}						/* switch (optname) */
 		break;
 #endif							/* LWIP_UDP && LWIP_UDPLITE */
-		/* UNDEFINED LEVEL */
+	/* UNDEFINED LEVEL */
 	default:
 		LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_getsockopt(%d, level=0x%x, UNIMPL: optname=0x%x, ..)\n", s, level, optname));
 		err = ENOPROTOOPT;
@@ -1989,8 +1974,7 @@ int lwip_getsockopt(int s, int level, int optname, void * optval, socklen_t * op
 	return err ? -1 : 0;
 }
 
-static void lwip_getsockopt_internal(void * arg)
-{
+static void lwip_getsockopt_internal(void *arg) {
 	struct socket *sock;
 	int level, optname;
 	void *optval;
@@ -2009,15 +1993,15 @@ static void lwip_getsockopt_internal(void * arg)
 
 	switch (level) {
 
-		/* Level: SOL_SOCKET */
+	/* Level: SOL_SOCKET */
 	case SOL_SOCKET:
 		switch (optname) {
 
-			/* The option flags */
+		/* The option flags */
 		case SO_ACCEPTCONN:
 		case SO_BROADCAST:
-			/* UNIMPL case SO_DEBUG: */
-			/* UNIMPL case SO_DONTROUTE: */
+		/* UNIMPL case SO_DEBUG: */
+		/* UNIMPL case SO_DONTROUTE: */
 		case SO_KEEPALIVE:
 			/* UNIMPL case SO_OOBINCLUDE: */
 #if SO_REUSE
@@ -2087,7 +2071,7 @@ static void lwip_getsockopt_internal(void * arg)
 		}						/* switch (optname) */
 		break;
 
-		/* Level: IPPROTO_IP */
+	/* Level: IPPROTO_IP */
 	case IPPROTO_IP:
 		switch (optname) {
 		case IP_TTL:
@@ -2123,7 +2107,7 @@ static void lwip_getsockopt_internal(void * arg)
 		break;
 
 #if LWIP_TCP
-		/* Level: IPPROTO_TCP */
+	/* Level: IPPROTO_TCP */
 	case IPPROTO_TCP:
 		switch (optname) {
 		case TCP_NODELAY:
@@ -2156,7 +2140,7 @@ static void lwip_getsockopt_internal(void * arg)
 		break;
 #endif							/* LWIP_TCP */
 #if LWIP_UDP && LWIP_UDPLITE
-		/* Level: IPPROTO_UDPLITE */
+	/* Level: IPPROTO_UDPLITE */
 	case IPPROTO_UDPLITE:
 		switch (optname) {
 		case UDPLITE_SEND_CSCOV:
@@ -2180,8 +2164,7 @@ static void lwip_getsockopt_internal(void * arg)
 	sys_sem_signal(&sock->conn->op_completed);
 }
 
-int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_t optlen)
-{
+int lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen) {
 	struct socket *sock = get_socket(s);
 	err_t err = ERR_OK;
 	struct lwip_setgetsockopt_data data;
@@ -2198,13 +2181,13 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 	/* Do length and type checks for the various options first, to keep it readable. */
 	switch (level) {
 
-		/* Level: SOL_SOCKET */
+	/* Level: SOL_SOCKET */
 	case SOL_SOCKET:
 		switch (optname) {
 
 		case SO_BROADCAST:
-			/* UNIMPL case SO_DEBUG: */
-			/* UNIMPL case SO_DONTROUTE: */
+		/* UNIMPL case SO_DEBUG: */
+		/* UNIMPL case SO_DONTROUTE: */
 		case SO_KEEPALIVE:
 			/* UNIMPL case case SO_CONTIMEO: */
 #if LWIP_SO_RCVBUF
@@ -2251,12 +2234,12 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 		}						/* switch (optname) */
 		break;
 
-		/* Level: IPPROTO_IP */
+	/* Level: IPPROTO_IP */
 	case IPPROTO_IP:
 		switch (optname) {
-			/* UNIMPL case IP_HDRINCL: */
-			/* UNIMPL case IP_RCVDSTADDR: */
-			/* UNIMPL case IP_RCVIF: */
+		/* UNIMPL case IP_HDRINCL: */
+		/* UNIMPL case IP_RCVDSTADDR: */
+		/* UNIMPL case IP_RCVIF: */
 		case IP_TTL:
 		case IP_TOS:
 			if (optlen < sizeof(int)) {
@@ -2305,7 +2288,7 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 		break;
 
 #if LWIP_TCP
-		/* Level: IPPROTO_TCP */
+	/* Level: IPPROTO_TCP */
 	case IPPROTO_TCP:
 		if (optlen < sizeof(int)) {
 			err = EINVAL;
@@ -2334,7 +2317,7 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 		break;
 #endif							/* LWIP_TCP */
 #if LWIP_UDP && LWIP_UDPLITE
-		/* Level: IPPROTO_UDPLITE */
+	/* Level: IPPROTO_UDPLITE */
 	case IPPROTO_UDPLITE:
 		if (optlen < sizeof(int)) {
 			err = EINVAL;
@@ -2357,7 +2340,7 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 		}						/* switch (optname) */
 		break;
 #endif							/* LWIP_UDP && LWIP_UDPLITE */
-		/* UNDEFINED LEVEL */
+	/* UNDEFINED LEVEL */
 	default:
 		LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, level=0x%x, UNIMPL: optname=0x%x, ..)\n", s, level, optname));
 		err = ENOPROTOOPT;
@@ -2387,8 +2370,7 @@ int lwip_setsockopt(int s, int level, int optname, const void * optval, socklen_
 	return err ? -1 : 0;
 }
 
-static void lwip_setsockopt_internal(void * arg)
-{
+static void lwip_setsockopt_internal(void *arg) {
 	struct socket *sock;
 	int level, optname;
 	const void *optval;
@@ -2408,14 +2390,14 @@ static void lwip_setsockopt_internal(void * arg)
 
 	switch (level) {
 
-		/* Level: SOL_SOCKET */
+	/* Level: SOL_SOCKET */
 	case SOL_SOCKET:
 		switch (optname) {
 
-			/* The option flags */
+		/* The option flags */
 		case SO_BROADCAST:
-			/* UNIMPL case SO_DEBUG: */
-			/* UNIMPL case SO_DONTROUTE: */
+		/* UNIMPL case SO_DEBUG: */
+		/* UNIMPL case SO_DONTROUTE: */
 		case SO_KEEPALIVE:
 			/* UNIMPL case SO_OOBINCLUDE: */
 #if SO_REUSE
@@ -2466,7 +2448,7 @@ static void lwip_setsockopt_internal(void * arg)
 		}						/* switch (optname) */
 		break;
 
-		/* Level: IPPROTO_IP */
+	/* Level: IPPROTO_IP */
 	case IPPROTO_IP:
 		switch (optname) {
 		case IP_TTL:
@@ -2519,7 +2501,7 @@ static void lwip_setsockopt_internal(void * arg)
 		break;
 
 #if LWIP_TCP
-		/* Level: IPPROTO_TCP */
+	/* Level: IPPROTO_TCP */
 	case IPPROTO_TCP:
 		switch (optname) {
 		case TCP_NODELAY:
@@ -2556,7 +2538,7 @@ static void lwip_setsockopt_internal(void * arg)
 		break;
 #endif							/* LWIP_TCP */
 #if LWIP_UDP && LWIP_UDPLITE
-		/* Level: IPPROTO_UDPLITE */
+	/* Level: IPPROTO_UDPLITE */
 	case IPPROTO_UDPLITE:
 		switch (optname) {
 		case UDPLITE_SEND_CSCOV:
@@ -2564,7 +2546,7 @@ static void lwip_setsockopt_internal(void * arg)
 				/* don't allow illegal values! */
 				sock->conn->pcb.udp->chksum_len_tx = 8;
 			} else {
-				sock->conn->pcb.udp->chksum_len_tx = (u16_t)*(int *)optval;
+				sock->conn->pcb.udp->chksum_len_tx = (u16_t) * (int *)optval;
 			}
 			LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, IPPROTO_UDPLITE, UDPLITE_SEND_CSCOV) -> %d\n", data->s, (*(int *)optval)));
 			break;
@@ -2573,7 +2555,7 @@ static void lwip_setsockopt_internal(void * arg)
 				/* don't allow illegal values! */
 				sock->conn->pcb.udp->chksum_len_rx = 8;
 			} else {
-				sock->conn->pcb.udp->chksum_len_rx = (u16_t)*(int *)optval;
+				sock->conn->pcb.udp->chksum_len_rx = (u16_t) * (int *)optval;
 			}
 			LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, IPPROTO_UDPLITE, UDPLITE_RECV_CSCOV) -> %d\n", data->s, (*(int *)optval)));
 			break;
@@ -2590,8 +2572,7 @@ static void lwip_setsockopt_internal(void * arg)
 	sys_sem_signal(&sock->conn->op_completed);
 }
 
-int lwip_ioctl(int s, long cmd, void * argp)
-{
+int lwip_ioctl(int s, long cmd, void *argp) {
 	struct socket *sock = get_socket(s);
 	u8_t val;
 #if LWIP_SO_RCVBUF
@@ -2671,8 +2652,7 @@ int lwip_ioctl(int s, long cmd, void * argp)
  * Currently only the commands F_GETFL and F_SETFL are implemented.
  * Only the flag O_NONBLOCK is implemented.
  */
-int lwip_fcntl(int s, int cmd, int val)
-{
+int lwip_fcntl(int s, int cmd, int val) {
 	struct socket *sock = get_socket(s);
 	int ret = -1;
 

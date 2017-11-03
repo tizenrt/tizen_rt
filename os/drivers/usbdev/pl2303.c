@@ -632,7 +632,7 @@ static int usbclass_sndpacket(FAR struct pl2303_dev_s *priv)
 			req->flags = USBDEV_REQFLAGS_NULLPKT;
 			ret = EP_SUBMIT(ep, req);
 			if (ret != OK) {
-				usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_SUBMITFAIL), (uint16_t)-ret);
+				usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_SUBMITFAIL), (uint16_t) - ret);
 				break;
 			}
 		} else {
@@ -1083,7 +1083,7 @@ static int usbclass_setconfig(FAR struct pl2303_dev_s *priv, uint8_t config)
 		req->callback = usbclass_rdcomplete;
 		ret = EP_SUBMIT(priv->epbulkout, req);
 		if (ret != OK) {
-			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t) - ret);
 			goto errout;
 		}
 
@@ -1118,7 +1118,7 @@ errout:
 static void usbclass_ep0incomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 {
 	if (req->result || req->xfrd != req->len) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_REQRESULT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_REQRESULT), (uint16_t) - req->result);
 	}
 }
 
@@ -1166,7 +1166,7 @@ static void usbclass_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_re
 		return;
 
 	default:					/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDUNEXPECTED), (uint16_t) - req->result);
 		break;
 	};
 
@@ -1175,7 +1175,7 @@ static void usbclass_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_re
 	req->len = ep->maxpacket;
 	ret = EP_SUBMIT(ep, req);
 	if (ret != OK) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t) - req->result);
 	}
 	irqrestore(flags);
 }
@@ -1231,7 +1231,7 @@ static void usbclass_wrcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_re
 		break;
 
 	default:					/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_WRUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_WRUNEXPECTED), (uint16_t) - req->result);
 		break;
 	}
 }
@@ -1710,7 +1710,7 @@ static int usbclass_setup(FAR struct usbdevclass_driver_s *driver, FAR struct us
 		ctrlreq->flags = USBDEV_REQFLAGS_NULLPKT;
 		ret = EP_SUBMIT(dev->ep0, ctrlreq);
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_EPRESPQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_EPRESPQ), (uint16_t) - ret);
 			ctrlreq->result = OK;
 			usbclass_ep0incomplete(dev->ep0, ctrlreq);
 		}
@@ -2183,7 +2183,7 @@ int usbdev_serialinitialize(int minor)
 
 	ret = usbdev_register(&drvr->drvr);
 	if (ret) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_DEVREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_DEVREGISTER), (uint16_t) - ret);
 		goto errout_with_alloc;
 	}
 
@@ -2193,7 +2193,7 @@ int usbdev_serialinitialize(int minor)
 	priv->serdev.isconsole = true;
 	ret = uart_register("/dev/console", &priv->serdev);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_CONSOLEREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_CONSOLEREGISTER), (uint16_t) - ret);
 		goto errout_with_class;
 	}
 #endif
@@ -2203,7 +2203,7 @@ int usbdev_serialinitialize(int minor)
 	snprintf(devname, sizeof(devname), "/dev/ttyUSB%d", minor);
 	ret = uart_register(devname, &priv->serdev);
 	if (ret) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTREGISTER), (uint16_t) - ret);
 		goto errout_with_class;
 	}
 	return OK;

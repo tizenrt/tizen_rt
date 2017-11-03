@@ -321,7 +321,7 @@ extern u_char outpacket_buf[NUM_PPP][PPP_MRU + PPP_HDRLEN];
 extern struct ppp_settings ppp_settings;
 
 extern struct protent
-		*ppp_protocols[];				/* Table of pointers to supported protocols */
+	*ppp_protocols[];				/* Table of pointers to supported protocols */
 
 /***********************
 *** PUBLIC FUNCTIONS ***

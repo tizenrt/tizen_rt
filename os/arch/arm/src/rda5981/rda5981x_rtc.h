@@ -128,12 +128,11 @@ typedef void (*alarmcb_t)(void);
 
 #if 0
 /*------------- Timer0 (TIM0) ------------------------------------------------*/
-typedef struct
-{
-  __IO uint32_t LDCNT;                  /* 0x00 : Timer Load Count Register   */
-  __I  uint32_t CVAL;                   /* 0x04 : Current Timer Value Register*/
-  __IO uint32_t TCTRL;                  /* 0x08 : Timer Control Register      */
-  __I  uint32_t INTCLR;                 /* 0x0C : Interrupt Clear Register    */
+typedef struct {
+	__IO uint32_t LDCNT;                  /* 0x00 : Timer Load Count Register   */
+	__I  uint32_t CVAL;                   /* 0x04 : Current Timer Value Register*/
+	__IO uint32_t TCTRL;                  /* 0x08 : Timer Control Register      */
+	__I  uint32_t INTCLR;                 /* 0x0C : Interrupt Clear Register    */
 } RDA_TIM0_TypeDef;
 #endif
 
@@ -143,14 +142,13 @@ typedef struct
 #define RDA_TIMER1_INTCLR      (RDA_TIM1_BASE+0x18)
 
 #if 0
-typedef struct
-{
-  __IO uint32_t TCTRL;                  /* 0x00 : Timer Control Register      */
-       uint32_t RESERVED0[2];
-  __IO uint32_t LDCNT;                  /* 0x0C : Timer Load Count Register   */
-  __I  uint32_t CVAL;                   /* 0x10 : Current Timer Value Register*/
-       uint32_t RESERVED1;
-  __I  uint32_t INTCLR;                 /* 0x18 : Interrupt Clear Register    */
+typedef struct {
+	__IO uint32_t TCTRL;                  /* 0x00 : Timer Control Register      */
+	uint32_t RESERVED0[2];
+	__IO uint32_t LDCNT;                  /* 0x0C : Timer Load Count Register   */
+	__I  uint32_t CVAL;                   /* 0x10 : Current Timer Value Register*/
+	uint32_t RESERVED1;
+	__I  uint32_t INTCLR;                 /* 0x18 : Interrupt Clear Register    */
 } RDA_TIM1_TypeDef;
 #endif
 
@@ -162,30 +160,29 @@ typedef struct
 
 
 #if 0
-typedef struct
-{
-  __IO uint32_t CLKGATE0;               /* 0x00 : Clock Gating 0              */
-  __IO uint32_t PWRCTRL;                /* 0x04 : Power Control               */
-  __IO uint32_t CLKGATE1;               /* 0x08 : Clock Gating 1              */
-  __IO uint32_t CLKGATE2;               /* 0x0C : Clock Gating 2              */
-  __IO uint32_t RESETCTRL;              /* 0x10 : Power Control               */
-  __IO uint32_t CLKGATE3;               /* 0x14 : Clock Gating 3              */
-  __IO uint32_t CORECFG;                /* 0x18 : Core Config                 */
-  __IO uint32_t CPUCFG;                 /* 0x1C : CPU Config                  */
-  __IO uint32_t FTMRINITVAL;            /* 0x20 : Free Timer Initial Value    */
-  __IO uint32_t FTMRTS;                 /* 0x24 : Free Timer Timestamp        */
-  __IO uint32_t CLKGATEBP;              /* 0x28 : Clock Gating Bypass         */
-       uint32_t RESERVED0[2];
-  __IO uint32_t PWMCFG;                 /* 0x34 : PWM Config                  */
-  __IO uint32_t FUN0WAKEVAL;            /* 0x38 : SDIO Func0 Wake Val         */
-  __IO uint32_t FUN1WAKEVAL;            /* 0x3C : SDIO Func1 Wake Val         */
-  __IO uint32_t BOOTJUMPADDR;           /* 0x40 : Boot Jump Addr              */
-  __IO uint32_t SDIOINTVAL;             /* 0x44 : SDIO Int Val                */
-  __IO uint32_t I2SCLKDIV;              /* 0x48 : I2S Clock Divider           */
-  __IO uint32_t BOOTJUMPADDRCFG;        /* 0x4C : Boot Jump Addr Config       */
-  __IO uint32_t FTMRPREVAL;             /* 0x50 : Free Timer Prescale Init Val*/
-  __IO uint32_t PWROPENCFG;             /* 0x54 : Power Open Config           */
-  __IO uint32_t PWRCLOSECFG;            /* 0x58 : Power Close Config          */
+typedef struct {
+	__IO uint32_t CLKGATE0;               /* 0x00 : Clock Gating 0              */
+	__IO uint32_t PWRCTRL;                /* 0x04 : Power Control               */
+	__IO uint32_t CLKGATE1;               /* 0x08 : Clock Gating 1              */
+	__IO uint32_t CLKGATE2;               /* 0x0C : Clock Gating 2              */
+	__IO uint32_t RESETCTRL;              /* 0x10 : Power Control               */
+	__IO uint32_t CLKGATE3;               /* 0x14 : Clock Gating 3              */
+	__IO uint32_t CORECFG;                /* 0x18 : Core Config                 */
+	__IO uint32_t CPUCFG;                 /* 0x1C : CPU Config                  */
+	__IO uint32_t FTMRINITVAL;            /* 0x20 : Free Timer Initial Value    */
+	__IO uint32_t FTMRTS;                 /* 0x24 : Free Timer Timestamp        */
+	__IO uint32_t CLKGATEBP;              /* 0x28 : Clock Gating Bypass         */
+	uint32_t RESERVED0[2];
+	__IO uint32_t PWMCFG;                 /* 0x34 : PWM Config                  */
+	__IO uint32_t FUN0WAKEVAL;            /* 0x38 : SDIO Func0 Wake Val         */
+	__IO uint32_t FUN1WAKEVAL;            /* 0x3C : SDIO Func1 Wake Val         */
+	__IO uint32_t BOOTJUMPADDR;           /* 0x40 : Boot Jump Addr              */
+	__IO uint32_t SDIOINTVAL;             /* 0x44 : SDIO Int Val                */
+	__IO uint32_t I2SCLKDIV;              /* 0x48 : I2S Clock Divider           */
+	__IO uint32_t BOOTJUMPADDRCFG;        /* 0x4C : Boot Jump Addr Config       */
+	__IO uint32_t FTMRPREVAL;             /* 0x50 : Free Timer Prescale Init Val*/
+	__IO uint32_t PWROPENCFG;             /* 0x54 : Power Open Config           */
+	__IO uint32_t PWRCLOSECFG;            /* 0x58 : Power Close Config          */
 }
 #endif
 

@@ -375,7 +375,7 @@ static int cdcacm_sndpacket(FAR struct cdcacm_dev_s *priv)
 			req->flags = USBDEV_REQFLAGS_NULLPKT;
 			ret = EP_SUBMIT(ep, req);
 			if (ret != OK) {
-				usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_SUBMITFAIL), (uint16_t)-ret);
+				usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_SUBMITFAIL), (uint16_t) - ret);
 				break;
 			}
 		} else {
@@ -697,7 +697,7 @@ static int cdcacm_setconfig(FAR struct cdcacm_dev_s *priv, uint8_t config)
 		req->callback = cdcacm_rdcomplete;
 		ret = EP_SUBMIT(priv->epbulkout, req);
 		if (ret != OK) {
-			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t) - ret);
 			goto errout;
 		}
 
@@ -732,7 +732,7 @@ errout:
 static void cdcacm_ep0incomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_s *req)
 {
 	if (req->result || req->xfrd != req->len) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_REQRESULT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_REQRESULT), (uint16_t) - req->result);
 	}
 }
 
@@ -780,7 +780,7 @@ static void cdcacm_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_
 		return;
 
 	default:					/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDUNEXPECTED), (uint16_t) - req->result);
 		break;
 	};
 
@@ -789,7 +789,7 @@ static void cdcacm_rdcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_
 	req->len = ep->maxpacket;
 	ret = EP_SUBMIT(ep, req);
 	if (ret != OK) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_RDSUBMIT), (uint16_t) - req->result);
 	}
 
 	irqrestore(flags);
@@ -848,7 +848,7 @@ static void cdcacm_wrcomplete(FAR struct usbdev_ep_s *ep, FAR struct usbdev_req_
 	break;
 
 	default: {				/* Some other error occurred */
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_WRUNEXPECTED), (uint16_t)-req->result);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_WRUNEXPECTED), (uint16_t) - req->result);
 	}
 	break;
 	}
@@ -1436,7 +1436,7 @@ static int cdcacm_setup(FAR struct usbdevclass_driver_s *driver, FAR struct usbd
 		ret = composite_ep0submit(driver, dev, ctrlreq);
 #endif
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_EPRESPQ), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_EPRESPQ), (uint16_t) - ret);
 			ctrlreq->result = OK;
 			cdcacm_ep0incomplete(dev->ep0, ctrlreq);
 		}
@@ -2143,7 +2143,7 @@ int cdcacm_classobject(int minor, FAR struct usbdevclass_driver_s **classdev)
 	priv->serdev.isconsole = true;
 	ret = uart_register("/dev/console", &priv->serdev);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_CONSOLEREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_CONSOLEREGISTER), (uint16_t) - ret);
 		goto errout_with_class;
 	}
 #endif
@@ -2153,7 +2153,7 @@ int cdcacm_classobject(int minor, FAR struct usbdevclass_driver_s **classdev)
 	snprintf(devname, sizeof(devname), CDCACM_DEVNAME_FORMAT, minor);
 	ret = uart_register(devname, &priv->serdev);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTREGISTER), (uint16_t) - ret);
 		goto errout_with_class;
 	}
 
@@ -2197,7 +2197,7 @@ int cdcacm_initialize(int minor, FAR void **handle)
 
 		ret = usbdev_register(drvr);
 		if (ret < 0) {
-			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_DEVREGISTER), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_DEVREGISTER), (uint16_t) - ret);
 		}
 	}
 
@@ -2257,7 +2257,7 @@ void cdcacm_uninitialize(FAR void *handle)
 	 * first pass uninitialization.
 	 */
 
-	if (priv->minor == (uint8_t)-1) {
+	if (priv->minor == (uint8_t) - 1) {
 		/* In this second and final pass, all that remains to be done is to
 		 * free the memory resources.
 		 */
@@ -2272,7 +2272,7 @@ void cdcacm_uninitialize(FAR void *handle)
 	snprintf(devname, sizeof(devname), CDCACM_DEVNAME_FORMAT, priv->minor);
 	ret = unregister_driver(devname);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTUNREGISTER), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBSER_TRACEERR_UARTUNREGISTER), (uint16_t) - ret);
 	}
 
 	/* Unregister the driver (unless we are a part of a composite device).  The
@@ -2301,6 +2301,6 @@ void cdcacm_uninitialize(FAR void *handle)
 	 * are called again, then we will free the memory resources.
 	 */
 
-	priv->minor = (uint8_t)-1;
+	priv->minor = (uint8_t) - 1;
 #endif
 }

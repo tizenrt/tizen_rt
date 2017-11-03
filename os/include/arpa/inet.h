@@ -50,11 +50,11 @@
  *
  ****************************************************************************/
 
- /**
-  * @addtogroup SOCKET
-  * @ingroup NETWORK
-  * @{
-  */
+/**
+ * @addtogroup SOCKET
+ * @ingroup NETWORK
+ * @{
+ */
 
 /**
  * @file inet.h

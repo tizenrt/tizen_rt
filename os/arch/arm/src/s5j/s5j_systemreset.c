@@ -76,7 +76,7 @@ static void up_systemreset(void)
 	putreg32(0x1, 0x80090400);
 
 	/* Wait for the reset */
-	for (; ; ) {
+	for (; ;) {
 	}
 }
 

@@ -142,12 +142,12 @@
 #define SCU_CLKGATE0_DSM        (1 << 0)        /* Bit 0: Deep sleep mode */
 
 /* 0x0004 : Power Control                */
-                                                /* Bits 0-2: Reserved */
+/* Bits 0-2: Reserved */
 #define SCU_PWRCTRL_GPWE        (1 << 3)        /* Bit 3:    GPIO wakeup en */
 #define SCU_PWRCTRL_UAWE        (1 << 4)        /* Bit 4:    UART wakeup en */
 #define SCU_PWRCTRL_SDWE        (1 << 5)        /* Bit 5:    SDIO wakeup en */
 #define SCU_PWRCTRL_USWE        (1 << 6)        /* Bit 6:    USB wakeup en */
-                                                /* Bit 7:    Reserved */
+/* Bit 7:    Reserved */
 #define SCU_PWRCTRL_FTRWE       (1 << 8)        /* Bit 8:    Free timer reg write en */
 
 /* 0x0008 : Clock Gating 1               */
@@ -171,7 +171,7 @@
 #define SCU_RESETCTRL_SRSCU     (1 << 9)        /* Bit 9: Soft RESETn SCU */
 
 /* 0x0014 : Clock Gating 3               */
-                                                /* Bits 0-1: Reserved */
+/* Bits 0-1: Reserved */
 #define SCU_CLKGATE3_SE         (1 << 2)        /* Bit 2:    Sleep en */
 
 /* 0x0018 : Core Config                  */
@@ -183,14 +183,14 @@
 #define SCU_CPUCFG_ST1MS_SHIFT  (0)             /* Bits 0-23:  Systick 1 ms */
 #define SCU_CPUCFG_ST1MS_MASK   (0xFFFFFF << SCU_CPUCFG_ST1MS_SHIFT)
 #define SCU_CPUCFG_MPUDIS       (1 << 24)       /* Bit 24:     MPU disable */
-                                                /* Bits 25-31: Reserved */
+/* Bits 25-31: Reserved */
 
 /* 0x0028 : Clock Gating Bypass          */
 #define SCU_CLKGATEBP_PACGBP    (1 << 0)        /* Bit 0:     PA CLK gate bypass */
 #define SCU_CLKGATEBP_PHYTCGBP  (1 << 1)        /* Bit 1:     PHY TX CLK gate bypass */
 #define SCU_CLKGATEBP_PHYRCGBP  (1 << 2)        /* Bit 2:     PHY RX CLK gate bypass */
 #define SCU_CLKGATEBP_TSFCGBP   (1 << 3)        /* Bit 3:     TSF CLK gate bypass */
-                                                /* Bits 4-30: Reserved */
+/* Bits 4-30: Reserved */
 #define SCU_CLKGATEBP_SDMCOGBP  (1 << 31)       /* Bit 31:    SDMMC CLK out gate bypass */
 
 /* 0x0034 : PWM Config                   */
@@ -201,12 +201,12 @@
 /* 0x003C : SDIO Func1 Wake Val          */
 #define SCU_FUN1WAKEVAL_SHIFT   (0)             /* Bits 0-15:  func1 wake val */
 #define SCU_FUN1WAKEVAL_MASK    (0xFFFF << SCU_FUN1WAKEVAL_SHIFT)
-                                                /* Bits 16-31: Reserved */
+/* Bits 16-31: Reserved */
 
 /* 0x0050 : Free Timer Prescale Init Val */
 #define SCU_FTMRPREVAL_SHIFT    (0)             /* Bits 0-11:  Free timer prescale val */
 #define SCU_FTMRPREVAL_MASK     (0x0FFF << SCU_FTMRPREVAL_SHIFT)
-                                                /* Bits 12-31: Reserved */
+/* Bits 12-31: Reserved */
 
 /************************************************************************************
  * Public Types

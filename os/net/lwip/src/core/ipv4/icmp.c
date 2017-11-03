@@ -192,15 +192,15 @@ void icmp_input(struct pbuf *p, struct netif *inp)
 		}
 	}
 #endif							/* LWIP_ICMP_ECHO_CHECK_INPUT_PBUF_LEN */
-	/* At this point, all checks are OK. */
-	/* We generate an answer by switching the dest and src ip addresses,
-	 * setting the icmp type to ECHO_RESPONSE and updating the checksum. */
+		/* At this point, all checks are OK. */
+		/* We generate an answer by switching the dest and src ip addresses,
+		 * setting the icmp type to ECHO_RESPONSE and updating the checksum. */
 	iecho = (struct icmp_echo_hdr *)p->payload;
 	ip_addr_copy(iphdr->src, *ip_current_dest_addr());
 	ip_addr_copy(iphdr->dest, *ip_current_src_addr());
 	ICMPH_TYPE_SET(iecho, ICMP_ER);
 #if CHECKSUM_GEN_ICMP
-	/* adjust the checksum */
+		/* adjust the checksum */
 	if (iecho->chksum >= PP_HTONS(0xffffU - (ICMP_ECHO << 8))) {
 		iecho->chksum += PP_HTONS(ICMP_ECHO << 8) + 1;
 	} else {
@@ -210,7 +210,7 @@ void icmp_input(struct pbuf *p, struct netif *inp)
 	iecho->chksum = 0;
 #endif							/* CHECKSUM_GEN_ICMP */
 
-	/* Set the correct TTL and recalculate the header checksum. */
+		/* Set the correct TTL and recalculate the header checksum. */
 	IPH_TTL_SET(iphdr, ICMP_TTL);
 	IPH_CHKSUM_SET(iphdr, 0);
 #if CHECKSUM_GEN_IP
@@ -218,9 +218,9 @@ void icmp_input(struct pbuf *p, struct netif *inp)
 #endif							/* CHECKSUM_GEN_IP */
 
 	ICMP_STATS_INC(icmp.xmit);
-	/* increase number of messages attempted to send */
+		/* increase number of messages attempted to send */
 	snmp_inc_icmpoutmsgs();
-	/* increase number of echo replies attempted to send */
+		/* increase number of echo replies attempted to send */
 	snmp_inc_icmpoutechoreps();
 
 	if (pbuf_header(p, hlen)) {

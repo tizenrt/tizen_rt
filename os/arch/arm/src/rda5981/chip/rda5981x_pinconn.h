@@ -104,7 +104,7 @@
 #define PINCONN_PINSEL0_P0p8_MASK       (7 << PINCONN_PINSEL0_P0p8_SHIFT)
 #define PINCONN_PINSEL0_P0p9_SHIFT      (27)      /* Bits 27-29: P0.11  000=GPIO 001/010/011/100/101/110/111=Reserved */
 #define PINCONN_PINSEL0_P0p9_MASK       (7 << PINCONN_PINSEL0_P0p9_SHIFT)
-                                                  /* Bits 30-31: Reserved */
+/* Bits 30-31: Reserved */
 
 /* Pin Function Select register 1 (PINSEL1: 0x40001048) */
 
@@ -128,7 +128,7 @@
 #define PINCONN_PINSEL1_P0p8_MASK       (7 << PINCONN_PINSEL1_P0p8_SHIFT)
 #define PINCONN_PINSEL1_P0p9_SHIFT      (27)      /* Bits 27-29: P0.9 000=GPIO 001=TDI 010=Reserved 011=SDMMC_CLK 100/101/110/111=Reserved */
 #define PINCONN_PINSEL1_P0p9_MASK       (7 << PINCONN_PINSEL1_P0p9_SHIFT)
-                                                  /* Bits 30-31: Reserved */
+/* Bits 30-31: Reserved */
 
 /* Pin Function Select register 2 (PINSEL2: 0x40001054) */
 
@@ -152,7 +152,7 @@
 #define PINCONN_PINSEL2_P0p8_MASK       (7 << PINCONN_PINSEL2_P0p8_SHIFT)
 #define PINCONN_PINSEL2_P0p9_SHIFT      (27)      /* Bits 27-29: P0.21 000=GPIO 001/010/011/100/101/110/111=Reserved */
 #define PINCONN_PINSEL2_P0p9_MASK       (7 << PINCONN_PINSEL2_P0p9_SHIFT)
-                                                  /* Bits 30-31: Reserved */
+/* Bits 30-31: Reserved */
 
 /* Pin Function Select register 3 (PINSEL3: 0x40001058) */
 
@@ -164,7 +164,7 @@
 #define PINCONN_PINSEL3_P0p2_MASK       (7 << PINCONN_PINSEL3_P0p2_SHIFT)
 #define PINCONN_PINSEL3_P0p3_SHIFT      (9)       /* Bits 9-11:  P0.25 000=GPIO 001=SPI_MISO 010=TXD1 011=Reserved 100=PWM3 101/110/111=Reserved */
 #define PINCONN_PINSEL3_P0p3_MASK       (7 << PINCONN_PINSEL3_P0p3_SHIFT)
-                                                  /* Bits 12-31: Reserved */
+/* Bits 12-31: Reserved */
 
 
 /* Pin Mode select register 0 (PINMODE0: 0x4000104C) */
@@ -191,7 +191,7 @@
 #define PINCONN_PINMODE0_P0p6_MASK      (3 << PINCONN_PINMODE0_P0p6_SHIFT)
 #define PINCONN_PINMODE0_P0p7_SHIFT     (14)      /* Bits 14-15: P0.19a mode control */
 #define PINCONN_PINMODE0_P0p7_MASK      (3 << PINCONN_PINMODE0_P0p7_SHIFT)
-                                                  /* Bits 16-31: Reserved */
+/* Bits 16-31: Reserved */
 
 /* Pin Mode select register 1 (PINMODE1: 0x40001050) */
 
@@ -219,7 +219,7 @@
 #define PINCONN_PINMODE1_P0p10_MASK     (3 << PINCONN_PINMODE1_P0p10_SHIFT)
 #define PINCONN_PINMODE1_P0p11_SHIFT    (22)      /* Bits 22-23: P0.11 mode control */
 #define PINCONN_PINMODE1_P0p11_MASK     (3 << PINCONN_PINMODE1_P0p11_SHIFT)
-                                                  /* Bits 24-31: Reserved */
+/* Bits 24-31: Reserved */
 
 /* Pin Mode select register 2 (PINMODE2: 0x4000105C) */
 
@@ -247,7 +247,7 @@
 #define PINCONN_PINMODE2_P0p10_MASK     (3 << PINCONN_PINMODE2_P0p10_SHIFT)
 #define PINCONN_PINMODE2_P0p11_SHIFT    (22)      /* Bits 22-23: P0.23 mode control */
 #define PINCONN_PINMODE2_P0p11_MASK     (3 << PINCONN_PINMODE2_P0p11_SHIFT)
-                                                  /* Bits 24-31: Reserved */
+/* Bits 24-31: Reserved */
 
 /* Pin Mode select register 3 (PINMODE3: 0x40001060) */
 
@@ -255,7 +255,7 @@
 #define PINCONN_PINMODE3_P0p0_MASK      (3 << PINCONN_PINMODE3_P0p0_SHIFT)
 #define PINCONN_PINMODE3_P0p1_SHIFT     (2)       /* Bits 2-3: P0.25 mode control */
 #define PINCONN_PINMODE3_P0p1_MASK      (3 << PINCONN_PINMODE3_P0p1_SHIFT)
-                                                  /* Bits 4-31: Reserved */
+/* Bits 4-31: Reserved */
 
 /************************************************************************************
  * Public Types

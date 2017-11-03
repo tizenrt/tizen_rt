@@ -273,7 +273,7 @@ static const struct adc_ops_s g_adcops = {
 /* tracks overall ADC peripherals one-time initialization state */
 struct tiva_adc_state_s {
 	bool init[BASE_PER_ADC];
-	bool sse[BASE_PER_ADC *SSE_PER_BASE];
+	bool sse[BASE_PER_ADC * SSE_PER_BASE];
 };
 
 struct tiva_adc_s {

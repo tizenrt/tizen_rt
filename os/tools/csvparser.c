@@ -90,8 +90,9 @@ int g_lineno;
 
 static char *skip_space(char *ptr)
 {
-	while (*ptr && isspace((int)*ptr))
+	while (*ptr && isspace((int)*ptr)) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -113,8 +114,9 @@ static char *copy_parm(char *src, char *dest)
 		} else if (*src == '\n' || *src == '\0') {
 			fprintf(stderr, "%d: Unexpected end of line: \"%s\"\n", g_lineno, start);
 			exit(4);
-		} else
+		} else {
 			*dest++ = *src++;
+		}
 	}
 
 	fprintf(stderr, "%d: Parameter too long: \"%s\"\n", g_lineno, start);
@@ -136,9 +138,9 @@ static char *find_parm(char *ptr)
 	ptr++;
 
 	ptr = skip_space(ptr);
-	if (*ptr == '\n' || *ptr == '\0')
+	if (*ptr == '\n' || *ptr == '\0') {
 		return NULL;
-	else if (*ptr != ',') {
+	} else if (*ptr != ',') {
 		fprintf(stderr, "%d: Expected ',': \"%s\"\n", g_lineno, start);
 		exit(6);
 	}
@@ -162,22 +164,24 @@ static char *find_parm(char *ptr)
  * Name: read_line
  ****************************************************************************/
 
-char *read_line(FILE * stream)
+char *read_line(FILE *stream)
 {
 	char *ptr;
 
 	for (;;) {
 		g_line[LINESIZE] = '\0';
-		if (!fgets(g_line, LINESIZE, stream))
+		if (!fgets(g_line, LINESIZE, stream)) {
 			return NULL;
-		else {
+		} else {
 			g_lineno++;
-			if (g_debug)
+			if (g_debug) {
 				printf("Line: %s\n", g_line);
+			}
 
 			ptr = skip_space(g_line);
-			if (*ptr && *ptr != '#' && *ptr != '\n')
+			if (*ptr && *ptr != '#' && *ptr != '\n') {
 				return ptr;
+			}
 		}
 	}
 }
@@ -218,8 +222,9 @@ int parse_csvline(char *ptr)
 
 	if (g_debug) {
 		printf("Parameters: %d\n", nparms);
-		for (i = 0; i < nparms; i++)
+		for (i = 0; i < nparms; i++) {
 			printf("  Parm%d: \"%s\"\n", i + 1, g_parm[i]);
+		}
 	}
 
 	return nparms;

@@ -797,7 +797,7 @@ static ssize_t m25p_read(FAR struct mtd_dev_s *dev, off_t offset, size_t nbytes,
 
 	/* Lock the SPI bus NOW because the following call must be executed with
 	 * the bus locked.
-     */
+	 */
 
 	m25p_lock(priv->dev);
 

@@ -621,7 +621,7 @@ struct usbhost_epdesc_s {
 /* This structure provides information about the connected device */
 
 struct usbhost_devinfo_s {
-	uint8_t speed:2;			/* Device speed: 0=low, 1=full, 2=high */
+	uint8_t speed: 2;			/* Device speed: 0=low, 1=full, 2=high */
 };
 
 /* This type represents one endpoint configured by the epalloc() method.

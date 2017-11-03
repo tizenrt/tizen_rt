@@ -263,7 +263,7 @@ static ssize_t progmem_read(FAR struct mtd_dev_s *dev, off_t offset, size_t nbyt
 
 	block = offset >> priv->blkshift;
 	src = (FAR const uint8_t *)up_progmem_getaddress(block) +
-				(offset & ((1 << priv->blkshift) - 1));
+		  (offset & ((1 << priv->blkshift) - 1));
 	memcpy(buffer, src, nbytes);
 	return nbytes;
 #else
@@ -278,7 +278,7 @@ static ssize_t progmem_read(FAR struct mtd_dev_s *dev, off_t offset, size_t nbyt
 
 	block = offset >> priv->blkshift;
 	result = up_progmem_read(up_progmem_getaddress(block) + (offset & ((1 << priv->blkshift) - 1)), \
-				(void*)buffer, nbytes);
+							 (void *)buffer, nbytes);
 
 	return result < 0 ? result : nbytes;
 #endif
@@ -306,7 +306,7 @@ static ssize_t progmem_write(FAR struct mtd_dev_s *dev, off_t offset, size_t nby
 
 	block = offset >> priv->blkshift;
 	result = up_progmem_write(up_progmem_getaddress(block) +
-			(offset & ((1 << priv->blkshift) - 1)), buffer, nbytes);
+							  (offset & ((1 << priv->blkshift) - 1)), buffer, nbytes);
 	return result < 0 ? result : nbytes;
 }
 #endif

@@ -94,7 +94,7 @@ static int s5j_timer_handler(int irq, void *context, void *arg);
 static int s5j_mct_start(FAR struct timer_lowerhalf_s *lower);
 static int s5j_mct_stop(struct timer_lowerhalf_s *lower);
 static int s5j_mct_settimeout(FAR struct timer_lowerhalf_s *lower,
-								uint32_t timeout);
+							  uint32_t timeout);
 static void s5j_mct_setcallback(FAR struct timer_lowerhalf_s *lower,
 								CODE tccb_t callback, FAR void *arg);
 

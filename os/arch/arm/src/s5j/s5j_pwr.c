@@ -74,68 +74,73 @@
  ****************************************************************************/
 typedef struct __attribute__((__packed__))
 {
-	unsigned CR4_DBGRSTREQ:1;
-	unsigned RSVD4:3;
-	unsigned CM0_SYSRESETREQ:1;
-	unsigned RSVD3:11;
-	unsigned PINRESET:1;
-	unsigned RSVD2:6;
-	unsigned CR4_WDTRESET:1;
-	unsigned RSVD1:4;
-	unsigned WRESET:1;
-	unsigned SWRESET:1;
-	unsigned RSVD0:2;
-} RST_STAT_SFR;
+	unsigned CR4_DBGRSTREQ: 1;
+	unsigned RSVD4: 3;
+	unsigned CM0_SYSRESETREQ: 1;
+	unsigned RSVD3: 11;
+	unsigned PINRESET: 1;
+	unsigned RSVD2: 6;
+	unsigned CR4_WDTRESET: 1;
+	unsigned RSVD1: 4;
+	unsigned WRESET: 1;
+	unsigned SWRESET: 1;
+	unsigned RSVD0: 2;
+}
+RST_STAT_SFR;
 
 typedef struct __attribute__((__packed__))
 {
-	unsigned EINT:1;
-	unsigned RSVD2:2;
-	unsigned TRTC_ALARM:1;
-	unsigned TRTC_TICK:1;
-	unsigned RSVD1:7;
-	unsigned UART0_RXD:1;
-	unsigned I2C0_SDA:1;
-	unsigned I2C1_SDA:1;
-	unsigned RSVD0:16;
-	unsigned WAKEUP:1;
-} WAKEUP_STAT_SFR;
+	unsigned EINT: 1;
+	unsigned RSVD2: 2;
+	unsigned TRTC_ALARM: 1;
+	unsigned TRTC_TICK: 1;
+	unsigned RSVD1: 7;
+	unsigned UART0_RXD: 1;
+	unsigned I2C0_SDA: 1;
+	unsigned I2C1_SDA: 1;
+	unsigned RSVD0: 16;
+	unsigned WAKEUP: 1;
+}
+WAKEUP_STAT_SFR;
 
 typedef struct __attribute__((__packed__))
 {
-	unsigned EINT0:1;
-	unsigned EINT1:1;
-	unsigned EINT2:1;
-	unsigned RSCD0:29;
-} EINT_WAKEUP_MASK_SFR;
+	unsigned EINT0: 1;
+	unsigned EINT1: 1;
+	unsigned EINT2: 1;
+	unsigned RSCD0: 29;
+}
+EINT_WAKEUP_MASK_SFR;
 
 typedef struct __attribute__((__packed__))
 {
-	unsigned RSVD3:3;
-	unsigned TRTC_ALARM:1;
-	unsigned TRTC_TICK:1;
-	unsigned RSVD2:7;
-	unsigned UART0_RXD:1;
-	unsigned I2C0_SDA:1;
-	unsigned I2C1_SDA:1;
-	unsigned RSVD1:13;
-	unsigned SFR:1;
-	unsigned RSVD0:1;
-	unsigned USE_LEVEL_TRIGGER:1;
-	unsigned ENABLE_WAKEUP_SW:1;
-} WAKEUP_MASK_SFR;
+	unsigned RSVD3: 3;
+	unsigned TRTC_ALARM: 1;
+	unsigned TRTC_TICK: 1;
+	unsigned RSVD2: 7;
+	unsigned UART0_RXD: 1;
+	unsigned I2C0_SDA: 1;
+	unsigned I2C1_SDA: 1;
+	unsigned RSVD1: 13;
+	unsigned SFR: 1;
+	unsigned RSVD0: 1;
+	unsigned USE_LEVEL_TRIGGER: 1;
+	unsigned ENABLE_WAKEUP_SW: 1;
+}
+WAKEUP_MASK_SFR;
 
 typedef struct __attribute__((__packed__))
 {
-	unsigned RSVD3:3;
-	unsigned CLR_CR4:1;
-	unsigned RSVD2:3;
-	unsigned STATUS_CR4:1;
-	unsigned RSVD1:3;
-	unsigned DIRECT_INTR_CR4:1;
-	unsigned RSVD0:19;
-	unsigned ENABLE_CR4:1;
-} WAKEUP_INTERRUPT_SFR;
+	unsigned RSVD3: 3;
+	unsigned CLR_CR4: 1;
+	unsigned RSVD2: 3;
+	unsigned STATUS_CR4: 1;
+	unsigned RSVD1: 3;
+	unsigned DIRECT_INTR_CR4: 1;
+	unsigned RSVD0: 19;
+	unsigned ENABLE_CR4: 1;
+}
+WAKEUP_INTERRUPT_SFR;
 
 /****************************************************************************
  * Private Data

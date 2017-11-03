@@ -146,18 +146,18 @@ typedef enum {
 /****************************************************************************
  * Private Data
  ****************************************************************************/
-static const uint16_t gpio_clk  = (GPIO_OUTPUT|GPIO_FLOAT|GPIO_PORTP4|GPIO_PIN0);
-static const uint16_t gpio_ss   = (GPIO_OUTPUT|GPIO_FLOAT|GPIO_PORTP4|GPIO_PIN1);
-static const uint16_t gpio_miso = (GPIO_INPUT |GPIO_FLOAT|GPIO_PORTP4|GPIO_PIN2);
-static const uint16_t gpio_mosi = (GPIO_OUTPUT|GPIO_FLOAT|GPIO_PORTP4|GPIO_PIN3);
+static const uint16_t gpio_clk  = (GPIO_OUTPUT | GPIO_FLOAT | GPIO_PORTP4 | GPIO_PIN0);
+static const uint16_t gpio_ss   = (GPIO_OUTPUT | GPIO_FLOAT | GPIO_PORTP4 | GPIO_PIN1);
+static const uint16_t gpio_miso = (GPIO_INPUT | GPIO_FLOAT | GPIO_PORTP4 | GPIO_PIN2);
+static const uint16_t gpio_mosi = (GPIO_OUTPUT | GPIO_FLOAT | GPIO_PORTP4 | GPIO_PIN3);
 
 /* Device geometry description, compact form (2 bytes per entry) */
 
 struct ee_geom_s {
-	uint8_t bytes:4;		/* Power of two of 128 bytes (0:128 1:256 2:512 etc) */
-	uint8_t org:4;			/* Organization, bytes */
-	uint8_t addrlen:4;		/* Number of bytes in command address field */
-	uint8_t flags:4;		/* Special Features ??? */
+	uint8_t bytes: 4;		/* Power of two of 128 bytes (0:128 1:256 2:512 etc) */
+	uint8_t org: 4;			/* Organization, bytes */
+	uint8_t addrlen: 4;		/* Number of bytes in command address field */
+	uint8_t flags: 4;		/* Special Features ??? */
 };
 
 static const struct ee_geom_s g_ee_devices[] = {
@@ -722,7 +722,7 @@ static ssize_t ee_fwrite(FAR struct file *filep, FAR const char *buffer, size_t 
 	if (eedev->org_size == 1) {
 		if (filep->f_pos & 1) {
 			ee_read(eedev, filep->f_pos & ~1, (char *)&buff_2, 2);
-			buff_2 = (buff_2 & 0x00FF) | ((((uint16_t)*buffer) << 8) & 0xFF00);
+			buff_2 = (buff_2 & 0x00FF) | ((((uint16_t) * buffer) << 8) & 0xFF00);
 			ee_write(eedev, filep->f_pos & ~1, (char *)&buff_2, 2);
 
 			len--;
@@ -740,7 +740,7 @@ static ssize_t ee_fwrite(FAR struct file *filep, FAR const char *buffer, size_t 
 
 		if (len == 1) {
 			ee_read(eedev, filep->f_pos, (char *)&buff_2, 2);
-			buff_2 = (buff_2 & 0xFF00) | (((uint16_t)*buffer) & 0x00FF);
+			buff_2 = (buff_2 & 0xFF00) | (((uint16_t) * buffer) & 0x00FF);
 			ee_write(eedev, filep->f_pos, (char *)&buff_2, 2);
 
 			len--;

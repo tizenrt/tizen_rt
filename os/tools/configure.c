@@ -234,8 +234,9 @@ static void parse_args(int argc, char **argv)
 	optind++;
 
 	ptr = strchr(g_boarddir, '/');
-	if (!ptr)
+	if (!ptr) {
 		ptr = strchr(g_boarddir, '\\');
+	}
 
 	if (!ptr) {
 		fprintf(stderr, "ERROR: Invalid <board-name>%c<config-name>\n", g_delim);
@@ -344,8 +345,9 @@ static void config_search(const char *boarddir)
 	 * call because the starting boarddir is ""
 	 */
 
-	if (boarddir[0] == g_delim)
+	if (boarddir[0] == g_delim) {
 		boarddir++;
+	}
 
 	/* Get the full directory path and open it */
 
@@ -365,8 +367,9 @@ static void config_search(const char *boarddir)
 	while ((dp = readdir(dir)) != NULL) {
 		/* Ignore directory entries that start with '.' */
 
-		if (dp->d_name[0] == '.')
+		if (dp->d_name[0] == '.') {
 			continue;
+		}
 
 		/* Get a properly terminated copy of d_name (if d_name is long it may
 		 * not include a NUL terminator.\ */
@@ -398,8 +401,9 @@ static void config_search(const char *boarddir)
 		 * directories.
 		 */
 
-		else if (S_ISREG(buf.st_mode) && strcmp("defconfig", child) == 0)
+		else if (S_ISREG(buf.st_mode) && strcmp("defconfig", child) == 0) {
 			fprintf(stderr, "  %s\n", boarddir);
+		}
 
 		free(child);
 	}
@@ -475,8 +479,9 @@ static void get_verstring(void)
 
 	if (g_versionvars) {
 		var = find_variable("CONFIG_VERSION_STRING", g_versionvars);
-		if (var && var->val)
+		if (var && var->val) {
 			g_verstring = strdup(var->val);
+		}
 	}
 
 	debug("get_verstring: Version string=%s\n", g_verstring);
@@ -534,15 +539,17 @@ static void check_appdir(void)
 
 		snprintf(tmp, 16, ".%capps-%s", g_delim, g_verstring);
 		debug("check_appdir: Try appdir=%s\n", tmp);
-		if (verify_appdir(tmp))
+		if (verify_appdir(tmp)) {
 			return;
+		}
 
 		/* Try ../apps with no version */
 
 		snprintf(tmp, 16, "..%capps", g_delim);
 		debug("check_appdir: Try appdir=%s\n", tmp);
-		if (verify_appdir(tmp))
+		if (verify_appdir(tmp)) {
 			return;
+		}
 
 		/* Try ../apps-xx.yy where xx.yy are the TinyAra version number */
 
@@ -600,13 +607,15 @@ static void check_configuration(void)
 	if (g_winnative) {
 		snprintf(g_buffer, BUFFER_SIZE, "%s%csetenv.bat", g_configpath, g_delim);
 		debug("check_configuration: Checking %s\n", g_buffer);
-		if (verify_file(g_buffer))
+		if (verify_file(g_buffer)) {
 			g_srcsetenvbat = strdup(g_buffer);
+		}
 	} else {
 		snprintf(g_buffer, BUFFER_SIZE, "%s%csetenv.sh", g_configpath, g_delim);
 		debug("check_configuration: Checking %s\n", g_buffer);
-		if (verify_file(g_buffer))
+		if (verify_file(g_buffer)) {
 			g_srcsetenvsh = strdup(g_buffer);
+		}
 	}
 }
 
@@ -654,9 +663,9 @@ static void copy_file(const char *srcpath, const char *destpath, mode_t mode)
 
 		do {
 			nbyteswritten = write(wrfd, g_buffer, nbytesread);
-			if (nbyteswritten >= 0)
+			if (nbyteswritten >= 0) {
 				nbytesread -= nbyteswritten;
-			else {
+			} else {
 				/* EINTR is not an error (but will still stop the copy) */
 
 				fprintf(stderr, "ERROR: Write failure: %s\n", strerror(errno));
@@ -669,8 +678,9 @@ static void copy_file(const char *srcpath, const char *destpath, mode_t mode)
 static void substitute(char *str, int ch1, int ch2)
 {
 	for (; *str; str++) {
-		if (*str == ch1)
+		if (*str == ch1) {
 			*str = ch2;
+		}
 	}
 }
 

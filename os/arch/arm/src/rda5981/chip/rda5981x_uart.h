@@ -113,22 +113,22 @@
 /* RBR (DLAB =0) Receiver Buffer Register (all) */
 
 #define UART_RBR_MASK                (0xFF)    /* Bits 0-7: Oldest received byte in RX FIFO */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 
 /* THR (DLAB =0) Transmit Holding Register (all) */
 
 #define UART_THR_MASK                (0xFF)    /* Bits 0-7: Adds byte to TX FIFO */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 
 /* DLL (DLAB =1) Divisor Latch LSB (all) */
 
 #define UART_DLL_MASK                (0xFF)    /* Bits 0-7: DLL */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 
 /* DLM (DLAB =1) Divisor Latch MSB (all) */
 
 #define UART_DLM_MASK                (0xFF)    /* Bits 0-7: DLM */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 
 /* IER (DLAB =0) Interrupt Enable Register (all) */
 
@@ -136,9 +136,9 @@
 #define UART_IER_THREIE              (1 << 1)  /* Bit 1: THRE Interrupt Enable */
 #define UART_IER_RLSIE               (1 << 2)  /* Bit 2: RX Line Status Interrupt Enable */
 #define UART_IER_MSIE                (1 << 3)  /* Bit 3: Modem Status Interrupt Enable (UART1 only) */
-                                               /* Bits 4-6: Reserved */
+/* Bits 4-6: Reserved */
 #define UART_IER_CTSIE               (1 << 7)  /* Bit 7: CTS transition interrupt (UART1 only) */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 #define UART_IER_ALLIE               (0x008F)
 
 /* IIR Interrupt ID Register (all) */
@@ -151,10 +151,10 @@
 #  define UART_IIR_INTID_RDA         (2 << UART_IIR_INTID_SHIFT) /* 2a - Receive Data Available (RDA) */
 #  define UART_IIR_INTID_RLS         (3 << UART_IIR_INTID_SHIFT) /* 1 - Receive Line Status (RLS) */
 #  define UART_IIR_INTID_CTI         (6 << UART_IIR_INTID_SHIFT) /* 2b - Character Time-out Indicator (CTI) */
-                                               /* Bits 4-5: Reserved */
+/* Bits 4-5: Reserved */
 #define UART_IIR_FIFOEN_SHIFT        (6)       /* Bits 6-7: Copies of FCR bit 0 */
 #define UART_IIR_FIFOEN_MASK         (3 << UART_IIR_FIFOEN_SHIFT)
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 /* FCR FIFO Control Register (all) */
 
 #define UART_FCR_FIFOEN              (1 << 0)  /* Bit 0:  Enable FIFOs */
@@ -173,7 +173,7 @@
 #  define UART_FCR_RXTRIGGER_L1      (1 << UART_FCR_RXTRIGGER_SHIFT) /* Trigger level 1 (FIFO is quarter-full) */
 #  define UART_FCR_RXTRIGGER_L2      (2 << UART_FCR_RXTRIGGER_SHIFT) /* Trigger level 2 (FIFO is half-full) */
 #  define UART_FCR_RXTRIGGER_L3      (3 << UART_FCR_RXTRIGGER_SHIFT) /* Trigger level 3 (FIFO is almost-full) */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 /* LCR Line Control Register (all) */
 
 #define UART_LCR_WLS_SHIFT           (0)       /* Bit 0-1: Word Length Select */
@@ -192,18 +192,18 @@
 #  define UART_LCR_PS_STICK0         (3 << UART_LCR_PS_SHIFT) /* Forced "0" stick parity */
 #define UART_LCR_BRK                 (1 << 6)  /* Bit 6: Break Control */
 #define UART_LCR_DLAB                (1 << 7)  /* Bit 7: Divisor Latch Access Bit (DLAB) */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 /* MCR Modem Control Register (UART1 only) */
 
 #define UART_MCR_DTR                 (1 << 0)  /* Bit 0:  DTR Control Source for DTR output */
 #define UART_MCR_RTS                 (1 << 1)  /* Bit 1:  Control Source for  RTS output */
-                                               /* Bits 2-3: Reserved */
+/* Bits 2-3: Reserved */
 #define UART_MCR_LPBK                (1 << 4)  /* Bit 4:  Loopback Mode Select */
 #define UART_MCR_AFCE                (1 << 5)  /* Bit 5:  Enable auto flow control */
 #define UART_MCR_SIRE                (1 << 6)  /* Bit 6:  Enable IrDA mode */
 #define UART_MCR_ABDE                (1 << 7)  /* Bit 7:  Enable auto baud detection */
 #define UART_MCR_CSEL                (1 << 8)  /* Bit 8:  Select UART clock, 0:24M, 1:48M */
-                                               /* Bits 9-31: Reserved */
+/* Bits 9-31: Reserved */
 /* LSR Line Status Register (all) */
 
 #define UART_LSR_RDR                 (1 << 0)  /* Bit 0:  Receiver Data Ready */
@@ -214,7 +214,7 @@
 #define UART_LSR_THRE                (1 << 5)  /* Bit 5:  Transmitter Holding Register Empty */
 #define UART_LSR_TEMT                (1 << 6)  /* Bit 6:  Transmitter Empty */
 #define UART_LSR_RXFE                (1 << 7)  /* Bit 7:  Error in RX FIFO (RXFE) */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 /* MSR Modem Status Register (UART1 only) */
 
 #define UART_MSR_DELTACTS            (1 << 0)  /* Bit 0:  CTS state change */
@@ -225,11 +225,11 @@
 #define UART_MSR_DSR                 (1 << 5)  /* Bit 5:  DSR State */
 #define UART_MSR_RI                  (1 << 6)  /* Bit 6:  Ring Indicator State */
 #define UART_MSR_DCD                 (1 << 7)  /* Bit 7:  Data Carrier Detect State */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 /* SCR Scratch Pad Register (all) */
 
 #define UART_SCR_MASK                (0xFF)    /* Bits 0-7: SCR data */
-                                               /* Bits 8-31: Reserved */
+/* Bits 8-31: Reserved */
 
 /************************************************************************************
  * Public Types

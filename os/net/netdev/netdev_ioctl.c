@@ -511,7 +511,7 @@ static int netdev_ifrioctl(FAR struct socket *sock, int cmd, FAR struct ifreq *r
 			gw = dev->gw;
 			netifapi_netif_set_addr(dev, &ipaddr, &netmask, &gw);
 			netifapi_netif_set_up(dev);
-			
+
 			ret = OK;
 #endif
 		}
@@ -519,7 +519,7 @@ static int netdev_ifrioctl(FAR struct socket *sock, int cmd, FAR struct ifreq *r
 	break;
 #endif
 
-	/* TODO: Support IPv6 related IOCTL calls once IPv6 is functional */
+		/* TODO: Support IPv6 related IOCTL calls once IPv6 is functional */
 #if 0
 
 #ifdef CONFIG_NET_IPv6
@@ -648,7 +648,7 @@ static int netdev_ifrioctl(FAR struct socket *sock, int cmd, FAR struct ifreq *r
 	}
 	break;
 
-	/* MAC address operations only make sense if Ethernet is supported */
+		/* MAC address operations only make sense if Ethernet is supported */
 
 #ifdef CONFIG_NET_ETHERNET
 	case SIOCGIFHWADDR: {		/* Get hardware address */

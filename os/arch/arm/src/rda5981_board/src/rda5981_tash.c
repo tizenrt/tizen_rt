@@ -162,7 +162,7 @@ static void sidk_rda5981x_configure_partitions(void)
 		}
 
 		mtd_part = mtd_partition(mtd, partoffset,
-					partsize / geo.blocksize, partno);
+								 partsize / geo.blocksize, partno);
 		partoffset += partsize / geo.blocksize;
 
 		if (!mtd_part) {
@@ -178,34 +178,47 @@ static void sidk_rda5981x_configure_partitions(void)
 		} else
 #endif
 #if defined(CONFIG_MTD_CONFIG)
-		if (!strncmp(types, "config,", 7)) {
-			mtdconfig_register(mtd_part);
-		} else
+			if (!strncmp(types, "config,", 7)) {
+				mtdconfig_register(mtd_part);
+			} else
 #endif
 #if defined(CONFIG_MTD_SMART) && defined(CONFIG_FS_SMARTFS)
-		if (!strncmp(types, "smartfs,", 8)) {
-			char partref[4];
-			snprintf(partref, sizeof(partref), "p%d", partno);
-			smart_initialize(CONFIG_SIDK_RDA5981_FLASH_MINOR,
-					mtd_part, partref);
-		} else
+				if (!strncmp(types, "smartfs,", 8)) {
+					char partref[4];
+					snprintf(partref, sizeof(partref), "p%d", partno);
+					smart_initialize(CONFIG_SIDK_RDA5981_FLASH_MINOR,
+									 mtd_part, partref);
+				} else
 #endif
-		{
-		}
+				{
+				}
 
 #if defined(CONFIG_MTD_PARTITION_NAMES)
-		if (strcmp(names, ""))
+		if (strcmp(names, "")) {
 			mtd_setpartitionname(mtd_part, names);
+		}
 
-		while (*names != ',' && *names) names++;
-		if (*names == ',') names++;
+		while (*names != ',' && *names) {
+			names++;
+		}
+		if (*names == ',') {
+			names++;
+		}
 #endif
 
-		while (*parts != ',' && *parts) parts++;
-		if (*parts == ',') parts++;
+		while (*parts != ',' && *parts) {
+			parts++;
+		}
+		if (*parts == ',') {
+			parts++;
+		}
 
-		while (*types != ',' && *types) types++;
-		if (*types == ',') types++;
+		while (*types != ',' && *types) {
+			types++;
+		}
+		if (*types == ',') {
+			types++;
+		}
 
 		partno++;
 	}
@@ -224,12 +237,12 @@ int rda5981x_adc_setup(void)
 #ifdef CONFIG_RDA5981_ADC
 	int ret;
 	struct adc_dev_s *adc;
-#if 0	
+#if 0
 	uint8_t chanlist[] = {
 		adc_channel_0,
 		adc_channel_1,
 	};
-#endif 
+#endif
 
 	/* Get an instance of the ADC interface */
 	adc = rda5981x_adc_initialize();
@@ -271,14 +284,14 @@ int board_app_initialize(void)
 	ret = mksmartfs(CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME, false);
 	if (ret != OK) {
 		lldbg("ERROR: mksmartfs on %s failed",
-				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
+			  CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
 	} else {
 		ret = mount(CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME,
-				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_MOUNTPOINT,
-				"smartfs", 0, NULL);
+					CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_MOUNTPOINT,
+					"smartfs", 0, NULL);
 		if (ret != OK)
 			lldbg("ERROR: mounting '%s' failed\n",
-				CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
+				  CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS_DEVNAME);
 	}
 #endif /* CONFIG_SIDK_RDA5981_AUTOMOUNT_USERFS */
 
@@ -287,7 +300,7 @@ int board_app_initialize(void)
 	ret = mount(NULL, SIDK_RDA5981_PROCFS_MOUNTPOINT, "procfs", 0, NULL);
 	if (ret < 0) {
 		lldbg("Failed to mount procfs at %s: %d\n",
-				SIDK_RDA5981_PROCFS_MOUNTPOINT, ret);
+			  SIDK_RDA5981_PROCFS_MOUNTPOINT, ret);
 	}
 #endif
 
@@ -303,8 +316,8 @@ int board_app_initialize(void)
 
 		up_rtc_getdatetime(&tp);
 		lldbg("RTC getdatetime %d/%d/%d/%d/%d/%d\n",
-				tp.tm_year + 1900, tp.tm_mon + 1,
-				tp.tm_mday, tp.tm_hour, tp.tm_min, tp.tm_sec);
+			  tp.tm_year + 1900, tp.tm_mon + 1,
+			  tp.tm_mday, tp.tm_hour, tp.tm_min, tp.tm_sec);
 		lldbg("Version Info :\n");
 		lldbg("tinyARA %s\n", __TIMESTAMP__);
 	}
@@ -317,7 +330,7 @@ int board_app_initialize(void)
 			ret = rtc_initialize(0, rtclower);
 			if (ret < 0) {
 				lldbg("Failed to register the RTC driver: %d\n",
-						ret);
+					  ret);
 			}
 		}
 	}

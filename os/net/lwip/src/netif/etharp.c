@@ -751,7 +751,7 @@ static void etharp_arp_input(struct netif *netif, struct eth_addr *ethaddr, stru
 
 	/* now act on the message itself */
 	switch (hdr->opcode) {
-		/* ARP request? */
+	/* ARP request? */
 	case PP_HTONS(ARP_REQUEST):
 		/* ARP request. If it asked for our address, we send out a
 		 * reply. In any case, we time-stamp any existing ARP entry,
@@ -1330,7 +1330,7 @@ err_t ethernet_input(struct pbuf *p, struct netif *netif)
 
 	switch (type) {
 #if LWIP_ARP
-		/* IP packet? */
+	/* IP packet? */
 	case PP_HTONS(ETHTYPE_IP):
 		if (!(netif->flags & NETIF_FLAG_ETHARP)) {
 			goto free_and_return;

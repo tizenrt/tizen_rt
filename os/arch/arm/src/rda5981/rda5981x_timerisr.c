@@ -93,10 +93,10 @@
 
 static int rda_timerisr(int irq, uint32_t *regs, void *arg)
 {
-  /* Process timer interrupt */
+	/* Process timer interrupt */
 
-  sched_process_timer();
-  return 0;
+	sched_process_timer();
+	return 0;
 }
 
 /****************************************************************************
@@ -114,35 +114,35 @@ static int rda_timerisr(int irq, uint32_t *regs, void *arg)
 
 void up_timer_initialize(void)
 {
-  uint32_t regval;
+	uint32_t regval;
 
-  /* Set the SysTick interrupt to the default priority */
+	/* Set the SysTick interrupt to the default priority */
 
-  regval = getreg32(NVIC_SYSH12_15_PRIORITY);
-  regval &= ~NVIC_SYSH_PRIORITY_PR15_MASK;
-  regval |= (NVIC_SYSH_PRIORITY_DEFAULT << NVIC_SYSH_PRIORITY_PR15_SHIFT);
-  putreg32(regval, NVIC_SYSH12_15_PRIORITY);
+	regval = getreg32(NVIC_SYSH12_15_PRIORITY);
+	regval &= ~NVIC_SYSH_PRIORITY_PR15_MASK;
+	regval |= (NVIC_SYSH_PRIORITY_DEFAULT << NVIC_SYSH_PRIORITY_PR15_SHIFT);
+	putreg32(regval, NVIC_SYSH12_15_PRIORITY);
 
-  /* Make sure that the SYSTICK clock source is set to use the RDA5981x CPUCLK */
+	/* Make sure that the SYSTICK clock source is set to use the RDA5981x CPUCLK */
 
-  regval = getreg32(NVIC_SYSTICK_CTRL);
-  regval |= NVIC_SYSTICK_CTRL_CLKSOURCE;
-  putreg32(regval, NVIC_SYSTICK_CTRL);
+	regval = getreg32(NVIC_SYSTICK_CTRL);
+	regval |= NVIC_SYSTICK_CTRL_CLKSOURCE;
+	putreg32(regval, NVIC_SYSTICK_CTRL);
 
-  /* Configure SysTick to interrupt at the requested rate */
+	/* Configure SysTick to interrupt at the requested rate */
 
-  putreg32(SYSTICK_RELOAD, NVIC_SYSTICK_RELOAD);
+	putreg32(SYSTICK_RELOAD, NVIC_SYSTICK_RELOAD);
 
-  /* Attach the timer interrupt vector */
+	/* Attach the timer interrupt vector */
 
-  (void)irq_attach(RDA_IRQ_SYSTICK, (xcpt_t)rda_timerisr, NULL);
+	(void)irq_attach(RDA_IRQ_SYSTICK, (xcpt_t)rda_timerisr, NULL);
 
-  /* Enable SysTick interrupts */
+	/* Enable SysTick interrupts */
 
-  putreg32((NVIC_SYSTICK_CTRL_CLKSOURCE | NVIC_SYSTICK_CTRL_TICKINT |
-            NVIC_SYSTICK_CTRL_ENABLE), NVIC_SYSTICK_CTRL);
+	putreg32((NVIC_SYSTICK_CTRL_CLKSOURCE | NVIC_SYSTICK_CTRL_TICKINT |
+			  NVIC_SYSTICK_CTRL_ENABLE), NVIC_SYSTICK_CTRL);
 
-  /* And enable the timer interrupt */
+	/* And enable the timer interrupt */
 
-  up_enable_irq(RDA_IRQ_SYSTICK);
+	up_enable_irq(RDA_IRQ_SYSTICK);
 }

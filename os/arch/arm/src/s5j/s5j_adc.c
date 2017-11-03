@@ -117,14 +117,15 @@ static void adc_conversion(void *arg)
 	if (priv->cb != NULL) {
 		DEBUGASSERT(priv->cb->au_receive != NULL);
 		priv->cb->au_receive(priv->dev,
-				priv->chanlist[priv->current], sample);
+							 priv->chanlist[priv->current], sample);
 	}
 
 	/* Set the next channel to be sampled */
 	priv->current++;
 
-	if (priv->current >= priv->nchannels)
+	if (priv->current >= priv->nchannels) {
 		priv->current = 0;
+	}
 
 	/* Change to the next channel */
 	modifyreg32(S5J_ADC_CON2, ADC_CON2_ACHSEL_MASK,
@@ -161,7 +162,7 @@ static int adc_interrupt(int irq, FAR void *context, void *arg)
 		 */
 		if (work_available(&priv->work)) {
 			ret = work_queue(LPWORK, &priv->work, adc_conversion,
-							priv, 0);
+							 priv, 0);
 			if (ret != 0) {
 				lldbg("ERROR: failed to queue work: %d\n", ret);
 			}
@@ -239,7 +240,7 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
 		/* REVISIT: changing channel is not supported for now */
 
 		for (i = 0; i < priv->cchannels &&
-					priv->chanlist[i] != ch - 1; i++);
+			 priv->chanlist[i] != ch - 1; i++);
 
 		if (i >= priv->cchannels) {
 			return -ENODEV;
@@ -264,7 +265,7 @@ static int adc_set_ch(FAR struct adc_dev_s *dev, uint8_t ch)
  *
  ****************************************************************************/
 static int adc_bind(FAR struct adc_dev_s *dev,
-		    FAR const struct adc_callback_s *callback)
+					FAR const struct adc_callback_s *callback)
 {
 	FAR struct s5j_dev_s *priv = (FAR struct s5j_dev_s *)dev->ad_priv;
 
@@ -456,7 +457,7 @@ static struct adc_dev_s g_adcdev;
  *
  ****************************************************************************/
 struct adc_dev_s *s5j_adc_initialize(FAR const uint8_t *chanlist,
-				     int cchannels)
+									 int cchannels)
 {
 	FAR struct s5j_dev_s *priv = &g_adcpriv;
 
@@ -471,7 +472,7 @@ struct adc_dev_s *s5j_adc_initialize(FAR const uint8_t *chanlist,
 
 	if (cchannels > S5J_ADC_MAX_CHANNELS) {
 		lldbg("S5J has maximum %d ADC channels.\n",
-						S5J_ADC_MAX_CHANNELS);
+			  S5J_ADC_MAX_CHANNELS);
 		return NULL;
 	}
 

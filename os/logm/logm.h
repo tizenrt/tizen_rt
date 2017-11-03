@@ -69,7 +69,7 @@ EXTERN int g_logm_head;
 EXTERN int g_logm_tail;
 EXTERN int g_logm_overflow_offset;
 EXTERN int g_logm_dropmsg_count;
-EXTERN char * g_logm_rsvbuf;
+EXTERN char *g_logm_rsvbuf;
 EXTERN int logm_bufsize;
 EXTERN uint8_t logm_status;
 EXTERN volatile int new_logm_bufsize;

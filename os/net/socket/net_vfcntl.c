@@ -134,11 +134,11 @@ int net_vfcntl(int sockfd, int cmd, va_list ap)
 	break;
 
 	case F_GETFD:
-		/* Get the file descriptor flags defined in <fcntl.h> that are associated
-		 * with the file descriptor fd.  File descriptor flags are associated
-		 * with a single file descriptor and do not affect other file descriptors
-		 * that refer to the same file.
-		 */
+	/* Get the file descriptor flags defined in <fcntl.h> that are associated
+	 * with the file descriptor fd.  File descriptor flags are associated
+	 * with a single file descriptor and do not affect other file descriptors
+	 * that refer to the same file.
+	 */
 
 	case F_SETFD:
 		/* Set the file descriptor flags defined in <fcntl.h>, that are associated
@@ -182,37 +182,37 @@ int net_vfcntl(int sockfd, int cmd, va_list ap)
 	break;
 
 	case F_GETOWN:
-		/* If fd refers to a socket, get the process or process group ID specified
-		 * to receive SIGURG signals when out-of-band data is available. Positive values
-		 * indicate a process ID; negative values, other than -1, indicate a process group
-		 * ID. If fd does not refer to a socket, the results are unspecified.
-		 */
+	/* If fd refers to a socket, get the process or process group ID specified
+	 * to receive SIGURG signals when out-of-band data is available. Positive values
+	 * indicate a process ID; negative values, other than -1, indicate a process group
+	 * ID. If fd does not refer to a socket, the results are unspecified.
+	 */
 
 	case F_SETOWN:
-		/* If fd refers to a socket, set the process or process group ID specified
-		 * to receive SIGURG signals when out-of-band data is available, using the value
-		 * of the third argument, arg, taken as type int. Positive values indicate a
-		 * process ID; negative values, other than -1, indicate a process group ID. If
-		 * fd does not refer to a socket, the results are unspecified.
-		 */
+	/* If fd refers to a socket, set the process or process group ID specified
+	 * to receive SIGURG signals when out-of-band data is available, using the value
+	 * of the third argument, arg, taken as type int. Positive values indicate a
+	 * process ID; negative values, other than -1, indicate a process group ID. If
+	 * fd does not refer to a socket, the results are unspecified.
+	 */
 
 	case F_GETLK:
-		/* Get the first lock which blocks the lock description pointed to by the third
-		 * argument, arg, taken as a pointer to type struct flock, defined in <fcntl.h>.
-		 * The information retrieved shall overwrite the information passed to fcntl() in
-		 * the structure flock. If no lock is found that would prevent this lock from being
-		 * created, then the structure shall be left unchanged except for the lock type
-		 * which shall be set to F_UNLCK.
-		 */
+	/* Get the first lock which blocks the lock description pointed to by the third
+	 * argument, arg, taken as a pointer to type struct flock, defined in <fcntl.h>.
+	 * The information retrieved shall overwrite the information passed to fcntl() in
+	 * the structure flock. If no lock is found that would prevent this lock from being
+	 * created, then the structure shall be left unchanged except for the lock type
+	 * which shall be set to F_UNLCK.
+	 */
 
 	case F_SETLK:
-		/* Set or clear a file segment lock according to the lock description pointed to
-		 * by the third argument, arg, taken as a pointer to type struct flock, defined in
-		 * <fcntl.h>. F_SETLK can establish shared (or read) locks (F_RDLCK) or exclusive
-		 * (or write) locks (F_WRLCK), as well  as  to  remove  either  type  of  lock  (F_UNLCK).
-		 * F_RDLCK, F_WRLCK, and F_UNLCK are defined in <fcntl.h>. If a shared or exclusive
-		 * lock cannot be set, fcntl() shall return immediately with a return value of -1.
-		 */
+	/* Set or clear a file segment lock according to the lock description pointed to
+	 * by the third argument, arg, taken as a pointer to type struct flock, defined in
+	 * <fcntl.h>. F_SETLK can establish shared (or read) locks (F_RDLCK) or exclusive
+	 * (or write) locks (F_WRLCK), as well  as  to  remove  either  type  of  lock  (F_UNLCK).
+	 * F_RDLCK, F_WRLCK, and F_UNLCK are defined in <fcntl.h>. If a shared or exclusive
+	 * lock cannot be set, fcntl() shall return immediately with a return value of -1.
+	 */
 
 	case F_SETLKW:
 		/* This command shall be equivalent to F_SETLK except that if a shared or exclusive

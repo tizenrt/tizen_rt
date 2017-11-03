@@ -1606,7 +1606,7 @@ static int usbmsc_idlestate(FAR struct usbmsc_dev_s *priv)
 	/* In any event, return the request to be refilled */
 
 	if (EP_SUBMIT(priv->epbulkout, req) != OK) {
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_IDLERDSUBMIT), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_IDLERDSUBMIT), (uint16_t) - ret);
 	}
 
 	return ret;
@@ -2040,7 +2040,7 @@ static int usbmsc_cmdreadstate(FAR struct usbmsc_dev_s *priv)
 
 			ret = EP_SUBMIT(priv->epbulkin, req);
 			if (ret != OK) {
-				usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDREADSUBMIT), (uint16_t)-ret);
+				usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDREADSUBMIT), (uint16_t) - ret);
 				lun->sd = SCSI_KCQME_UNRRE1;
 				lun->sdinfo = priv->sector;
 				break;
@@ -2176,7 +2176,7 @@ static int usbmsc_cmdwritestate(FAR struct usbmsc_dev_s *priv)
 
 		ret = EP_SUBMIT(priv->epbulkout, req);
 		if (ret != OK) {
-			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDWRITERDSUBMIT), (uint16_t)-ret);
+			usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDWRITERDSUBMIT), (uint16_t) - ret);
 		}
 
 		/* Did the host decide to stop early? */
@@ -2264,7 +2264,7 @@ static int usbmsc_cmdfinishstate(FAR struct usbmsc_dev_s *priv)
 
 				ret = EP_SUBMIT(priv->epbulkin, privreq->req);
 				if (ret < 0) {
-					usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDFINISHSUBMIT), (uint16_t)-ret);
+					usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_CMDFINISHSUBMIT), (uint16_t) - ret);
 				}
 			}
 
@@ -2412,7 +2412,7 @@ static int usbmsc_cmdstatusstate(FAR struct usbmsc_dev_s *priv)
 
 	ret = EP_SUBMIT(priv->epbulkin, req);
 	if (ret < 0) {
-		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_SNDSTATUSSUBMIT), (uint16_t)-ret);
+		usbtrace(TRACE_CLSERROR(USBMSC_TRACEERR_SNDSTATUSSUBMIT), (uint16_t) - ret);
 		flags = irqsave();
 		(void)sq_addlast((FAR sq_entry_t *)privreq, &priv->wrreqlist);
 		irqrestore(flags);

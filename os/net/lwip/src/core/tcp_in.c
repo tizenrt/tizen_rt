@@ -718,7 +718,7 @@ static err_t tcp_process(struct tcp_pcb *pcb)
 		}
 		break;
 	case CLOSE_WAIT:
-		/* FALLTHROUGH */
+	/* FALLTHROUGH */
 	case ESTABLISHED:
 		tcp_receive(pcb);
 		if (recv_flags & TF_GOT_FIN) {	/* passive close */
@@ -1145,12 +1145,12 @@ static void tcp_receive(struct tcp_pcb *pcb)
 					p->len = 0;
 					p = p->next;
 				}
-				if (pbuf_header(p, (s16_t)-off)) {
+				if (pbuf_header(p, (s16_t) - off)) {
 					/* Do we need to cope with this failing?  Assert for now */
 					LWIP_ASSERT("pbuf_header failed", 0);
 				}
 			} else {
-				if (pbuf_header(inseg.p, (s16_t)-off)) {
+				if (pbuf_header(inseg.p, (s16_t) - off)) {
 					/* Do we need to cope with this failing?  Assert for now */
 					LWIP_ASSERT("pbuf_header failed", 0);
 				}

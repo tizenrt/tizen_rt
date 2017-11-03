@@ -210,8 +210,9 @@ static int alc5658_interrupt(int irq, FAR void *context)
 	/* Just forward the interrupt to the ALC5658 driver */
 
 	audvdbg("handler %p\n", g_alc5658info.handler);
-	if (g_alc5658info.handler)
+	if (g_alc5658info.handler) {
 		return g_alc5658info.handler(&g_alc5658info.lower, g_alc5658info.arg);
+	}
 
 	/* We got an interrupt with no handler.  This should not
 	 * happen.

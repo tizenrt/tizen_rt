@@ -58,14 +58,14 @@ struct gpio_upperhalf_s {
 static int     gpio_open(FAR struct file *filep);
 static int     gpio_close(FAR struct file *filep);
 static ssize_t gpio_read(FAR struct file *filep, FAR char *buffer,
-			 size_t buflen);
+						 size_t buflen);
 static ssize_t gpio_write(FAR struct file *filep, FAR const char *buffer,
-			  size_t buflen);
+						  size_t buflen);
 static int     gpio_ioctl(FAR struct file *filep, int cmd,
-			  unsigned long arg);
+						  unsigned long arg);
 #ifndef CONFIG_DISABLE_POLL
 static int     gpio_poll(FAR struct file *filep, FAR struct pollfd *fds,
-			 bool setup);
+						 bool setup);
 #endif
 
 /****************************************************************************
@@ -210,7 +210,7 @@ static void gpio_sample(FAR struct gpio_upperhalf_s *priv)
 #ifndef CONFIG_DISABLE_SIGNALS
 		/* Have any signal events occurred? */
 		if ((rising && opriv->go_notify.gn_rising) ||
-				(falling && opriv->go_notify.gn_falling)) {
+			(falling && opriv->go_notify.gn_falling)) {
 #ifdef CONFIG_CAN_PASS_STRUCTS
 			union sigval value;
 			value.sival_int = (int)sample;
@@ -305,7 +305,7 @@ static void gpio_enable(FAR struct gpio_upperhalf_s *priv)
  *
  ****************************************************************************/
 static ssize_t gpio_write(FAR struct file *filep, FAR const char *buffer,
-			  size_t buflen)
+						  size_t buflen)
 {
 	ssize_t ret;
 	int32_t value;
@@ -330,7 +330,7 @@ static ssize_t gpio_write(FAR struct file *filep, FAR const char *buffer,
  *
  ****************************************************************************/
 static ssize_t gpio_read(FAR struct file *filep, FAR char *buffer,
-			 size_t buflen)
+						 size_t buflen)
 {
 	int ret = 0;
 	FAR struct inode *inode = filep->f_inode;
@@ -433,7 +433,7 @@ static int gpio_ioctl(FAR struct file *filep, int cmd, unsigned long arg)
  ****************************************************************************/
 #ifndef CONFIG_DISABLE_POLL
 static int gpio_poll(FAR struct file *filep, FAR struct pollfd *fds,
-		     bool setup)
+					 bool setup)
 {
 	FAR struct inode *inode;
 	FAR struct gpio_upperhalf_s *priv;
@@ -536,7 +536,7 @@ static int gpio_close(FAR struct file *filep)
 
 	/* Find the open structure in the list of open structures for the device */
 	for (prev = NULL, curr = priv->gu_open; curr && curr != opriv;
-			prev = curr, curr = curr->go_flink);
+		 prev = curr, curr = curr->go_flink);
 
 	DEBUGASSERT(curr);
 	if (!curr) {
@@ -638,7 +638,7 @@ int gpio_register(unsigned int minor, FAR struct gpio_lowerhalf_s *lower)
 
 	/* Allocate a new GPIO driver instance */
 	priv = (FAR struct gpio_upperhalf_s *)
-			kmm_zalloc(sizeof(struct gpio_upperhalf_s));
+		   kmm_zalloc(sizeof(struct gpio_upperhalf_s));
 	if (!priv) {
 		lldbg("ERROR: Failed to allocate device structure\n");
 		return -ENOMEM;

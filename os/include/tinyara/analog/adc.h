@@ -119,7 +119,7 @@ struct adc_callback_s {
 	 */
 
 	CODE int (*au_receive)(FAR struct adc_dev_s *dev, uint8_t ch,
-			       int32_t data);
+						   int32_t data);
 };
 
 /* This describes on ADC message */
@@ -154,7 +154,7 @@ struct adc_ops_s {
 	 */
 
 	CODE int (*ao_bind)(FAR struct adc_dev_s *dev,
-			FAR const struct adc_callback_s *callback);
+						FAR const struct adc_callback_s *callback);
 
 	/*
 	 * Reset the ADC device.  Called early to initialize the hardware.

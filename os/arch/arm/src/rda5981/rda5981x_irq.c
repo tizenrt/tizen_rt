@@ -107,33 +107,33 @@ extern uint32_t _vectors[];
 #if defined(CONFIG_DEBUG_IRQ_INFO)
 static void rda_dumpnvic(const char *msg, int irq)
 {
-  irqstate_t flags;
+	irqstate_t flags;
 
-  flags = enter_critical_section();
+	flags = enter_critical_section();
 
-  irqinfo("NVIC (%s, irq=%d):\n", msg, irq);
-  irqinfo("  INTCTRL:    %08x VECTAB: %08x\n",
-          getreg32(NVIC_INTCTRL), getreg32(NVIC_VECTAB));
+	irqinfo("NVIC (%s, irq=%d):\n", msg, irq);
+	irqinfo("  INTCTRL:    %08x VECTAB: %08x\n",
+			getreg32(NVIC_INTCTRL), getreg32(NVIC_VECTAB));
 #if 0
-  irqinfo("  SYSH ENABLE MEMFAULT: %08x BUSFAULT: %08x USGFAULT: %08x SYSTICK: %08x\n",
-          getreg32(NVIC_SYSHCON_MEMFAULTENA), getreg32(NVIC_SYSHCON_BUSFAULTENA),
-          getreg32(NVIC_SYSHCON_USGFAULTENA), getreg32(NVIC_SYSTICK_CTRL_ENABLE));
+	irqinfo("  SYSH ENABLE MEMFAULT: %08x BUSFAULT: %08x USGFAULT: %08x SYSTICK: %08x\n",
+			getreg32(NVIC_SYSHCON_MEMFAULTENA), getreg32(NVIC_SYSHCON_BUSFAULTENA),
+			getreg32(NVIC_SYSHCON_USGFAULTENA), getreg32(NVIC_SYSTICK_CTRL_ENABLE));
 #endif
-  irqinfo("  IRQ ENABLE: %08x\n", getreg32(NVIC_IRQ0_31_ENABLE));
-  irqinfo("  SYSH_PRIO:  %08x %08x %08x\n",
-          getreg32(NVIC_SYSH4_7_PRIORITY), getreg32(NVIC_SYSH8_11_PRIORITY),
-          getreg32(NVIC_SYSH12_15_PRIORITY));
-  irqinfo("  IRQ PRIO:   %08x %08x %08x %08x\n",
-          getreg32(NVIC_IRQ0_3_PRIORITY), getreg32(NVIC_IRQ4_7_PRIORITY),
-          getreg32(NVIC_IRQ8_11_PRIORITY), getreg32(NVIC_IRQ12_15_PRIORITY));
-  irqinfo("              %08x %08x %08x %08x\n",
-          getreg32(NVIC_IRQ16_19_PRIORITY), getreg32(NVIC_IRQ20_23_PRIORITY),
-          getreg32(NVIC_IRQ24_27_PRIORITY), getreg32(NVIC_IRQ28_31_PRIORITY));
-  irqinfo("              %08x %08x %08x %08x\n",
-          getreg32(NVIC_IRQ32_35_PRIORITY), getreg32(NVIC_IRQ36_39_PRIORITY),
-          getreg32(NVIC_IRQ40_43_PRIORITY), getreg32(NVIC_IRQ44_47_PRIORITY));
+	irqinfo("  IRQ ENABLE: %08x\n", getreg32(NVIC_IRQ0_31_ENABLE));
+	irqinfo("  SYSH_PRIO:  %08x %08x %08x\n",
+			getreg32(NVIC_SYSH4_7_PRIORITY), getreg32(NVIC_SYSH8_11_PRIORITY),
+			getreg32(NVIC_SYSH12_15_PRIORITY));
+	irqinfo("  IRQ PRIO:   %08x %08x %08x %08x\n",
+			getreg32(NVIC_IRQ0_3_PRIORITY), getreg32(NVIC_IRQ4_7_PRIORITY),
+			getreg32(NVIC_IRQ8_11_PRIORITY), getreg32(NVIC_IRQ12_15_PRIORITY));
+	irqinfo("              %08x %08x %08x %08x\n",
+			getreg32(NVIC_IRQ16_19_PRIORITY), getreg32(NVIC_IRQ20_23_PRIORITY),
+			getreg32(NVIC_IRQ24_27_PRIORITY), getreg32(NVIC_IRQ28_31_PRIORITY));
+	irqinfo("              %08x %08x %08x %08x\n",
+			getreg32(NVIC_IRQ32_35_PRIORITY), getreg32(NVIC_IRQ36_39_PRIORITY),
+			getreg32(NVIC_IRQ40_43_PRIORITY), getreg32(NVIC_IRQ44_47_PRIORITY));
 
-  leave_critical_section(flags);
+	leave_critical_section(flags);
 }
 #else
 #  define rda_dumpnvic(msg, irq)
@@ -153,50 +153,50 @@ static void rda_dumpnvic(const char *msg, int irq)
 #ifdef CONFIG_DEBUG_FEATURES
 static int rda_nmi(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! NMI received\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! NMI received\n");
+	PANIC();
+	return 0;
 }
 
 static int rda_busfault(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! Bus fault recived\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! Bus fault recived\n");
+	PANIC();
+	return 0;
 }
 
 static int rda_usagefault(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! Usage fault received\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! Usage fault received\n");
+	PANIC();
+	return 0;
 }
 
 static int rda_pendsv(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! PendSV received\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! PendSV received\n");
+	PANIC();
+	return 0;
 }
 
 static int rda_dbgmonitor(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! Debug Monitor received\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! Debug Monitor received\n");
+	PANIC();
+	return 0;
 }
 
 static int rda_reserved(int irq, FAR void *context, FAR void *arg)
 {
-  (void)irqsave();
-  _err("PANIC!!! Reserved interrupt\n");
-  PANIC();
-  return 0;
+	(void)irqsave();
+	_err("PANIC!!! Reserved interrupt\n");
+	PANIC();
+	return 0;
 }
 #endif
 
@@ -212,14 +212,14 @@ static int rda_reserved(int irq, FAR void *context, FAR void *arg)
 #ifdef CONFIG_ARMV7M_USEBASEPRI
 static inline void rda_prioritize_syscall(int priority)
 {
-  uint32_t regval;
+	uint32_t regval;
 
-  /* SVCALL is system handler 11 */
+	/* SVCALL is system handler 11 */
 
-  regval  = getreg32(NVIC_SYSH8_11_PRIORITY);
-  regval &= ~NVIC_SYSH_PRIORITY_PR11_MASK;
-  regval |= (priority << NVIC_SYSH_PRIORITY_PR11_SHIFT);
-  putreg32(regval, NVIC_SYSH8_11_PRIORITY);
+	regval  = getreg32(NVIC_SYSH8_11_PRIORITY);
+	regval &= ~NVIC_SYSH_PRIORITY_PR11_MASK;
+	regval |= (priority << NVIC_SYSH_PRIORITY_PR11_SHIFT);
+	putreg32(regval, NVIC_SYSH8_11_PRIORITY);
 }
 #endif
 
@@ -233,59 +233,43 @@ static inline void rda_prioritize_syscall(int priority)
  ****************************************************************************/
 
 static int rda_irqinfo(int irq, uintptr_t *regaddr, uint32_t *bit,
-                         uintptr_t offset)
+					   uintptr_t offset)
 {
-  DEBUGASSERT(irq >= RDA_IRQ_NMI && irq < NR_IRQS);
+	DEBUGASSERT(irq >= RDA_IRQ_NMI && irq < NR_IRQS);
 
-  /* Check for external interrupt */
+	/* Check for external interrupt */
 
-  if (irq >= RDA_IRQ_EXTINT)
-    {
-      if (irq < (RDA_IRQ_EXTINT+32))
-        {
-           *regaddr = (NVIC_IRQ0_31_ENABLE + offset);
-           *bit     = 1 << (irq - RDA_IRQ_EXTINT);
-        }
-      else if (irq < RDA_IRQ_NIRQS)
-        {
-           *regaddr = (NVIC_IRQ32_63_ENABLE + offset);
-           *bit     = 1 << (irq - RDA_IRQ_EXTINT - 32);
-        }
-      else
-        {
-          return ERROR; /* Invalid irq */
-        }
-    }
+	if (irq >= RDA_IRQ_EXTINT) {
+		if (irq < (RDA_IRQ_EXTINT + 32)) {
+			*regaddr = (NVIC_IRQ0_31_ENABLE + offset);
+			*bit     = 1 << (irq - RDA_IRQ_EXTINT);
+		} else if (irq < RDA_IRQ_NIRQS) {
+			*regaddr = (NVIC_IRQ32_63_ENABLE + offset);
+			*bit     = 1 << (irq - RDA_IRQ_EXTINT - 32);
+		} else {
+			return ERROR; /* Invalid irq */
+		}
+	}
 
-  /* Handle processor exceptions.  Only a few can be disabled */
+	/* Handle processor exceptions.  Only a few can be disabled */
 
-  else
-    {
-      *regaddr = NVIC_SYSHCON;
-      if (irq == RDA_IRQ_MEMFAULT)
-        {
-          *bit = NVIC_SYSHCON_MEMFAULTENA;
-        }
-      else if (irq == RDA_IRQ_BUSFAULT)
-        {
-          *bit = NVIC_SYSHCON_BUSFAULTENA;
-        }
-      else if (irq == RDA_IRQ_USAGEFAULT)
-        {
-          *bit = NVIC_SYSHCON_USGFAULTENA;
-        }
-      else if (irq == RDA_IRQ_SYSTICK)
-        {
-          *regaddr = NVIC_SYSTICK_CTRL;
-          *bit = NVIC_SYSTICK_CTRL_ENABLE;
-        }
-      else
-        {
-          return ERROR; /* Invalid or unsupported exception */
-        }
-    }
+	else {
+		*regaddr = NVIC_SYSHCON;
+		if (irq == RDA_IRQ_MEMFAULT) {
+			*bit = NVIC_SYSHCON_MEMFAULTENA;
+		} else if (irq == RDA_IRQ_BUSFAULT) {
+			*bit = NVIC_SYSHCON_BUSFAULTENA;
+		} else if (irq == RDA_IRQ_USAGEFAULT) {
+			*bit = NVIC_SYSHCON_USGFAULTENA;
+		} else if (irq == RDA_IRQ_SYSTICK) {
+			*regaddr = NVIC_SYSTICK_CTRL;
+			*bit = NVIC_SYSTICK_CTRL_ENABLE;
+		} else {
+			return ERROR; /* Invalid or unsupported exception */
+		}
+	}
 
-  return OK;
+	return OK;
 }
 
 /****************************************************************************
@@ -298,131 +282,129 @@ static int rda_irqinfo(int irq, uintptr_t *regaddr, uint32_t *bit,
 
 void up_irqinitialize(void)
 {
-  uintptr_t regaddr;
-  int nintlines;
-  int i;
+	uintptr_t regaddr;
+	int nintlines;
+	int i;
 
-  /* The NVIC ICTR register (bits 0-4) holds the number of of interrupt
-   * lines that the NVIC supports, defined in groups of 32. That is,
-   * the total number of interrupt lines is up to (32*(INTLINESNUM+1)).
-   *
-   *  0 -> 32 interrupt lines, 1 enable register,   8 priority registers
-   *  1 -> 64 "       " "   ", 2 enable registers, 16 priority registers
-   *  2 -> 96 "       " "   ", 3 enable regsiters, 24 priority registers
-   *  ...
-   */
+	/* The NVIC ICTR register (bits 0-4) holds the number of of interrupt
+	 * lines that the NVIC supports, defined in groups of 32. That is,
+	 * the total number of interrupt lines is up to (32*(INTLINESNUM+1)).
+	 *
+	 *  0 -> 32 interrupt lines, 1 enable register,   8 priority registers
+	 *  1 -> 64 "       " "   ", 2 enable registers, 16 priority registers
+	 *  2 -> 96 "       " "   ", 3 enable regsiters, 24 priority registers
+	 *  ...
+	 */
 
-  nintlines = (getreg32(NVIC_ICTR) & NVIC_ICTR_INTLINESNUM_MASK) + 1;
+	nintlines = (getreg32(NVIC_ICTR) & NVIC_ICTR_INTLINESNUM_MASK) + 1;
 
-  /* Disable all interrupts.  There are nintlines interrupt enable
-   * registers.
-   */
+	/* Disable all interrupts.  There are nintlines interrupt enable
+	 * registers.
+	 */
 
-  for (i = nintlines, regaddr = NVIC_IRQ0_31_ENABLE;
-       i > 0;
-       i--, regaddr += 4)
-    {
-      putreg32(0, regaddr);
-    }
+	for (i = nintlines, regaddr = NVIC_IRQ0_31_ENABLE;
+		 i > 0;
+		 i--, regaddr += 4) {
+		putreg32(0, regaddr);
+	}
 
-  /* Make sure that we are using the correct vector table.  The default
-   * vector address is 0x0000:0000 but if we are executing code that is
-   * positioned in SRAM or in external FLASH, then we may need to reset
-   * the interrupt vector so that it refers to the table in SRAM or in
-   * external FLASH.
-   */
+	/* Make sure that we are using the correct vector table.  The default
+	 * vector address is 0x0000:0000 but if we are executing code that is
+	 * positioned in SRAM or in external FLASH, then we may need to reset
+	 * the interrupt vector so that it refers to the table in SRAM or in
+	 * external FLASH.
+	 */
 
-  putreg32((uint32_t)_vectors, NVIC_VECTAB);
+	putreg32((uint32_t)_vectors, NVIC_VECTAB);
 
-  /* If CONFIG_ARCH_RAMVECTORS is defined, then we are using a RAM-based
-   * vector table that requires special initialization.
-   *
-   * But even in this case NVIC_VECTAB has to point to the initial table
-   * because up_ramvec_initialize() initializes RAM table from table
-   * pointed by NVIC_VECTAB register.
-   */
+	/* If CONFIG_ARCH_RAMVECTORS is defined, then we are using a RAM-based
+	 * vector table that requires special initialization.
+	 *
+	 * But even in this case NVIC_VECTAB has to point to the initial table
+	 * because up_ramvec_initialize() initializes RAM table from table
+	 * pointed by NVIC_VECTAB register.
+	 */
 
 #ifdef CONFIG_ARCH_RAMVECTORS
-  up_ramvec_initialize();
+	up_ramvec_initialize();
 #endif
 
-  /* Set all interrupts (and exceptions) to the default priority */
+	/* Set all interrupts (and exceptions) to the default priority */
 
-  putreg32(DEFPRIORITY32, NVIC_SYSH4_7_PRIORITY);
-  putreg32(DEFPRIORITY32, NVIC_SYSH8_11_PRIORITY);
-  putreg32(DEFPRIORITY32, NVIC_SYSH12_15_PRIORITY);
+	putreg32(DEFPRIORITY32, NVIC_SYSH4_7_PRIORITY);
+	putreg32(DEFPRIORITY32, NVIC_SYSH8_11_PRIORITY);
+	putreg32(DEFPRIORITY32, NVIC_SYSH12_15_PRIORITY);
 
-  /* Now set all of the interrupt lines to the default priority.  There are
-   * nintlines * 8 priority registers.
-   */
+	/* Now set all of the interrupt lines to the default priority.  There are
+	 * nintlines * 8 priority registers.
+	 */
 
 
-  for (i = (nintlines << 3), regaddr = NVIC_IRQ0_3_PRIORITY;
-       i > 0;
-       i--, regaddr += 4)
-    {
-      putreg32(DEFPRIORITY32, regaddr);
-    }
+	for (i = (nintlines << 3), regaddr = NVIC_IRQ0_3_PRIORITY;
+		 i > 0;
+		 i--, regaddr += 4) {
+		putreg32(DEFPRIORITY32, regaddr);
+	}
 
-  /* currents_regs is non-NULL only while processing an interrupt */
+	/* currents_regs is non-NULL only while processing an interrupt */
 
-  current_regs  = NULL;
+	current_regs  = NULL;
 
-  /* Attach the SVCall and Hard Fault exception handlers.  The SVCall
-   * exception is used for performing context switches; The Hard Fault
-   * must also be caught because a SVCall may show up as a Hard Fault
-   * under certain conditions.
-   */
+	/* Attach the SVCall and Hard Fault exception handlers.  The SVCall
+	 * exception is used for performing context switches; The Hard Fault
+	 * must also be caught because a SVCall may show up as a Hard Fault
+	 * under certain conditions.
+	 */
 
-  irq_attach(RDA_IRQ_SVCALL, up_svcall, NULL);
-  irq_attach(RDA_IRQ_HARDFAULT, up_hardfault, NULL);
+	irq_attach(RDA_IRQ_SVCALL, up_svcall, NULL);
+	irq_attach(RDA_IRQ_HARDFAULT, up_hardfault, NULL);
 
-  /* Set the priority of the SVCall interrupt */
+	/* Set the priority of the SVCall interrupt */
 
 #ifdef CONFIG_ARCH_IRQPRIO
-  /* up_prioritize_irq(RDA_IRQ_PENDSV, NVIC_SYSH_PRIORITY_MIN); */
+	/* up_prioritize_irq(RDA_IRQ_PENDSV, NVIC_SYSH_PRIORITY_MIN); */
 #endif
 #ifdef CONFIG_ARMV7M_USEBASEPRI
-   rda_prioritize_syscall(NVIC_SYSH_SVCALL_PRIORITY);
+	rda_prioritize_syscall(NVIC_SYSH_SVCALL_PRIORITY);
 #endif
 
-  /* If the MPU is enabled, then attach and enable the Memory Management
-   * Fault handler.
-   */
+	/* If the MPU is enabled, then attach and enable the Memory Management
+	 * Fault handler.
+	 */
 
 //#ifdef CONFIG_ARM_MPU
-  irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
-  up_enable_irq(RDA_IRQ_MEMFAULT);
+	irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
+	up_enable_irq(RDA_IRQ_MEMFAULT);
 //#endif
 
-  /* Attach all other processor exceptions (except reset and sys tick) */
+	/* Attach all other processor exceptions (except reset and sys tick) */
 
 #ifdef CONFIG_DEBUG_FEATURES
-  irq_attach(RDA_IRQ_NMI, rda_nmi, NULL);
+	irq_attach(RDA_IRQ_NMI, rda_nmi, NULL);
 #ifndef CONFIG_ARM_MPU
-  irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
+	irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
 #endif
-  irq_attach(RDA_IRQ_BUSFAULT, rda_busfault, NULL);
-  irq_attach(RDA_IRQ_USAGEFAULT, rda_usagefault, NULL);
-  irq_attach(RDA_IRQ_PENDSV, rda_pendsv, NULL);
-  irq_attach(RDA_IRQ_DBGMONITOR, rda_dbgmonitor, NULL);
-  irq_attach(RDA_IRQ_RESERVED, rda_reserved, NULL);
+	irq_attach(RDA_IRQ_BUSFAULT, rda_busfault, NULL);
+	irq_attach(RDA_IRQ_USAGEFAULT, rda_usagefault, NULL);
+	irq_attach(RDA_IRQ_PENDSV, rda_pendsv, NULL);
+	irq_attach(RDA_IRQ_DBGMONITOR, rda_dbgmonitor, NULL);
+	irq_attach(RDA_IRQ_RESERVED, rda_reserved, NULL);
 #endif
 
-  rda_dumpnvic("initial", RDA_IRQ_NIRQS);
+	rda_dumpnvic("initial", RDA_IRQ_NIRQS);
 
-  /* Initialize logic to support a second level of interrupt decoding for
-   * GPIO pins.
-   */
+	/* Initialize logic to support a second level of interrupt decoding for
+	 * GPIO pins.
+	 */
 
 #ifdef CONFIG_RDA5981X_GPIOIRQ
-  rda_gpioirqinitialize();
+	rda_gpioirqinitialize();
 #endif
 
-  /* And finally, enable interrupts */
+	/* And finally, enable interrupts */
 
 #ifndef CONFIG_SUPPRESS_INTERRUPTS
-   irqenable();
+	irqenable();
 #endif
 }
 
@@ -436,39 +418,34 @@ void up_irqinitialize(void)
 
 void up_disable_irq(int irq)
 {
-  uintptr_t regaddr;
-  uint32_t regval;
-  uint32_t bit;
+	uintptr_t regaddr;
+	uint32_t regval;
+	uint32_t bit;
 
-  if (rda_irqinfo(irq, &regaddr, &bit, NVIC_CLRENA_OFFSET) == 0)
-    {
-      /* Modify the appropriate bit in the register to disable the interrupt.
-       * For normal interrupts, we need to set the bit in the associated
-       * Interrupt Clear Enable register.  For other exceptions, we need to
-       * clear the bit in the System Handler Control and State Register.
-       */
+	if (rda_irqinfo(irq, &regaddr, &bit, NVIC_CLRENA_OFFSET) == 0) {
+		/* Modify the appropriate bit in the register to disable the interrupt.
+		 * For normal interrupts, we need to set the bit in the associated
+		 * Interrupt Clear Enable register.  For other exceptions, we need to
+		 * clear the bit in the System Handler Control and State Register.
+		 */
 
-      if (irq >= RDA_IRQ_EXTINT)
-        {
-          putreg32(bit, regaddr);
-        }
-      else
-        {
-          regval  = getreg32(regaddr);
-          regval &= ~bit;
-          putreg32(regval, regaddr);
-        }
-    }
+		if (irq >= RDA_IRQ_EXTINT) {
+			putreg32(bit, regaddr);
+		} else {
+			regval  = getreg32(regaddr);
+			regval &= ~bit;
+			putreg32(regval, regaddr);
+		}
+	}
 #ifdef CONFIG_RDA5981X_GPIOIRQ
-  else if (irq >= RDA_VALID_FIRST0L)
-    {
-      /* Maybe it is a (derived) GPIO IRQ */
+	else if (irq >= RDA_VALID_FIRST0L) {
+		/* Maybe it is a (derived) GPIO IRQ */
 
-      rda_gpioirqdisable(irq);
-    }
+		rda_gpioirqdisable(irq);
+	}
 #endif
 
-  rda_dumpnvic("disable", irq);
+	rda_dumpnvic("disable", irq);
 }
 
 /****************************************************************************
@@ -481,39 +458,34 @@ void up_disable_irq(int irq)
 
 void up_enable_irq(int irq)
 {
-  uintptr_t regaddr;
-  uint32_t regval;
-  uint32_t bit;
+	uintptr_t regaddr;
+	uint32_t regval;
+	uint32_t bit;
 
-  if (rda_irqinfo(irq, &regaddr, &bit, NVIC_ENA_OFFSET) == 0)
-    {
-      /* Modify the appropriate bit in the register to enable the interrupt.
-       * For normal interrupts, we need to set the bit in the associated
-       * Interrupt Set Enable register.  For other exceptions, we need to
-       * set the bit in the System Handler Control and State Register.
-       */
+	if (rda_irqinfo(irq, &regaddr, &bit, NVIC_ENA_OFFSET) == 0) {
+		/* Modify the appropriate bit in the register to enable the interrupt.
+		 * For normal interrupts, we need to set the bit in the associated
+		 * Interrupt Set Enable register.  For other exceptions, we need to
+		 * set the bit in the System Handler Control and State Register.
+		 */
 
-      if (irq >= RDA_IRQ_EXTINT)
-        {
-          putreg32(bit, regaddr);
-        }
-      else
-        {
-          regval  = getreg32(regaddr);
-          regval |= bit;
-          putreg32(regval, regaddr);
-        }
-    }
+		if (irq >= RDA_IRQ_EXTINT) {
+			putreg32(bit, regaddr);
+		} else {
+			regval  = getreg32(regaddr);
+			regval |= bit;
+			putreg32(regval, regaddr);
+		}
+	}
 #ifdef CONFIG_RDA5981X_GPIOIRQ
-  else if (irq >= RDA_VALID_FIRST0L)
-    {
-      /* Maybe it is a (derived) GPIO IRQ */
+	else if (irq >= RDA_VALID_FIRST0L) {
+		/* Maybe it is a (derived) GPIO IRQ */
 
-      rda_gpioirqenable(irq);
-    }
+		rda_gpioirqenable(irq);
+	}
 #endif
 
-  rda_dumpnvic("enable", irq);
+	rda_dumpnvic("enable", irq);
 }
 
 /****************************************************************************
@@ -527,7 +499,7 @@ void up_enable_irq(int irq)
 void up_ack_irq(int irq)
 {
 #if 0 /* Does not appear to be necessary in most cases */
-  rda_clrpend(irq);
+	rda_clrpend(irq);
 #endif
 }
 
@@ -545,37 +517,34 @@ void up_ack_irq(int irq)
 #ifdef CONFIG_ARCH_IRQPRIO
 int up_prioritize_irq(int irq, int priority)
 {
-  uint32_t regaddr;
-  uint32_t regval;
-  int shift;
+	uint32_t regaddr;
+	uint32_t regval;
+	int shift;
 
-  DEBUGASSERT(irq >= RDA_IRQ_MEMFAULT && irq < RDA_IRQ_NIRQS &&
-              (unsigned)priority <= NVIC_SYSH_PRIORITY_MIN);
+	DEBUGASSERT(irq >= RDA_IRQ_MEMFAULT && irq < RDA_IRQ_NIRQS &&
+				(unsigned)priority <= NVIC_SYSH_PRIORITY_MIN);
 
-  if (irq < RDA_IRQ_EXTINT)
-    {
-      /* NVIC_SYSH_PRIORITY() maps {0..15} to one of three priority
-       * registers (0-3 are invalid)
-       */
+	if (irq < RDA_IRQ_EXTINT) {
+		/* NVIC_SYSH_PRIORITY() maps {0..15} to one of three priority
+		 * registers (0-3 are invalid)
+		 */
 
-      regaddr = NVIC_SYSH_PRIORITY(irq);
-      irq    -= 4;
-    }
-  else
-    {
-      /* NVIC_IRQ_PRIORITY() maps {0..} to one of many priority registers */
+		regaddr = NVIC_SYSH_PRIORITY(irq);
+		irq    -= 4;
+	} else {
+		/* NVIC_IRQ_PRIORITY() maps {0..} to one of many priority registers */
 
-      irq    -= RDA_IRQ_EXTINT;
-      regaddr = NVIC_IRQ_PRIORITY(irq);
-    }
+		irq    -= RDA_IRQ_EXTINT;
+		regaddr = NVIC_IRQ_PRIORITY(irq);
+	}
 
-  regval      = getreg32(regaddr);
-  shift       = ((irq & 3) << 3);
-  regval     &= ~(0xff << shift);
-  regval     |= (priority << shift);
-  putreg32(regval, regaddr);
+	regval      = getreg32(regaddr);
+	shift       = ((irq & 3) << 3);
+	regval     &= ~(0xff << shift);
+	regval     |= (priority << shift);
+	putreg32(regval, regaddr);
 
-  rda_dumpnvic("prioritize", irq);
-  return OK;
+	rda_dumpnvic("prioritize", irq);
+	return OK;
 }
 #endif

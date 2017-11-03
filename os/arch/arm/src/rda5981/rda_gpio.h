@@ -54,7 +54,7 @@
 #include "chip/rda5981x_pinconfig.h"
 
 /* Include the GPIO definitions for the selected RDA5981x family. */
-//#define RDA5981x 
+//#define RDA5981x
 #if defined(RDA5981x)
 #  include "rda5981x_gpio.h"
 #else

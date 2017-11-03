@@ -53,7 +53,7 @@ static int rda_net_ioctl(struct netif *dev, struct ifreq *rq, int cmd)
 
 static err_t rda_linkoutput(struct netif *dev, struct pbuf *buf)
 {
-	
+
 }
 
 static err_t slsi_set_multicast_list(struct netif *dev, ip_addr_t *group, u8_t action)

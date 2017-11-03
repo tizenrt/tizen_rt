@@ -103,8 +103,9 @@ static bool is_union(const char *type)
 static const char *check_funcptr(const char *type)
 {
 	const char *str = strstr(type, "(*)");
-	if (str)
+	if (str) {
 		return str + 2;
+	}
 
 	return NULL;
 }
@@ -112,13 +113,14 @@ static const char *check_funcptr(const char *type)
 static const char *check_array(const char *type)
 {
 	const char *str = strchr(type, '[');
-	if (str)
+	if (str) {
 		return str;
+	}
 
 	return NULL;
 }
 
-static void print_formalparm(FILE * stream, const char *argtype, int parmno)
+static void print_formalparm(FILE *stream, const char *argtype, int parmno)
 {
 	const char *part2;
 	int len;
@@ -129,8 +131,9 @@ static void print_formalparm(FILE * stream, const char *argtype, int parmno)
 		len = part2 - argtype;
 		(void)fwrite(argtype, 1, len, stream);
 		fprintf(stream, "parm%d%s", parmno, part2);
-	} else
+	} else {
 		fprintf(stream, "%s parm%d", argtype, parmno);
+	}
 }
 
 static void get_formalparmtype(const char *arg, char *formal)
@@ -139,8 +142,9 @@ static void get_formalparmtype(const char *arg, char *formal)
 	 * the end of the string if there is no '|' in the type description).
 	 */
 
-	while (*arg != '|' && *arg != '\0')
+	while (*arg != '|' && *arg != '\0') {
 		*formal++ = *arg++;
+	}
 	*formal = '\0';
 }
 
@@ -163,8 +167,9 @@ static void get_actualparmtype(const char *arg, char *actual)
 	 * the end of the string if there is no '|' in the type description).
 	 */
 
-	while (*pstart != '|' && *pstart != '\0')
+	while (*pstart != '|' && *pstart != '\0') {
 		*actual++ = *pstart++;
+	}
 	*actual = '\0';
 }
 
@@ -230,16 +235,19 @@ static void generate_proxy(int nparms)
 		nformal = nparms - 1;
 		bvarargs = true;
 		fprintf(stream, "#include <stdarg.h>\n");
-	} else
+	} else {
 		nformal = nparms;
+	}
 
-	if (g_parm[HEADER_INDEX] && strlen(g_parm[HEADER_INDEX]) > 0)
+	if (g_parm[HEADER_INDEX] && strlen(g_parm[HEADER_INDEX]) > 0) {
 		fprintf(stream, "#include <%s>\n", g_parm[HEADER_INDEX]);
+	}
 
 	fprintf(stream, "#include <syscall.h>\n\n");
 
-	if (g_parm[COND_INDEX][0] != '\0')
+	if (g_parm[COND_INDEX][0] != '\0') {
 		fprintf(stream, "#if %s\n\n", g_parm[COND_INDEX]);
+	}
 
 	/* Generate the function definition that matches standard function prototype */
 
@@ -247,9 +255,9 @@ static void generate_proxy(int nparms)
 
 	/* Generate the formal parameter list */
 
-	if (nformal <= 0)
+	if (nformal <= 0) {
 		fprintf(stream, "void");
-	else {
+	} else {
 		for (i = 0; i < nformal; i++) {
 			/* The formal and actual parameter types may be encoded.. extra the
 			 * formal parameter type.
@@ -261,8 +269,9 @@ static void generate_proxy(int nparms)
 			 * parameter with a comma.
 			 */
 
-			if (i > 0)
+			if (i > 0) {
 				fprintf(stream, ", ");
+			}
 
 			print_formalparm(stream, formal, i + 1);
 		}
@@ -279,26 +288,30 @@ static void generate_proxy(int nparms)
 
 		if (nparms < 7) {
 			fprintf(stream, "  va_list ap;\n");
-			for (i = nparms; i < 7; i++)
+			for (i = nparms; i < 7; i++) {
 				fprintf(stream, "  uintptr_t parm%d;\n", i);
+			}
 
 			fprintf(stream, "\n  va_start(ap, parm%d);\n", nparms - 1);
-			for (i = nparms; i < 7; i++)
+			for (i = nparms; i < 7; i++) {
 				fprintf(stream, "  parm%d = va_arg(ap, uintptr_t);\n", i);
+			}
 			fprintf(stream, "  va_end(ap);\n\n");
 		}
-	} else
+	} else {
 		fprintf(stream, ")\n{\n");
+	}
 
 	/* Generate the system call.  Functions that do not return or return void
 	 * are special cases.
 	 */
 
 	nactual = bvarargs ? 6 : nparms;
-	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0)
+	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0) {
 		fprintf(stream, "  (void)sys_call%d(", nactual);
-	else
+	} else {
 		fprintf(stream, "  return (%s)sys_call%d(", g_parm[RETTYPE_INDEX], nactual);
+	}
 
 	/* Create the parameter list with the matching types.  The first parameter
 	 * is always the syscall number.
@@ -317,15 +330,17 @@ static void generate_proxy(int nparms)
 
 			get_fieldname(g_parm[PARM1_INDEX + i], fieldname);
 			fprintf(stream, ", (uintptr_t)parm%d.%s", i + 1, fieldname);
-		} else
+		} else {
 			fprintf(stream, ", (uintptr_t)parm%d", i + 1);
+		}
 	}
 
 	/* Handle the tail end of the function. */
 
 	fprintf(stream, ");\n}\n\n");
-	if (g_parm[COND_INDEX][0] != '\0')
+	if (g_parm[COND_INDEX][0] != '\0') {
 		fprintf(stream, "#endif /* %s */\n", g_parm[COND_INDEX]);
+	}
 
 	fclose(stream);
 }
@@ -361,10 +376,11 @@ static FILE *open_stub(void)
 	}
 }
 
-static void stub_close(FILE * stream)
+static void stub_close(FILE *stream)
 {
-	if (!g_inline)
+	if (!g_inline) {
 		fclose(stream);
+	}
 }
 
 static void generate_stub(int nparms)
@@ -381,18 +397,21 @@ static void generate_stub(int nparms)
 	fprintf(stream, "#include <tinyara/config.h>\n");
 	fprintf(stream, "#include <stdint.h>\n");
 
-	if (g_parm[HEADER_INDEX] && strlen(g_parm[HEADER_INDEX]) > 0)
+	if (g_parm[HEADER_INDEX] && strlen(g_parm[HEADER_INDEX]) > 0) {
 		fprintf(stream, "#include <%s>\n", g_parm[HEADER_INDEX]);
+	}
 
 	putc('\n', stream);
 
-	if (g_parm[COND_INDEX][0] != '\0')
+	if (g_parm[COND_INDEX][0] != '\0') {
 		fprintf(stream, "#if %s\n\n", g_parm[COND_INDEX]);
+	}
 
 	/* Generate the function definition that matches standard function prototype */
 
-	if (g_inline)
+	if (g_inline) {
 		fprintf(stream, "static inline ");
+	}
 
 	fprintf(stream, "uintptr_t STUB_%s(int nbr", g_parm[NAME_INDEX]);
 
@@ -404,10 +423,12 @@ static void generate_stub(int nparms)
 		if (is_vararg(g_parm[PARM1_INDEX + i], i, nparms)) {
 			/* Always receive six arguments in this case */
 
-			for (j = i + 1; j <= 6; j++)
+			for (j = i + 1; j <= 6; j++) {
 				fprintf(stream, ", uintptr_t parm%d", j);
-		} else
+			}
+		} else {
 			fprintf(stream, ", uintptr_t parm%d", i + 1);
+		}
 	}
 
 	fprintf(stream, ")\n{\n");
@@ -416,10 +437,11 @@ static void generate_stub(int nparms)
 	 * a special case.
 	 */
 
-	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0)
+	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0) {
 		fprintf(stream, "  %s(", g_parm[NAME_INDEX]);
-	else
+	} else {
 		fprintf(stream, "  return (uintptr_t)%s(", g_parm[NAME_INDEX]);
+	}
 
 	/* The pass all of the system call parameters, casting to the correct type
 	 * as necessary.
@@ -446,19 +468,22 @@ static void generate_stub(int nparms)
 			if (is_vararg(actual, i, nparms)) {
 				/* Always pass six arguments */
 
-				for (j = i + 1; j <= 6; j++)
+				for (j = i + 1; j <= 6; j++) {
 					fprintf(stream, ", parm%d", j);
+				}
 			} else {
-				if (is_union(formal))
+				if (is_union(formal)) {
 					fprintf(stream, ", (%s)((%s)parm%d)", formal, actual, i + 1);
-				else
+				} else {
 					fprintf(stream, ", (%s)parm%d", actual, i + 1);
+				}
 			}
 		} else {
-			if (is_union(formal))
+			if (is_union(formal)) {
 				fprintf(stream, "(%s)((%s)parm%d)", formal, actual, i + 1);
-			else
+			} else {
 				fprintf(stream, "(%s)parm%d", actual, i + 1);
+			}
 		}
 	}
 
@@ -466,13 +491,15 @@ static void generate_stub(int nparms)
 	 * value, just return zero (OK).
 	 */
 
-	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0)
+	if (strcmp(g_parm[RETTYPE_INDEX], "void") == 0) {
 		fprintf(stream, ");\n  return 0;\n}\n\n");
-	else
+	} else {
 		fprintf(stream, ");\n}\n\n");
+	}
 
-	if (g_parm[COND_INDEX][0] != '\0')
+	if (g_parm[COND_INDEX][0] != '\0') {
 		fprintf(stream, "#endif /* %s */\n", g_parm[COND_INDEX]);
+	}
 	stub_close(stream);
 }
 
@@ -566,9 +593,9 @@ int main(int argc, char **argv, char **envp)
 			exit(8);
 		}
 
-		if (proxies)
+		if (proxies) {
 			generate_proxy(nargs - PARM1_INDEX);
-		else {
+		} else {
 			g_stubstream = NULL;
 			generate_stub(nargs - PARM1_INDEX);
 			if (g_stubstream != NULL) {

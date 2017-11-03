@@ -630,9 +630,9 @@
  */
 
 struct tiva_ethmac_s {
-	uint8_t ifup:1;				/* true:ifup false:ifdown */
-	uint8_t mbps100:1;			/* 100MBps operation (vs 10 MBps) */
-	uint8_t fduplex:1;			/* Full (vs. half) duplex */
+	uint8_t ifup: 1;				/* true:ifup false:ifdown */
+	uint8_t mbps100: 1;			/* 100MBps operation (vs 10 MBps) */
+	uint8_t fduplex: 1;			/* Full (vs. half) duplex */
 	WDOG_ID txpoll;				/* TX poll timer */
 	WDOG_ID txtimeout;			/* TX timeout timer */
 #ifdef CONFIG_NET_NOINTS
@@ -664,8 +664,8 @@ struct tiva_ethmac_s {
 
 	/* Buffer allocations */
 
-	uint8_t rxbuffer[CONFIG_TIVA_EMAC_NRXDESC *OPTIMAL_EMAC_BUFSIZE];
-	uint8_t alloc[TIVA_EMAC_NFREEBUFFERS *OPTIMAL_EMAC_BUFSIZE];
+	uint8_t rxbuffer[CONFIG_TIVA_EMAC_NRXDESC * OPTIMAL_EMAC_BUFSIZE];
+	uint8_t alloc[TIVA_EMAC_NFREEBUFFERS * OPTIMAL_EMAC_BUFSIZE];
 };
 
 /****************************************************************************

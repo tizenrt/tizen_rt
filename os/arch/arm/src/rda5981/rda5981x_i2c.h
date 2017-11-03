@@ -43,4 +43,4 @@
 #include <tinyara/config.h>
 #include "chip/rda5981x_i2c.h"
 
-#endif 
+#endif

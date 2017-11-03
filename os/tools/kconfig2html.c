@@ -377,8 +377,9 @@ static void append_file(const char *filename)
 
 	/* Copy the file to the output */
 
-	while ((ch = getc(stream)) != EOF)
+	while ((ch = getc(stream)) != EOF) {
 		(void)putc(ch, g_outfile);
+	}
 
 	/* Close and remove the file */
 
@@ -419,8 +420,9 @@ static void show_usage(const char *progname, int exitcode)
 
 static char *skip_space(char *ptr)
 {
-	while (*ptr && isspace((int)*ptr))
+	while (*ptr && isspace((int)*ptr)) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -457,8 +459,9 @@ static char *dequote(char *ptr)
 
 	/* Handle the case where nothing is left after dequoting */
 
-	if (len <= 0)
+	if (len <= 0) {
 		ptr = NULL;
+	}
 
 	return ptr;
 }
@@ -539,8 +542,9 @@ static char *htmlize_text(const char *src)
 	 * disfavor.
 	 */
 
-	if (!src || !*src)
+	if (!src || !*src) {
 		return NULL;
+	}
 
 	/* Transfer each character from the source string into the scratch buffer */
 
@@ -578,8 +582,9 @@ static char *htmlize_expression(const char *src)
 	 * disfavor.
 	 */
 
-	if (!src)
+	if (!src) {
 		return NULL;
+	}
 
 	/* Transfer each character from the source string into the scratch buffer */
 
@@ -670,7 +675,7 @@ static char *htmlize_expression(const char *src)
  *
  ****************************************************************************/
 
-static char *read_line(FILE * stream)
+static char *read_line(FILE *stream)
 {
 	char *ptr;
 	int len;
@@ -680,8 +685,9 @@ static char *read_line(FILE * stream)
 	/* Read the next line */
 
 	g_line[LINE_SIZE] = '\0';
-	if (!fgets(g_line, LINE_SIZE, stream))
+	if (!fgets(g_line, LINE_SIZE, stream)) {
 		return NULL;
+	}
 
 	/* Loop to handle continuation lines */
 
@@ -716,8 +722,9 @@ static char *read_line(FILE * stream)
 		/* Read the next line into the scratch buffer */
 
 		g_scratch[SCRATCH_SIZE] = '\0';
-		if (!fgets(g_scratch, SCRATCH_SIZE, stream))
+		if (!fgets(g_scratch, SCRATCH_SIZE, stream)) {
 			return NULL;
+		}
 
 		/* Skip any leading whitespace and copy the rest of the next line
 		 * into the line buffer.  Note that the leading white space is
@@ -738,7 +745,7 @@ static char *read_line(FILE * stream)
  *
  ****************************************************************************/
 
-static char *kconfig_line(FILE * stream)
+static char *kconfig_line(FILE *stream)
 {
 	char *ptr;
 
@@ -751,8 +758,9 @@ static char *kconfig_line(FILE * stream)
 		if (!g_preread) {
 			/* Read the next line */
 
-			if (!read_line(stream))
+			if (!read_line(stream)) {
 				return NULL;
+			}
 		}
 
 		g_preread = false;
@@ -760,8 +768,9 @@ static char *kconfig_line(FILE * stream)
 		/* Replace all whitespace characters with spaces to simplify parsing */
 
 		for (ptr = g_line; *ptr; ptr++) {
-			if (isspace(((int)*ptr)))
+			if (isspace(((int)*ptr))) {
 				*ptr = ' ';
+			}
 		}
 
 		/* Skip any leading whitespace.  Ignore empty lines and lines that
@@ -789,8 +798,9 @@ static enum token_type_e tokenize(const char *token)
 	struct reserved_s *ptr;
 
 	for (ptr = g_reserved; ptr->tname; ptr++) {
-		if (strcmp(token, ptr->tname) == 0)
+		if (strcmp(token, ptr->tname) == 0) {
 			break;
+		}
 	}
 
 	return ptr->ttype;
@@ -846,10 +856,11 @@ static char *get_token(void)
 
 	/* The position to begin/resume parsing is in g_lnptr. */
 
-	if (g_lnptr && *g_lnptr)
+	if (g_lnptr && *g_lnptr) {
 		pbegin = g_lnptr;
-	else
+	} else {
 		return NULL;
+	}
 
 	/* Find the beginning of the next token */
 
@@ -950,8 +961,9 @@ static char *get_html_string(void)
 		 */
 
 		len = strlen(pbegin);
-		if (len < 1)
+		if (len < 1) {
 			return NULL;
+		}
 
 		/* Use the rest of the line.  g_lnptr is set to point at the
 		 * terminating NUL.
@@ -1088,8 +1100,9 @@ static const char *get_paranum(void)
 
 	g_scratch[0] = '\0';
 	for (i = 0; i < g_level; i++) {
-		if (i > 0)
+		if (i > 0) {
 			strcat(g_scratch, ".");
+		}
 
 		snprintf(buffer, 16, "%d", g_paranum[i]);
 		strcat(g_scratch, buffer);
@@ -1138,7 +1151,7 @@ static const char *type2str(enum config_type_e valtype)
  *
  ****************************************************************************/
 
-static inline void process_help(FILE * stream, output_t outfunc)
+static inline void process_help(FILE *stream, output_t outfunc)
 {
 	char *ptr;
 	int help_indent = 0;
@@ -1156,8 +1169,9 @@ static inline void process_help(FILE * stream, output_t outfunc)
 	for (;;) {
 		/* Read the next line of comment text */
 
-		if (!read_line(stream))
+		if (!read_line(stream)) {
 			break;
+		}
 
 		/* What is the indentation level? The first help line sets the
 		 * indentation level.  The first line encounter with lower
@@ -1170,7 +1184,7 @@ static inline void process_help(FILE * stream, output_t outfunc)
 		done = false;
 
 		while (!done) {
-			int ch = (int)*ptr;
+			int ch = (int) * ptr;
 			switch (ch) {
 			case ' ':
 				indent++;
@@ -1224,9 +1238,9 @@ static inline void process_help(FILE * stream, output_t outfunc)
 		if (indent == 0) {
 			g_preread = true;
 			break;
-		} else if (!help_indent)
+		} else if (!help_indent) {
 			help_indent = indent;
-		else if (indent < help_indent) {
+		} else if (indent < help_indent) {
 			g_preread = true;
 			break;
 		}
@@ -1261,11 +1275,13 @@ static inline void process_help(FILE * stream, output_t outfunc)
 		}
 	}
 
-	if (!newpara)
+	if (!newpara) {
 		outfunc("\n</p>\n");
+	}
 
-	if (preformatted)
+	if (preformatted) {
 		outfunc("</pre></ul>\n");
+	}
 }
 
 /****************************************************************************
@@ -1276,7 +1292,7 @@ static inline void process_help(FILE * stream, output_t outfunc)
  *
  ****************************************************************************/
 
-static void process_default(FILE * stream, struct default_s *defp)
+static void process_default(FILE *stream, struct default_s *defp)
 {
 	enum token_type_e tokid;
 	char *token;
@@ -1411,8 +1427,9 @@ static void free_default(struct default_s *defp)
 
 		/* Free any dependency on the default */
 
-		if (item->d_dependency)
+		if (item->d_dependency) {
 			free(item->d_dependency);
+		}
 	}
 }
 
@@ -1451,8 +1468,9 @@ static void print_dependencies(output_t outfunc)
 	if (g_ndependencies > 0) {
 		outfunc("  <li><i>Dependencies</i>: %s", g_dependencies[0]);
 
-		for (i = 1; i < g_ndependencies; i++)
+		for (i = 1; i < g_ndependencies; i++) {
 			outfunc(", %s\n", g_dependencies[i]);
+		}
 
 		outfunc("</li>\n");
 	}
@@ -1470,8 +1488,9 @@ static void free_dependencies(int ndependencies)
 {
 	int i;
 
-	for (i = 0; i < ndependencies; i++)
+	for (i = 0; i < ndependencies; i++) {
 		pop_dependency();
+	}
 }
 
 /****************************************************************************
@@ -1482,7 +1501,7 @@ static void free_dependencies(int ndependencies)
  *
  ****************************************************************************/
 
-static inline char *process_config(FILE * stream, const char *configname, const char *kconfigdir)
+static inline char *process_config(FILE *stream, const char *configname, const char *kconfigdir)
 {
 	enum token_type_e tokid;
 	struct config_s config;
@@ -1511,139 +1530,145 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 		if (token != NULL) {
 			tokid = tokenize(token);
 			switch (tokid) {
-			case TOKEN_BOOL:{
-					/* Save the type of the configuration variable */
+			case TOKEN_BOOL: {
+				/* Save the type of the configuration variable */
 
-					config.c_type = VALUE_BOOL;
+				config.c_type = VALUE_BOOL;
 
-					/* Get the description following the type */
+				/* Get the description following the type */
 
-					ptr = get_html_string();
-					if (ptr)
-						config.c_desc = strdup(ptr);
-
-					/* Indicate that the line has been consumed */
-
-					token = NULL;
+				ptr = get_html_string();
+				if (ptr) {
+					config.c_desc = strdup(ptr);
 				}
-				break;
 
-			case TOKEN_INT:{
-					/* Save the type of the configuration variable */
+				/* Indicate that the line has been consumed */
 
-					config.c_type = VALUE_INT;
+				token = NULL;
+			}
+			break;
 
-					/* Get the description following the type */
+			case TOKEN_INT: {
+				/* Save the type of the configuration variable */
 
-					ptr = get_html_string();
-					if (ptr)
-						config.c_desc = strdup(ptr);
+				config.c_type = VALUE_INT;
 
-					/* Indicate that the line has been consumed */
+				/* Get the description following the type */
 
-					token = NULL;
+				ptr = get_html_string();
+				if (ptr) {
+					config.c_desc = strdup(ptr);
 				}
-				break;
 
-			case TOKEN_HEX:{
-					/* Save the type of the configuration variable */
+				/* Indicate that the line has been consumed */
 
-					config.c_type = VALUE_HEX;
+				token = NULL;
+			}
+			break;
 
-					/* Get the description following the type */
+			case TOKEN_HEX: {
+				/* Save the type of the configuration variable */
 
-					ptr = get_html_string();
-					if (ptr)
-						config.c_desc = strdup(ptr);
+				config.c_type = VALUE_HEX;
 
-					/* Indicate that the line has been consumed */
+				/* Get the description following the type */
 
-					token = NULL;
+				ptr = get_html_string();
+				if (ptr) {
+					config.c_desc = strdup(ptr);
 				}
-				break;
 
-			case TOKEN_STRING:{
-					/* Save the type of the configuration variable */
+				/* Indicate that the line has been consumed */
 
-					config.c_type = VALUE_STRING;
+				token = NULL;
+			}
+			break;
 
-					/* Get the description following the type */
+			case TOKEN_STRING: {
+				/* Save the type of the configuration variable */
 
-					ptr = get_html_string();
-					if (ptr)
-						config.c_desc = strdup(ptr);
+				config.c_type = VALUE_STRING;
 
-					/* Indicate that the line has been consumed */
+				/* Get the description following the type */
 
-					token = NULL;
+				ptr = get_html_string();
+				if (ptr) {
+					config.c_desc = strdup(ptr);
 				}
-				break;
 
-			case TOKEN_DEFAULT:{
-					process_default(stream, &config.c_default);
-					token = NULL;
-				}
-				break;
+				/* Indicate that the line has been consumed */
 
-			case TOKEN_RANGE:{
-					char *value = get_token();
-					if (value) {
-						config.c_lower = strdup(value);
+				token = NULL;
+			}
+			break;
 
-						value = get_token();
-						if (value)
-							config.c_upper = strdup(value);
-					}
+			case TOKEN_DEFAULT: {
+				process_default(stream, &config.c_default);
+				token = NULL;
+			}
+			break;
 
-					token = NULL;
-				}
-				break;
-
-			case TOKEN_SELECT:{
-					char *value;
-					int ndx;
-
-					ndx = config.c_select.s_nvar;
-					if (ndx >= MAX_SELECT) {
-						error("Too many 'select' lines\n");
-						exit(ERROR_TOO_MANY_SELECT);
-					}
+			case TOKEN_RANGE: {
+				char *value = get_token();
+				if (value) {
+					config.c_lower = strdup(value);
 
 					value = get_token();
-					config.c_select.s_varname[ndx] = strdup(value);
-					config.c_select.s_nvar = ndx + 1;
-					token = NULL;
+					if (value) {
+						config.c_upper = strdup(value);
+					}
 				}
-				break;
 
-			case TOKEN_DEPENDS:{
-					process_dependson();
-					config.c_ndependencies++;
-					token = NULL;
-				}
-				break;
+				token = NULL;
+			}
+			break;
 
-			case TOKEN_OPTION:{
-					token = NULL;	/* Ignored */
-				}
-				break;
+			case TOKEN_SELECT: {
+				char *value;
+				int ndx;
 
-			case TOKEN_HELP:{
-					help = true;
-					token = NULL;
+				ndx = config.c_select.s_nvar;
+				if (ndx >= MAX_SELECT) {
+					error("Too many 'select' lines\n");
+					exit(ERROR_TOO_MANY_SELECT);
 				}
-				break;
 
-			default:{
-					debug("CONFIG_%s: Terminating token: %s\n", config.c_name, token);
-				}
-				break;
+				value = get_token();
+				config.c_select.s_varname[ndx] = strdup(value);
+				config.c_select.s_nvar = ndx + 1;
+				token = NULL;
+			}
+			break;
+
+			case TOKEN_DEPENDS: {
+				process_dependson();
+				config.c_ndependencies++;
+				token = NULL;
+			}
+			break;
+
+			case TOKEN_OPTION: {
+				token = NULL;	/* Ignored */
+			}
+			break;
+
+			case TOKEN_HELP: {
+				help = true;
+				token = NULL;
+			}
+			break;
+
+			default: {
+				debug("CONFIG_%s: Terminating token: %s\n", config.c_name, token);
+			}
+			break;
 			}
 
 			/* Break out on the help token (or the first unhandled token) */
 
-			if (help || token != NULL)
+			if (help || token != NULL) {
 				break;
+			}
 		}
 	}
 
@@ -1675,16 +1700,18 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 	/* Output the short description in the paragraph title (if we have one) */
 
 	if (config.c_desc) {
-		if (!hidden)
+		if (!hidden) {
 			output(": %s", config.c_desc);
+		}
 
 		outfunc(": %s", config.c_desc);
 	}
 
 	outfunc("</a></h3>\n");
 
-	if (!hidden)
+	if (!hidden) {
 		output("</a></li>\n");
+	}
 
 	/* Configuration description is indented */
 
@@ -1692,8 +1719,9 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 
 	/* Print the type of the configuration variable */
 
-	if (config.c_type != VALUE_NONE)
+	if (config.c_type != VALUE_NONE) {
 		outfunc("  <li><i>Type</i>: %s</li>\n", type2str(config.c_type));
+	}
 
 	/* Print the default values of the configuration variable */
 
@@ -1703,13 +1731,15 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 
 	if (config.c_lower || config.c_upper) {
 		outfunc("  <li><i>Range</i>:\n");
-		if (config.c_lower)
+		if (config.c_lower) {
 			outfunc(" %s", config.c_lower);
+		}
 
 		outfunc(" -", config.c_lower);
 
-		if (config.c_upper)
+		if (config.c_upper) {
 			outfunc(" %s", config.c_upper);
+		}
 
 		outfunc("</li>\n");
 	}
@@ -1719,8 +1749,9 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 	if (config.c_select.s_nvar > 0) {
 		outfunc("  <li><i>Selects</i>: <a href=\"#CONFIG_%s\"><code>CONFIG_%s</code></a>", config.c_select.s_varname[0], config.c_select.s_varname[0]);
 
-		for (i = 1; i < config.c_select.s_nvar; i++)
+		for (i = 1; i < config.c_select.s_nvar; i++) {
 			outfunc(", <a href=\"#CONFIG_%s\"><code>CONFIG_%s</code></a>", config.c_select.s_varname[i], config.c_select.s_varname[i]);
+		}
 
 		outfunc("</li>\n");
 	}
@@ -1749,21 +1780,26 @@ static inline char *process_config(FILE * stream, const char *configname, const 
 	free_dependencies(config.c_ndependencies);
 	free_default(&config.c_default);
 
-	if (config.c_name)
+	if (config.c_name) {
 		free(config.c_name);
+	}
 
-	if (config.c_desc)
+	if (config.c_desc) {
 		free(config.c_desc);
+	}
 
-	if (config.c_lower)
+	if (config.c_lower) {
 		free(config.c_lower);
+	}
 
-	if (config.c_upper)
+	if (config.c_upper) {
 		free(config.c_upper);
+	}
 
 	if (config.c_select.s_nvar > 0) {
-		for (i = 0; i < config.c_select.s_nvar; i++)
+		for (i = 0; i < config.c_select.s_nvar; i++) {
 			free(config.c_select.s_varname[i]);
+		}
 	}
 
 	return token;
@@ -1777,8 +1813,8 @@ static inline char *process_config(FILE * stream, const char *configname, const 
  *
  ****************************************************************************/
 
-static char *parse_kconfigfile(FILE * stream, const char *kconfigdir);	/* Forward reference */
-static inline char *process_choice(FILE * stream, const char *kconfigdir)
+static char *parse_kconfigfile(FILE *stream, const char *kconfigdir);	/* Forward reference */
+static inline char *process_choice(FILE *stream, const char *kconfigdir)
 {
 	enum token_type_e tokid;
 	struct choice_s choice;
@@ -1800,48 +1836,50 @@ static inline char *process_choice(FILE * stream, const char *kconfigdir)
 		if (token != NULL) {
 			tokid = tokenize(token);
 			switch (tokid) {
-			case TOKEN_PROMPT:{
-					/* Get the prompt string */
+			case TOKEN_PROMPT: {
+				/* Get the prompt string */
 
-					ptr = get_html_string();
-					if (ptr)
-						choice.c_prompt = strdup(ptr);
-
-					/* Indicate that the line has been consumed */
-
-					token = NULL;
+				ptr = get_html_string();
+				if (ptr) {
+					choice.c_prompt = strdup(ptr);
 				}
-				break;
 
-			case TOKEN_DEFAULT:{
-					process_default(stream, &choice.c_default);
-					token = NULL;
-				}
-				break;
+				/* Indicate that the line has been consumed */
 
-			case TOKEN_DEPENDS:{
-					process_dependson();
-					choice.c_ndependencies++;
-					token = NULL;
-				}
-				break;
+				token = NULL;
+			}
+			break;
 
-			case TOKEN_HELP:{
-					help = true;
-					token = NULL;
-				}
-				break;
+			case TOKEN_DEFAULT: {
+				process_default(stream, &choice.c_default);
+				token = NULL;
+			}
+			break;
 
-			default:{
-					debug("Choice: Terminating token: %s\n", token);
-				}
-				break;
+			case TOKEN_DEPENDS: {
+				process_dependson();
+				choice.c_ndependencies++;
+				token = NULL;
+			}
+			break;
+
+			case TOKEN_HELP: {
+				help = true;
+				token = NULL;
+			}
+			break;
+
+			default: {
+				debug("Choice: Terminating token: %s\n", token);
+			}
+			break;
 			}
 
 			/* Break out on the help token (or the first unhandled token) */
 
-			if (help || token != NULL)
+			if (help || token != NULL) {
 				break;
+			}
 		}
 	}
 
@@ -1890,8 +1928,9 @@ static inline char *process_choice(FILE * stream, const char *kconfigdir)
 	free_dependencies(choice.c_ndependencies);
 	free_default(&choice.c_default);
 
-	if (choice.c_prompt)
+	if (choice.c_prompt) {
 		free(choice.c_prompt);
+	}
 
 	/* Increment the paragraph level */
 
@@ -1915,7 +1954,7 @@ static inline char *process_choice(FILE * stream, const char *kconfigdir)
  *
  ****************************************************************************/
 
-static inline char *process_menu(FILE * stream, const char *kconfigdir)
+static inline char *process_menu(FILE *stream, const char *kconfigdir)
 {
 	enum token_type_e tokid;
 	struct menu_s menu;
@@ -1941,23 +1980,24 @@ static inline char *process_menu(FILE * stream, const char *kconfigdir)
 		if (token != NULL) {
 			tokid = tokenize(token);
 			switch (tokid) {
-			case TOKEN_DEPENDS:{
-					process_dependson();
-					menu.m_ndependencies++;
-					token = NULL;
-				}
-				break;
+			case TOKEN_DEPENDS: {
+				process_dependson();
+				menu.m_ndependencies++;
+				token = NULL;
+			}
+			break;
 
-			default:{
-					debug("Menu: Terminating token: %s\n", token);
-				}
-				break;
+			default: {
+				debug("Menu: Terminating token: %s\n", token);
+			}
+			break;
 			}
 
 			/* Break out on the first unhandled token */
 
-			if (token != NULL)
+			if (token != NULL) {
 				break;
+			}
 		}
 	}
 
@@ -2000,8 +2040,9 @@ static inline char *process_menu(FILE * stream, const char *kconfigdir)
 
 	free_dependencies(menu.m_ndependencies);
 
-	if (menu.m_name)
+	if (menu.m_name) {
 		free(menu.m_name);
+	}
 
 	/* Increment the paragraph level */
 
@@ -2025,7 +2066,7 @@ static inline char *process_menu(FILE * stream, const char *kconfigdir)
  ****************************************************************************/
 
 static void process_kconfigfile(const char *kconfigdir);	/* Forward reference */
-static char *parse_kconfigfile(FILE * stream, const char *kconfigdir)
+static char *parse_kconfigfile(FILE *stream, const char *kconfigdir)
 {
 	enum token_type_e tokid;
 	char *token = NULL;
@@ -2041,126 +2082,126 @@ static char *parse_kconfigfile(FILE * stream, const char *kconfigdir)
 			tokid = tokenize(token);
 
 			switch (tokid) {
-			case TOKEN_SOURCE:{
-					/* Get the relative path from the Kconfig file line */
+			case TOKEN_SOURCE: {
+				/* Get the relative path from the Kconfig file line */
 
-					char *relpath = get_token();
+				char *relpath = get_token();
 
-					/* Remove optional quoting */
+				/* Remove optional quoting */
 
-					relpath = dequote(relpath);
-					if (relpath) {
-						char *subdir = dirname(relpath);
-						char *dirpath = NULL;
+				relpath = dequote(relpath);
+				if (relpath) {
+					char *subdir = dirname(relpath);
+					char *dirpath = NULL;
 
-						/* Check if the directory path contains $XXXDIR */
+					/* Check if the directory path contains $XXXDIR */
 
-						for (i = 0; i < NUM_DIR; i++) {
-							char *dir = strstr(subdir, dir_info[i].name);
-							if (dir) {
-								char *tmp = dir + strlen(dir_info[i].name);
+					for (i = 0; i < NUM_DIR; i++) {
+						char *dir = strstr(subdir, dir_info[i].name);
+						if (dir) {
+							char *tmp = dir + strlen(dir_info[i].name);
 
-								*dir = '\0';
-								asprintf(&dirpath, "%s/%s%s%s", g_kconfigroot, subdir, dir_info[i].rel_path, tmp);
-							}
+							*dir = '\0';
+							asprintf(&dirpath, "%s/%s%s%s", g_kconfigroot, subdir, dir_info[i].rel_path, tmp);
 						}
-
-						if (!dirpath) {
-							asprintf(&dirpath, "%s/%s", g_kconfigroot, subdir);
-						}
-
-
-						debug("parse_kconfigfile: Recursing for TOKEN_SOURCE\n");
-						debug("  relpath:     %s\n", relpath);
-						debug("  subdir:      %s\n", subdir);
-						debug("  dirpath:     %s\n", dirpath);
-
-						/* Then recurse */
-
-						process_kconfigfile(dirpath);
-						token = NULL;
-						free(dirpath);
 					}
 
-					/* Set the token string to NULL to indicate that we need to read the next line */
+					if (!dirpath) {
+						asprintf(&dirpath, "%s/%s", g_kconfigroot, subdir);
+					}
 
+
+					debug("parse_kconfigfile: Recursing for TOKEN_SOURCE\n");
+					debug("  relpath:     %s\n", relpath);
+					debug("  subdir:      %s\n", subdir);
+					debug("  dirpath:     %s\n", dirpath);
+
+					/* Then recurse */
+
+					process_kconfigfile(dirpath);
 					token = NULL;
+					free(dirpath);
 				}
-				break;
+
+				/* Set the token string to NULL to indicate that we need to read the next line */
+
+				token = NULL;
+			}
+			break;
 
 			case TOKEN_CONFIG:
-			case TOKEN_MENUCONFIG:{
-					char *configname = get_token();
-					token = process_config(stream, configname, kconfigdir);
-				}
-				break;
+			case TOKEN_MENUCONFIG: {
+				char *configname = get_token();
+				token = process_config(stream, configname, kconfigdir);
+			}
+			break;
 
 			case TOKEN_COMMENT:
-			case TOKEN_MAINMENU:{
-					token = NULL;	/* ignored */
-				}
-				break;
+			case TOKEN_MAINMENU: {
+				token = NULL;	/* ignored */
+			}
+			break;
 
-			case TOKEN_MENU:{
-					token = process_menu(stream, kconfigdir);
-				}
-				break;
+			case TOKEN_MENU: {
+				token = process_menu(stream, kconfigdir);
+			}
+			break;
 
-			case TOKEN_CHOICE:{
-					token = process_choice(stream, kconfigdir);
-				}
-				break;
+			case TOKEN_CHOICE: {
+				token = process_choice(stream, kconfigdir);
+			}
+			break;
 
-			case TOKEN_ENDCHOICE:{
-					/* Reduce body indentation level */
+			case TOKEN_ENDCHOICE: {
+				/* Reduce body indentation level */
 
-					body("</ul>\n");
-					g_inchoice--;
+				body("</ul>\n");
+				g_inchoice--;
 
-					/* Decrement the paragraph level */
+				/* Decrement the paragraph level */
 
-					decr_level();
-					incr_paranum();
-					token = NULL;
-				}
-				break;
+				decr_level();
+				incr_paranum();
+				token = NULL;
+			}
+			break;
 
-			case TOKEN_ENDMENU:{
-					/* Reduce table of contents indentation level.  NOTE that
-					 * this also terminates the toggle block that began with the
-					 * matching <ul>
-					 */
+			case TOKEN_ENDMENU: {
+				/* Reduce table of contents indentation level.  NOTE that
+				 * this also terminates the toggle block that began with the
+				 * matching <ul>
+				 */
 
-					output("</ul>\n");
+				output("</ul>\n");
 
-					/* Decrement the paragraph level */
+				/* Decrement the paragraph level */
 
-					decr_level();
-					incr_paranum();
-					token = NULL;
-				}
-				break;
+				decr_level();
+				incr_paranum();
+				token = NULL;
+			}
+			break;
 
-			case TOKEN_IF:{
-					char *dependency = get_token();
-					push_dependency(htmlize_expression(dependency));
-					token = NULL;
-				}
-				break;
+			case TOKEN_IF: {
+				char *dependency = get_token();
+				push_dependency(htmlize_expression(dependency));
+				token = NULL;
+			}
+			break;
 
-			case TOKEN_ENDIF:{
-					pop_dependency();
-					token = NULL;
-				}
-				break;
+			case TOKEN_ENDIF: {
+				pop_dependency();
+				token = NULL;
+			}
+			break;
 
-			default:{
-					/* Set token to NULL to skip to the next line */
+			default: {
+				/* Set token to NULL to skip to the next line */
 
-					error("File %s/Kconfig Unhandled token: %s\n", kconfigdir, token);
-					token = NULL;
-				}
-				break;
+				error("File %s/Kconfig Unhandled token: %s\n", kconfigdir, token);
+				token = NULL;
+			}
+			break;
 			}
 		}
 	}
@@ -2466,8 +2507,9 @@ int main(int argc, char **argv, char **envp)
 
 	/* Close the output file (if any) and the temporary file */
 
-	if (outfile)
+	if (outfile) {
 		fclose(g_outfile);
+	}
 
 	return 0;
 }

@@ -83,16 +83,15 @@ uint64_t g_intedge0;
 uint64_t g_intedge2;
 #endif
 
-const uint32_t g_pinsel[GPIO_NPORTS * 2] =
-{
-  RDA_PINCONN_PINSEL0,
-  RDA_PINCONN_PINSEL1,
-  RDA_PINCONN_PINMODE0,
-  RDA_PINCONN_PINMODE1,
-  RDA_PINCONN_PINSEL2,
-  RDA_PINCONN_PINSEL3,
-  RDA_PINCONN_PINMODE2,
-  RDA_PINCONN_PINMODE3
+const uint32_t g_pinsel[GPIO_NPORTS * 2] = {
+	RDA_PINCONN_PINSEL0,
+	RDA_PINCONN_PINSEL1,
+	RDA_PINCONN_PINMODE0,
+	RDA_PINCONN_PINMODE1,
+	RDA_PINCONN_PINSEL2,
+	RDA_PINCONN_PINSEL3,
+	RDA_PINCONN_PINMODE2,
+	RDA_PINCONN_PINMODE3
 };
 
 /****************************************************************************
@@ -110,10 +109,10 @@ const uint32_t g_pinsel[GPIO_NPORTS * 2] =
  ****************************************************************************/
 
 static int rda_pullup(rda_pinset_t cfgset, unsigned int port,
-                        unsigned int pin)
+					  unsigned int pin)
 {
-    /* Not support, return directly */
-    return OK;
+	/* Not support, return directly */
+	return OK;
 }
 #endif
 
@@ -128,31 +127,26 @@ static int rda_pullup(rda_pinset_t cfgset, unsigned int port,
 
 #ifdef CONFIG_RDA5981X_GPIOIRQ
 static void rda_setintedge(unsigned int port, unsigned int pin,
-                             unsigned int value)
+						   unsigned int value)
 {
-  uint64_t *intedge;
-  unsigned int shift;
+	uint64_t *intedge;
+	unsigned int shift;
 
-  /* Which word to we use? */
+	/* Which word to we use? */
 
-  if (port == 0)
-    {
-      intedge = &g_intedge0;
-    }
-  else if (port == 2)
-    {
-      intedge  = &g_intedge2;
-    }
-  else
-    {
-      return;
-    }
+	if (port == 0) {
+		intedge = &g_intedge0;
+	} else if (port == 2) {
+		intedge  = &g_intedge2;
+	} else {
+		return;
+	}
 
-  /* Set the requested value in the PINSEL register */
+	/* Set the requested value in the PINSEL register */
 
-  shift     = pin << 1;
-  *intedge &= ~((uint64_t)3     << shift);
-  *intedge |=  ((uint64_t)value << shift);
+	shift     = pin << 1;
+	*intedge &= ~((uint64_t)3     << shift);
+	*intedge |= ((uint64_t)value << shift);
 }
 #endif /* CONFIG_RDA5981X_GPIOIRQ */
 
@@ -167,7 +161,7 @@ static void rda_setintedge(unsigned int port, unsigned int pin,
 
 static void rda_setopendrain(unsigned int port, unsigned int pin)
 {
-    /* Not support */
+	/* Not support */
 }
 
 /****************************************************************************
@@ -180,7 +174,7 @@ static void rda_setopendrain(unsigned int port, unsigned int pin)
 
 static void rda_clropendrain(unsigned int port, unsigned int pin)
 {
-    /* Not support */
+	/* Not support */
 }
 #endif
 
@@ -193,14 +187,14 @@ static void rda_clropendrain(unsigned int port, unsigned int pin)
  ****************************************************************************/
 
 static inline int rda_configinterrupt(rda_pinset_t cfgset, unsigned int port,
-                                        unsigned int pin)
+									  unsigned int pin)
 {
-  /* TBD.
-   */
+	/* TBD.
+	 */
 #ifdef CONFIG_RDA5981X_GPIOIRQ
-  rda_setintedge(port, pin, (cfgset & GPIO_EDGE_MASK) >> GPIO_EDGE_SHIFT);
+	rda_setintedge(port, pin, (cfgset & GPIO_EDGE_MASK) >> GPIO_EDGE_SHIFT);
 #endif
-  return OK;
+	return OK;
 }
 
 /****************************************************************************
@@ -213,18 +207,18 @@ static inline int rda_configinterrupt(rda_pinset_t cfgset, unsigned int port,
 
 static inline int rda_isgpiofuncsel(rda_pinset_t cfgset, unsigned int port, unsigned int pin)
 {
-    int isgpsel = 1;
-    uint16_t func = cfgset & GPIO_FUNC_MASK;
-    if(((0 == port) && (8 > pin)) || ((4 == port) && (2 > pin))) {
-        if(func != GPIO_ALT1) {
-            isgpsel = 0;
-        }
-    } else {
-        if(func != GPIO_ALT0) {
-            isgpsel = 0;
-        }
-    }
-    return isgpsel;
+	int isgpsel = 1;
+	uint16_t func = cfgset & GPIO_FUNC_MASK;
+	if (((0 == port) && (8 > pin)) || ((4 == port) && (2 > pin))) {
+		if (func != GPIO_ALT1) {
+			isgpsel = 0;
+		}
+	} else {
+		if (func != GPIO_ALT0) {
+			isgpsel = 0;
+		}
+	}
+	return isgpsel;
 }
 
 /****************************************************************************
@@ -237,24 +231,24 @@ static inline int rda_isgpiofuncsel(rda_pinset_t cfgset, unsigned int port, unsi
 
 static inline unsigned int rda_gpioindex(unsigned int port, unsigned int pin)
 {
-    unsigned int idx = 0U;
-    if(4U <= port) {
-        idx = (port - 4U) * 10U + 12U + pin;
-    } else if(0U == port) {
-        if(2U > pin) {
-            idx = 26U + pin;
-        } else if(7U < pin) {
-            idx = 2U + pin;
-        } else {
-            idx = 12U + pin;
-        }
-    } else {
-        idx = pin;
-    }
-    if(idx > GPIO_NPINS) {
-        idx = GPIO_NPINS;
-    }
-    return idx;
+	unsigned int idx = 0U;
+	if (4U <= port) {
+		idx = (port - 4U) * 10U + 12U + pin;
+	} else if (0U == port) {
+		if (2U > pin) {
+			idx = 26U + pin;
+		} else if (7U < pin) {
+			idx = 2U + pin;
+		} else {
+			idx = 12U + pin;
+		}
+	} else {
+		idx = pin;
+	}
+	if (idx > GPIO_NPINS) {
+		idx = GPIO_NPINS;
+	}
+	return idx;
 }
 
 /****************************************************************************
@@ -267,18 +261,18 @@ static inline unsigned int rda_gpioindex(unsigned int port, unsigned int pin)
 
 static inline int rda_configdirection(rda_pinset_t cfgset, unsigned int port, unsigned int pin)
 {
-    int ret = 0;
-    unsigned int gpioidx = rda_gpioindex(port, pin);
-    if(GPIO_NPINS > gpioidx) {
-        uint32_t regval;
-        regval = getreg32(RDA_GPIO_DIR) & ~(0x01UL << gpioidx);
-        if(GPIO_DIR_OUTPUT != (cfgset & GPIO_DIR)) {
-            regval |= (0x01UL << gpioidx);
-            ret = 1;
-        }
-        putreg32(regval, RDA_GPIO_DIR);
-    }
-    return ret;
+	int ret = 0;
+	unsigned int gpioidx = rda_gpioindex(port, pin);
+	if (GPIO_NPINS > gpioidx) {
+		uint32_t regval;
+		regval = getreg32(RDA_GPIO_DIR) & ~(0x01UL << gpioidx);
+		if (GPIO_DIR_OUTPUT != (cfgset & GPIO_DIR)) {
+			regval |= (0x01UL << gpioidx);
+			ret = 1;
+		}
+		putreg32(regval, RDA_GPIO_DIR);
+	}
+	return ret;
 }
 
 /****************************************************************************
@@ -296,50 +290,50 @@ static inline int rda_configdirection(rda_pinset_t cfgset, unsigned int port, un
 
 void rda_pinsel(unsigned int port, unsigned int pin, unsigned int value)
 {
-  uint32_t regaddr;
-  uint32_t regval;
-  unsigned int shift;
+	uint32_t regaddr;
+	uint32_t regval;
+	unsigned int shift;
 
-  /* Set the requested value in the PINMODE/PINSEL register */
+	/* Set the requested value in the PINMODE/PINSEL register */
 
-  switch(port) {
-    case 4:
-      regaddr = g_pinsel[6];
-      if(1 < pin) {
-        shift = pin << 1;
-        regval = getreg32(regaddr);
-        regval &= ~(PINCONN_PINMODE_MASK << shift);
-        regval |= (PINCONN_PINMODE_IO0 << shift);
-        putreg32(regval, regaddr);
-      }
-      break;
-    case 5:
-      if(2 > pin) {
-        regaddr = g_pinsel[6];
-        shift = (pin << 1) + 20;
-        regval = getreg32(regaddr);
-        regval &= ~(PINCONN_PINMODE_MASK << shift);
-        regval |= (PINCONN_PINMODE_IO0 << shift);
-        putreg32(regval, regaddr);
-      } else {
-        regaddr = g_pinsel[7];
-        shift = (pin << 1) - 4;
-        regval = getreg32(regaddr);
-        regval &= ~(PINCONN_PINMODE_MASK << shift);
-        regval |= (PINCONN_PINMODE_IO0 << shift);
-        putreg32(regval, regaddr);
-      }
-      break;
-    default:
-      break;
-  }
+	switch (port) {
+	case 4:
+		regaddr = g_pinsel[6];
+		if (1 < pin) {
+			shift = pin << 1;
+			regval = getreg32(regaddr);
+			regval &= ~(PINCONN_PINMODE_MASK << shift);
+			regval |= (PINCONN_PINMODE_IO0 << shift);
+			putreg32(regval, regaddr);
+		}
+		break;
+	case 5:
+		if (2 > pin) {
+			regaddr = g_pinsel[6];
+			shift = (pin << 1) + 20;
+			regval = getreg32(regaddr);
+			regval &= ~(PINCONN_PINMODE_MASK << shift);
+			regval |= (PINCONN_PINMODE_IO0 << shift);
+			putreg32(regval, regaddr);
+		} else {
+			regaddr = g_pinsel[7];
+			shift = (pin << 1) - 4;
+			regval = getreg32(regaddr);
+			regval &= ~(PINCONN_PINMODE_MASK << shift);
+			regval |= (PINCONN_PINMODE_IO0 << shift);
+			putreg32(regval, regaddr);
+		}
+		break;
+	default:
+		break;
+	}
 
-  regaddr = g_pinsel[port];
-  shift = 3 * pin;
-  regval = getreg32(regaddr);
-  regval &= ~(PINCONN_PINSEL_MASK << shift);
-  regval |= (value << shift);
-  putreg32(regval, regaddr);
+	regaddr = g_pinsel[port];
+	shift = 3 * pin;
+	regval = getreg32(regaddr);
+	regval &= ~(PINCONN_PINSEL_MASK << shift);
+	regval |= (value << shift);
+	putreg32(regval, regaddr);
 }
 
 
@@ -353,37 +347,36 @@ void rda_pinsel(unsigned int port, unsigned int pin, unsigned int value)
 
 int rda_configgpio(rda_pinset_t cfgset)
 {
-  unsigned int port;
-  unsigned int pin;
-  int ret = -EINVAL;
+	unsigned int port;
+	unsigned int pin;
+	int ret = -EINVAL;
 
-  /* Verify that this hardware supports the select GPIO port */
+	/* Verify that this hardware supports the select GPIO port */
 
-  port = (cfgset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
-  if (port < (GPIO_NPORTS * 2))
-    {
-      /* Get the pin number and select the port configuration register for that pin */
+	port = (cfgset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
+	if (port < (GPIO_NPORTS * 2)) {
+		/* Get the pin number and select the port configuration register for that pin */
 
-      pin = (cfgset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+		pin = (cfgset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
 
-      /* Config pin function */
+		/* Config pin function */
 
-      rda_pinsel(port, pin, ((cfgset & GPIO_FUNC_MASK) >> GPIO_FUNC_SHIFT));
+		rda_pinsel(port, pin, ((cfgset & GPIO_FUNC_MASK) >> GPIO_FUNC_SHIFT));
 
-      /* gpio func */
-      if(rda_isgpiofuncsel(cfgset, port, pin) != 0) {
-        if(rda_configdirection(cfgset, port, pin) != 0) {
-          if(GPIO_INTNONE != (cfgset & GPIO_EDGE_MASK)) {
-            rda_configinterrupt(cfgset, port, pin);
-          }
-        } else {
-          rda_gpiowrite(cfgset, ((cfgset & GPIO_VALUE) != GPIO_VALUE_ZERO));
-        }
-      }
-      ret = OK;
-    }
+		/* gpio func */
+		if (rda_isgpiofuncsel(cfgset, port, pin) != 0) {
+			if (rda_configdirection(cfgset, port, pin) != 0) {
+				if (GPIO_INTNONE != (cfgset & GPIO_EDGE_MASK)) {
+					rda_configinterrupt(cfgset, port, pin);
+				}
+			} else {
+				rda_gpiowrite(cfgset, ((cfgset & GPIO_VALUE) != GPIO_VALUE_ZERO));
+			}
+		}
+		ret = OK;
+	}
 
-  return ret;
+	return ret;
 }
 
 /****************************************************************************
@@ -396,24 +389,23 @@ int rda_configgpio(rda_pinset_t cfgset)
 
 void rda_gpiowrite(rda_pinset_t pinset, bool value)
 {
-  unsigned int port;
-  unsigned int pin;
+	unsigned int port;
+	unsigned int pin;
 
-  port = (pinset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
-  if (port < (GPIO_NPORTS * 2))
-    {
-      uint32_t regval;
-      unsigned int gpioidx;
+	port = (pinset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
+	if (port < (GPIO_NPORTS * 2)) {
+		uint32_t regval;
+		unsigned int gpioidx;
 
-      /* Get the pin number  */
-      pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-      gpioidx = rda_gpioindex(port, pin);
-      regval = getreg32(RDA_GPIO_DOUT) & ~(0x01UL << gpioidx);
-      if(GPIO_VALUE_ZERO != (pinset & GPIO_VALUE)) {
-        regval |= (0x01UL << gpioidx);
-      }
-      putreg32(regval, RDA_GPIO_DOUT);
-    }
+		/* Get the pin number  */
+		pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+		gpioidx = rda_gpioindex(port, pin);
+		regval = getreg32(RDA_GPIO_DOUT) & ~(0x01UL << gpioidx);
+		if (GPIO_VALUE_ZERO != (pinset & GPIO_VALUE)) {
+			regval |= (0x01UL << gpioidx);
+		}
+		putreg32(regval, RDA_GPIO_DOUT);
+	}
 }
 
 /****************************************************************************
@@ -426,21 +418,20 @@ void rda_gpiowrite(rda_pinset_t pinset, bool value)
 
 bool rda_gpioread(rda_pinset_t pinset)
 {
-  unsigned int port;
-  unsigned int pin;
+	unsigned int port;
+	unsigned int pin;
 
-  port = (pinset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
-  if (port < (GPIO_NPORTS * 2))
-    {
-      unsigned int gpioidx;
+	port = (pinset & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT;
+	if (port < (GPIO_NPORTS * 2)) {
+		unsigned int gpioidx;
 
-      /* Get the pin number and return the input state of that pin */
-      pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
-      gpioidx = rda_gpioindex(port, pin);
-      return ((getreg32(RDA_GPIO_DIN) & (0x01UL << gpioidx)) != 0x00UL);
-    }
+		/* Get the pin number and return the input state of that pin */
+		pin = (pinset & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT;
+		gpioidx = rda_gpioindex(port, pin);
+		return ((getreg32(RDA_GPIO_DIN) & (0x01UL << gpioidx)) != 0x00UL);
+	}
 
-  return false;
+	return false;
 }
 
 //Need Modify
@@ -479,6 +470,6 @@ void rda_gpio_clear_pending(uint32_t pincfg)
 	}
 
 	putreg32(1 << pin, regbase);
-	#endif
+#endif
 }
 

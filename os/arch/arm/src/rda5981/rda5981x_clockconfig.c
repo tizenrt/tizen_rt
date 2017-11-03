@@ -87,5 +87,5 @@
 
 void rda_clockconfig(void)
 {
-  /* TBD */
+	/* TBD */
 }

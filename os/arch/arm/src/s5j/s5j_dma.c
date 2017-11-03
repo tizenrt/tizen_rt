@@ -132,27 +132,27 @@ int pdma_irq_handler(int irq, FAR void *context, FAR void *arg)
 		for (i = 0; i < dma->max_ch_num; i++) {
 			if (reg & (1 << i)) {
 				dmalldbg("\nChannel %d failt FTRD = 0x%x CH_FTR = 0x%x \n",
-							i, getreg32(dma->base + (u32)(DMAC_FTRD)),
-							getreg32(dma->base + (u32)(DMAC_CH_FTR(i))));
+						 i, getreg32(dma->base + (u32)(DMAC_FTRD)),
+						 getreg32(dma->base + (u32)(DMAC_CH_FTR(i))));
 
 				dmalldbg("- CSR 0x%x, CPC 0x%x, SAR 0x%x, DAR 0x%x,\
 							CCR 0x%x, LC0 0x%x, LC1 0x%x\n",
-							getreg32(dma->base + (u32)(DMAC_CH_CSR(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_CPC(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_SAR(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_DAR(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_CCR(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_LC0(i))),
-							getreg32(dma->base + (u32)(DMAC_CH_LC1(i))));
+						 getreg32(dma->base + (u32)(DMAC_CH_CSR(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_CPC(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_SAR(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_DAR(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_CCR(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_LC0(i))),
+						 getreg32(dma->base + (u32)(DMAC_CH_LC1(i))));
 
 				dmalldbg("- INTEN 0x%x, RIS 0x%x, INTMIS 0x%x,\
 							FSRD 0x%x, FSRC 0x%x, FTRD 0x%x \n",
-							getreg32(dma->base + (u32)(DMAC_INTEN)),
-							getreg32(dma->base + (u32)(DMAC_INT_EVENT_RIS)),
-							getreg32(dma->base + (u32)(DMAC_INTMIS)),
-							getreg32(dma->base + (u32)(DMAC_FSRD)),
-							getreg32(dma->base + (u32)(DMAC_FSRC)),
-							getreg32(dma->base + (u32)(DMAC_FTRD)));
+						 getreg32(dma->base + (u32)(DMAC_INTEN)),
+						 getreg32(dma->base + (u32)(DMAC_INT_EVENT_RIS)),
+						 getreg32(dma->base + (u32)(DMAC_INTMIS)),
+						 getreg32(dma->base + (u32)(DMAC_FSRD)),
+						 getreg32(dma->base + (u32)(DMAC_FSRC)),
+						 getreg32(dma->base + (u32)(DMAC_FTRD)));
 
 				dma_ch_kill(&dma->dma_ch[i]);
 				dma_disable_ch_interrupt(dma, i);

@@ -323,9 +323,9 @@ struct pbuf *pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
 
 		LWIP_ASSERT("pbuf_alloc: pbuf->payload properly aligned", ((mem_ptr_t)p->payload % MEM_ALIGNMENT) == 0);
 		break;
-		/* pbuf references existing (non-volatile static constant) ROM payload? */
+	/* pbuf references existing (non-volatile static constant) ROM payload? */
 	case PBUF_ROM:
-		/* pbuf references existing (externally allocated) RAM payload? */
+	/* pbuf references existing (externally allocated) RAM payload? */
 	case PBUF_REF:
 		/* only allocate memory for the pbuf structure */
 		p = (struct pbuf *)memp_malloc(MEMP_PBUF);

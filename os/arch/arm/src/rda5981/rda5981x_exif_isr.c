@@ -22,18 +22,18 @@ static uint8_t is_exif_irq_set = 0;
 
 static void rda_exif_isr(int irq, void *context, void *arg)
 {
-    uint32_t int_status = RDA_EXIF_INTST & 0xFFFF0000;
-    if(int_status & 0x00FC0000) {
-        rda_i2s_irq_handler(int_status);
-    }
+	uint32_t int_status = RDA_EXIF_INTST & 0xFFFF0000;
+	if (int_status & 0x00FC0000) {
+		rda_i2s_irq_handler(int_status);
+	}
 }
 
 void rda_exif_irq_set(void)
 {
-    if(0 == is_exif_irq_set) {
-        is_exif_irq_set = 1;
-        irq_attach(RDA_IRQ_EXIF, (uint32_t)rda_exif_isr,(void*)0);
-        up_enable_irq(RDA_IRQ_EXIF);
-    }
+	if (0 == is_exif_irq_set) {
+		is_exif_irq_set = 1;
+		irq_attach(RDA_IRQ_EXIF, (uint32_t)rda_exif_isr, (void *)0);
+		up_enable_irq(RDA_IRQ_EXIF);
+	}
 }
 

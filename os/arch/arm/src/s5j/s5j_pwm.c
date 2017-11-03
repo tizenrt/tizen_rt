@@ -96,7 +96,7 @@ static void pwm_putreg32(struct s5j_pwmtimer_s *priv, int offset, uint32_t value
 }
 
 static void pwm_modifyreg32(struct s5j_pwmtimer_s *priv, int offset,
-				uint32_t clearbits, uint32_t setbits)
+							uint32_t clearbits, uint32_t setbits)
 {
 	modifyreg32(priv->base + offset, clearbits, setbits);
 }
@@ -364,33 +364,33 @@ FAR struct pwm_lowerhalf_s *s5j_pwminitialize(int timer)
 	} else
 #endif
 #ifdef CONFIG_S5J_PWM1
-	if (timer == 1) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm0_1;
-	} else
+		if (timer == 1) {
+			lower = (struct pwm_lowerhalf_s *)&g_pwm0_1;
+		} else
 #endif
 #ifdef CONFIG_S5J_PWM2
-	if (timer == 2) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm0_2;
-	} else
+			if (timer == 2) {
+				lower = (struct pwm_lowerhalf_s *)&g_pwm0_2;
+			} else
 #endif
 #ifdef CONFIG_S5J_PWM3
-	if (timer == 3) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm0_3;
-	} else
+				if (timer == 3) {
+					lower = (struct pwm_lowerhalf_s *)&g_pwm0_3;
+				} else
 #endif
 #ifdef CONFIG_S5J_PWM4
-	if (timer == 4) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm1_0;
-	} else
+					if (timer == 4) {
+						lower = (struct pwm_lowerhalf_s *)&g_pwm1_0;
+					} else
 #endif
 #ifdef CONFIG_S5J_PWM5
-	if (timer == 5) {
-		lower = (struct pwm_lowerhalf_s *)&g_pwm1_1;
-	} else
+						if (timer == 5) {
+							lower = (struct pwm_lowerhalf_s *)&g_pwm1_1;
+						} else
 #endif
-	{
-		lldbg("ERROR: invalid PWM is requested\n");
-	}
+						{
+							lldbg("ERROR: invalid PWM is requested\n");
+						}
 
 	return lower;
 }

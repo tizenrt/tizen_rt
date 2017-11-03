@@ -1159,7 +1159,7 @@ static void tiva_i2c_nextxfr(struct tiva_i2c_priv_s *priv, uint32_t cmd)
 
 		/* We are sending data.  Write the data to be sent to the DR register. */
 
-		dr = (uint32_t)*priv->mptr++;
+		dr = (uint32_t) * priv->mptr++;
 		tiva_i2c_putreg(priv, TIVA_I2CM_DR_OFFSET, dr << I2CM_DR_SHIFT);
 
 		/* Write the command to the control register to send the byte in the DR

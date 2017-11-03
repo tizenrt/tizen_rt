@@ -143,12 +143,13 @@ static char *MY_strtok_r(char *str, const char *delim, char **saveptr)
 	 * the point we left off.
 	 */
 
-	if (str)
+	if (str) {
 		pbegin = str;
-	else if (saveptr && *saveptr)
+	} else if (saveptr && *saveptr) {
 		pbegin = *saveptr;
-	else
+	} else {
 		return NULL;
+	}
 
 	/* Find the beginning of the next token */
 
@@ -158,8 +159,9 @@ static char *MY_strtok_r(char *str, const char *delim, char **saveptr)
 	 * but delimiters found, then return NULL.
 	 */
 
-	if (!*pbegin)
+	if (!*pbegin) {
 		return NULL;
+	}
 
 	/* Find the end of the token */
 
@@ -179,8 +181,9 @@ static char *MY_strtok_r(char *str, const char *delim, char **saveptr)
 	 * beginning of the token.
 	 */
 
-	if (saveptr)
+	if (saveptr) {
 		*saveptr = pend;
+	}
 	return pbegin;
 }
 
@@ -275,48 +278,56 @@ static void parse_args(int argc, char **argv)
 			g_cc = g_cflags;
 			g_cflags = args;
 			args = NULL;
-		} else if (strcmp(argv[argidx], "--dep-debug") == 0)
+		} else if (strcmp(argv[argidx], "--dep-debug") == 0) {
 			g_debug++;
-		else if (strcmp(argv[argidx], "--dep-path") == 0) {
+		} else if (strcmp(argv[argidx], "--dep-path") == 0) {
 			argidx++;
-			if (argidx >= argc)
+			if (argidx >= argc) {
 				show_usage(argv[0], "ERROR: Missing argument to --dep-path", EXIT_FAILURE);
+			}
 
-			if (args)
+			if (args) {
 				append(&args, argv[argidx]);
-			else
+			} else {
 				append(&g_altpath, argv[argidx]);
+			}
 		} else if (strcmp(argv[argidx], "--obj-path") == 0) {
 			argidx++;
-			if (argidx >= argc)
+			if (argidx >= argc) {
 				show_usage(argv[0], "ERROR: Missing argument to --obj-path", EXIT_FAILURE);
+			}
 
 			g_objpath = argv[argidx];
 		} else if (strcmp(argv[argidx], "--obj-suffix") == 0) {
 			argidx++;
-			if (argidx >= argc)
+			if (argidx >= argc) {
 				show_usage(argv[0], "ERROR: Missing argument to --obj-suffix", EXIT_FAILURE);
+			}
 
 			g_suffix = argv[argidx];
-		} else if (strcmp(argv[argidx], "--winnative") == 0)
+		} else if (strcmp(argv[argidx], "--winnative") == 0) {
 			g_winnative = true;
+		}
 #ifdef HAVE_WINPATH
 		else if (strcmp(argv[argidx], "--winpath") == 0) {
 			g_winpath = true;
-			if (g_topdir)
+			if (g_topdir) {
 				free(g_topdir);
+			}
 
 			argidx++;
-			if (argidx >= argc)
+			if (argidx >= argc) {
 				show_usage(argv[0], "ERROR: Missing argument to --winpath", EXIT_FAILURE);
+			}
 
 			g_topdir = strdup(argv[argidx]);
 		}
 #endif
-		else if (strcmp(argv[argidx], "--help") == 0)
+		else if (strcmp(argv[argidx], "--help") == 0) {
 			show_usage(argv[0], NULL, EXIT_SUCCESS);
-		else
+		} else {
 			append(&args, argv[argidx]);
+		}
 	}
 
 	/* The final thing accumulated is the list of files */
@@ -325,8 +336,9 @@ static void parse_args(int argc, char **argv)
 
 	/* If no paths were specified, then look in the current directory only */
 
-	if (!g_altpath)
+	if (!g_altpath) {
 		g_altpath = strdup(".");
+	}
 
 	if (g_debug) {
 		fprintf(stderr, "SELECTIONS\n");
@@ -337,21 +349,24 @@ static void parse_args(int argc, char **argv)
 		if (g_objpath) {
 			fprintf(stderr, "  OBJDIR         : [%s]\n", g_objpath);
 			fprintf(stderr, "  SUFFIX         : [%s]\n", g_suffix);
-		} else
+		} else {
 			fprintf(stderr, "  OBJDIR         : (None)\n");
+		}
 
 #ifdef HAVE_WINPATH
 		fprintf(stderr, "  Windows Paths  : [%s]\n", g_winpath ? "TRUE" : "FALSE");
-		if (g_winpath)
+		if (g_winpath) {
 			fprintf(stderr, "  TOPDIR         : [%s]\n", g_topdir);
+		}
 #endif
 		fprintf(stderr, "  Windows Native : [%s]\n", g_winnative ? "TRUE" : "FALSE");
 	}
 
 	/* Check for required parameters */
 
-	if (!g_cc)
+	if (!g_cc) {
 		show_usage(argv[0], "ERROR: No compiler specified", EXIT_FAILURE);
+	}
 
 	if (!g_files) {
 		/* Don't report an error -- this happens normally in some configurations */
@@ -360,8 +375,9 @@ static void parse_args(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 #ifdef HAVE_WINPATH
-	if (g_winnative && g_winpath)
+	if (g_winnative && g_winpath) {
 		show_usage(argv[0], "ERROR: Both --winnative and --winpapth makes no sense", EXIT_FAILURE);
+	}
 #endif
 }
 
@@ -413,8 +429,9 @@ static void do_dependency(const char *file, char separator)
 
 		objname = basename(dupname);
 		dotptr = strrchr(objname, '.');
-		if (dotptr)
+		if (dotptr) {
 			*dotptr = '\0';
+		}
 
 		snprintf(tmp, NAME_MAX + 6, " -MT %s" DELIM "%s%s ", g_objpath, objname, g_suffix);
 
@@ -508,8 +525,9 @@ static void do_dependency(const char *file, char separator)
 
 		/* Check that a file actually exists at this path */
 
-		if (g_debug)
+		if (g_debug) {
 			fprintf(stderr, "Trying path=%s file=%s fullpath=%s\n", path, file, &g_command[cmdlen]);
+		}
 
 		ret = stat(&g_command[cmdlen], &buf);
 		if (ret < 0) {
@@ -527,16 +545,18 @@ static void do_dependency(const char *file, char separator)
 		 * from the compiler is in WEXITSTATUS(ret).
 		 */
 
-		if (g_debug)
+		if (g_debug) {
 			fprintf(stderr, "Executing: %s\n", g_command);
+		}
 
 		ret = system(g_command);
 #ifdef WEXITSTATUS
 		if (ret < 0 || WEXITSTATUS(ret) != 0) {
-			if (ret < 0)
+			if (ret < 0) {
 				fprintf(stderr, "ERROR: system failed: %s\n", strerror(errno));
-			else
+			} else {
 				fprintf(stderr, "ERROR: %s failed: %d\n", g_cc, WEXITSTATUS(ret));
+			}
 
 			fprintf(stderr, "       command: %s\n", g_command);
 			exit(EXIT_FAILURE);
@@ -575,8 +595,9 @@ static char *cywin2windows(const char *str, const char *append, enum slashmode_e
 
 	/* Skip any leading whitespace */
 
-	while (isspace(*str))
+	while (isspace(*str)) {
 		str++;
+	}
 
 	/* Were we asked to append something? */
 
@@ -624,8 +645,9 @@ static char *cywin2windows(const char *str, const char *append, enum slashmode_e
 	if (mode == MODE_DBLBACK) {
 		const char *tmpptr;
 		for (tmpptr = str; *tmpptr; tmpptr++) {
-			if (*tmpptr == '/')
+			if (*tmpptr == '/') {
 				alloclen++;
+			}
 		}
 	}
 
@@ -655,18 +677,21 @@ static char *cywin2windows(const char *str, const char *append, enum slashmode_e
 		if (mode != MODE_FSLASH && *str == '/') {
 			if (lastchar != '/') {
 				*dest++ = '\\';
-				if (mode == MODE_DBLBACK)
+				if (mode == MODE_DBLBACK) {
 					*dest++ = '\\';
+				}
 			}
-		} else
+		} else {
 			*dest++ = *str;
+		}
 
 		lastchar = *str;
 	}
 
 	*dest++ = '\0';
-	if (allocpath)
+	if (allocpath) {
 		free(allocpath);
+	}
 	return dest;
 }
 #endif
@@ -716,9 +741,9 @@ int main(int argc, char **argv, char **envp)
 		 */
 
 #ifdef HAVE_WINPATH
-		if (g_winpath)
+		if (g_winpath) {
 			do_winpath(file);
-		else
+		} else
 #endif
 		{
 			do_dependency(file, g_winnative ? '\\' : '/');

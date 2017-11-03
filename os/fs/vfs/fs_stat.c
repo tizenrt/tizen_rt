@@ -84,17 +84,17 @@ static inline int statpseudo(FAR struct inode *inode, FAR struct stat *buf)
 		} else
 #endif
 #if !defined(CONFIG_DISABLE_MQUEUE)
-		if (INODE_IS_MQUEUE(inode)) {
-			buf->st_mode = S_IFMQ;
-		} else
+			if (INODE_IS_MQUEUE(inode)) {
+				buf->st_mode = S_IFMQ;
+			} else
 #endif
 #if defined(CONFIG_FS_SHM)
-		if (INODE_IS_SHM(inode)) {
-			buf->st_mode | S_IFSHM;
-		} else
+				if (INODE_IS_SHM(inode)) {
+					buf->st_mode | S_IFSHM;
+				} else
 #endif
-		{
-		}
+				{
+				}
 	} else if (inode->u.i_ops) {
 		if (inode->u.i_ops->read) {
 			buf->st_mode = S_IROTH | S_IRGRP | S_IRUSR;

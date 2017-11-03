@@ -82,8 +82,9 @@ char line[LINESIZE + 1];
 
 static char *skip_space(char *ptr)
 {
-	while (*ptr && isspace((int)*ptr))
+	while (*ptr && isspace((int)*ptr)) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -91,8 +92,9 @@ static char *skip_space(char *ptr)
 
 static char *find_name_end(char *ptr)
 {
-	while (*ptr && (isalnum((int)*ptr) || *ptr == '_'))
+	while (*ptr && (isalnum((int)*ptr) || *ptr == '_')) {
 		ptr++;
+	}
 	return ptr;
 }
 
@@ -102,15 +104,16 @@ static char *find_value_end(char *ptr)
 {
 	while (*ptr && !isspace((int)*ptr)) {
 		if (*ptr == '"') {
-			do
+			do {
 				ptr++;
-			while (*ptr && *ptr != '"');
-			if (*ptr)
+			} while (*ptr && *ptr != '"');
+			if (*ptr) {
 				ptr++;
+			}
 		} else {
-			do
+			do {
 				ptr++;
-			while (*ptr && !isspace((int)*ptr) && *ptr != '"');
+			} while (*ptr && !isspace((int)*ptr) && *ptr != '"');
 		}
 	}
 	return ptr;
@@ -118,18 +121,19 @@ static char *find_value_end(char *ptr)
 
 /* Read the next line from the configuration file */
 
-static char *read_line(FILE * stream)
+static char *read_line(FILE *stream)
 {
 	char *ptr;
 
 	for (;;) {
 		line[LINESIZE] = '\0';
-		if (!fgets(line, LINESIZE, stream))
+		if (!fgets(line, LINESIZE, stream)) {
 			return NULL;
-		else {
+		} else {
 			ptr = skip_space(line);
-			if (*ptr && *ptr != '#' && *ptr != '\n')
+			if (*ptr && *ptr != '#' && *ptr != '\n') {
 				return ptr;
+			}
 		}
 	}
 }
@@ -199,7 +203,7 @@ static void parse_line(char *ptr, char **varname, char **varval)
  * Public Functions
  ****************************************************************************/
 
-void parse_file(FILE * stream, struct variable_s **list)
+void parse_file(FILE *stream, struct variable_s **list)
 {
 	struct variable_s *curr;
 	struct variable_s *prev;
@@ -223,8 +227,9 @@ void parse_file(FILE * stream, struct variable_s **list)
 			 * ignore it.
 			 */
 
-			if (!varval || strcmp(varval, "n") == 0)
+			if (!varval || strcmp(varval, "n") == 0) {
 				continue;
+			}
 
 			/* Make sure that a variable name was found. */
 
@@ -236,8 +241,9 @@ void parse_file(FILE * stream, struct variable_s **list)
 				 * character.
 				 */
 
-				if (varval)
+				if (varval) {
 					vallen = strlen(varval) + 1;
+				}
 
 				/* Allocate memory to hold the struct variable_s with the
 				 * variable name and the value.
@@ -263,10 +269,11 @@ void parse_file(FILE * stream, struct variable_s **list)
 						next = next->flink;
 					}
 
-					if (prev)
+					if (prev) {
 						prev->flink = curr;
-					else
+					} else {
 						*list = curr;
+					}
 
 					curr->flink = next;
 				}
@@ -278,8 +285,9 @@ void parse_file(FILE * stream, struct variable_s **list)
 struct variable_s *find_variable(const char *varname, struct variable_s *list)
 {
 	while (list) {
-		if (strcmp(varname, list->var) == 0)
+		if (strcmp(varname, list->var) == 0) {
 			return list;
+		}
 
 		list = list->flink;
 	}

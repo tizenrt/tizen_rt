@@ -289,15 +289,15 @@ typedef struct pthread_cond_s pthread_cond_t;
  * @brief Structure of pthread mutex attr configuration
  */
 struct pthread_mutexattr_s {
-	uint8_t pshared:1; /* PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED */
+	uint8_t pshared: 1; /* PTHREAD_PROCESS_PRIVATE or PTHREAD_PROCESS_SHARED */
 #ifdef CONFIG_PRIORITY_INHERITANCE
-	uint8_t proto:2; /* See PTHREAD_PRIO_* definitions */
+	uint8_t proto: 2; /* See PTHREAD_PRIO_* definitions */
 #endif
 #ifdef CONFIG_PTHREAD_MUTEX_TYPES
-	uint8_t type:2; /* Type of the mutex.  See PTHREAD_MUTEX_* definitions */
+	uint8_t type: 2; /* Type of the mutex.  See PTHREAD_MUTEX_* definitions */
 #endif
 #if defined(CONFIG_PTHREAD_MUTEX_BOTH) || defined(CONFIG_PTHREAD_MUTEX_ROBUST)
-	uint8_t robust:1; /* PTHREAD_MUTEX_STALLED or PTHREAD_MUTEX_ROBUST */
+	uint8_t robust: 1; /* PTHREAD_MUTEX_STALLED or PTHREAD_MUTEX_ROBUST */
 #endif
 };
 typedef struct pthread_mutexattr_s pthread_mutexattr_t;
@@ -812,25 +812,25 @@ int pthread_mutexattr_settype(pthread_mutexattr_t *attr, int type);
  * @since Tizen RT v1.1
  */
 int pthread_mutexattr_getprotocol(FAR const pthread_mutexattr_t *attr,
-				  FAR int *protocol);
+								  FAR int *protocol);
 /**
  * @brief  POSIX APIs (refer to : http://pubs.opengroup.org/onlinepubs/9699919799/)
  * @since Tizen RT v1.1
  */
 int pthread_mutexattr_setprotocol(FAR pthread_mutexattr_t *attr,
-				  int protocol);
+								  int protocol);
 /**
  * @brief  POSIX APIs (refer to : http://pubs.opengroup.org/onlinepubs/9699919799/)
  * @since Tizen RT v1.1
  */
 int pthread_mutexattr_getrobust(FAR const pthread_mutexattr_t *attr,
-				FAR int *robust);
+								FAR int *robust);
 /**
  * @brief  POSIX APIs (refer to : http://pubs.opengroup.org/onlinepubs/9699919799/)
  * @since Tizen RT v1.1
  */
 int pthread_mutexattr_setrobust(FAR pthread_mutexattr_t *attr,
-				int robust);
+								int robust);
 
 /* Operations on condition variables */
 /**

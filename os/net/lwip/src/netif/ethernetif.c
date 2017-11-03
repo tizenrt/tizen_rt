@@ -250,11 +250,11 @@ static void ethernetif_input(struct netif *netif)
 	ethhdr = p->payload;
 
 	switch (htons(ethhdr->type)) {
-		/* IP or ARP packet? */
+	/* IP or ARP packet? */
 	case ETHTYPE_IP:
 	case ETHTYPE_ARP:
 #if PPPOE_SUPPORT
-		/* PPPoE packet? */
+	/* PPPoE packet? */
 	case ETHTYPE_PPPOEDISC:
 	case ETHTYPE_PPPOE:
 #endif							/* PPPOE_SUPPORT */

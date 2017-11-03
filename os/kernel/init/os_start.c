@@ -551,11 +551,11 @@ void os_start(void)
 
 	/* Bring Up the System ****************************************************/
 	/* Create initial tasks and bring-up the system */
-    //rda_printf("===idle task :: launch tash ===\n");
-    
-    DEBUGVERIFY(os_bringup());
+	//rda_printf("===idle task :: launch tash ===\n");
 
-    //rda_printf("===idle task :: after launch tash===\n");
+	DEBUGVERIFY(os_bringup());
+
+	//rda_printf("===idle task :: after launch tash===\n");
 	/* The IDLE Loop **********************************************************/
 	/* When control is return to this point, the system is idle. */
 

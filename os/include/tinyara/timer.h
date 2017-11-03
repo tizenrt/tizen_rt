@@ -164,12 +164,12 @@ struct timer_ops_s {
 	/* Get the current timer status */
 
 	CODE int (*getstatus)(FAR struct timer_lowerhalf_s *lower,
-			      FAR struct timer_status_s *status);
+						  FAR struct timer_status_s *status);
 
 	/* Set a new timeout value (and reset the timer) */
 
 	CODE int (*settimeout)(FAR struct timer_lowerhalf_s *lower,
-			       uint32_t timeout);
+						   uint32_t timeout);
 
 	/* Call the TinyARA INTERNAL timeout callback on timeout.
 	 * NOTE:  Providing callback==NULL disable.
@@ -177,14 +177,14 @@ struct timer_ops_s {
 	 */
 
 	CODE void (*setcallback)(FAR struct timer_lowerhalf_s *lower,
-				 CODE tccb_t callback, FAR void *arg);
+							 CODE tccb_t callback, FAR void *arg);
 
 	/* Any ioctl commands that are not recognized by the "upper-half"
 	 * driver are forwarded to the lower half driver through this method.
 	 */
 
 	CODE int (*ioctl)(FAR struct timer_lowerhalf_s *lower, int cmd,
-			  unsigned long arg);
+					  unsigned long arg);
 };
 
 /* This structure provides the publicly visible representation of the
@@ -253,7 +253,7 @@ extern "C"
  ****************************************************************************/
 
 FAR void *timer_register(FAR const char *path,
-			 FAR struct timer_lowerhalf_s *lower);
+						 FAR struct timer_lowerhalf_s *lower);
 
 /****************************************************************************
  * Name: timer_unregister
