@@ -192,7 +192,7 @@ void Dump_NVIC(void)
         lldbg("Interrupt Clear Enable Register %d: %08x\n", i, NVIC->ICER[i]);
         lldbg("Interrupt Set Pending Register %d: %08x\n", i, NVIC->ISPR[i]);
         lldbg("Interrupt Clear Pending Register %d : %08x\n",i, NVIC->ICPR[i]);
-        lldbg("Interrupt Clear Pending Register %d : %08x\n", i, NVIC->IABR[i]);
+        lldbg("Interrupt Active bit Register %d : %08x\n", i, NVIC->IABR[i]);
         lldbg("=====================================\n\n");
     } 
    
