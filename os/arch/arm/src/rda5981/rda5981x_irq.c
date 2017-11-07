@@ -54,7 +54,6 @@
 #include "rda5981x_gpio.h"
 //#include "rda5981x_clrpend.h"
 
-#define _err        (void)
 
 volatile uint32_t *current_regs;
 /****************************************************************************
@@ -154,7 +153,7 @@ static void rda_dumpnvic(const char *msg, int irq)
 static int rda_nmi(int irq, FAR void *context, FAR void *arg)
 {
 	(void)irqsave();
-	_err("PANIC!!! NMI received\n");
+	lldbg("PANIC!!! NMI received\n");
 	PANIC();
 	return 0;
 }
@@ -162,15 +161,17 @@ static int rda_nmi(int irq, FAR void *context, FAR void *arg)
 static int rda_busfault(int irq, FAR void *context, FAR void *arg)
 {
 	(void)irqsave();
-	_err("PANIC!!! Bus fault recived\n");
+	lldbg("\nPANIC!!! Bus fault received\n");
+    Dump_NVIC();
 	PANIC();
 	return 0;
 }
 
 static int rda_usagefault(int irq, FAR void *context, FAR void *arg)
 {
+    up_putc('u');
 	(void)irqsave();
-	_err("PANIC!!! Usage fault received\n");
+	lldbg("PANIC!!! Usage fault received\n");
 	PANIC();
 	return 0;
 }
@@ -178,7 +179,7 @@ static int rda_usagefault(int irq, FAR void *context, FAR void *arg)
 static int rda_pendsv(int irq, FAR void *context, FAR void *arg)
 {
 	(void)irqsave();
-	_err("PANIC!!! PendSV received\n");
+	lldbg("PANIC!!! PendSV received\n");
 	PANIC();
 	return 0;
 }
@@ -186,7 +187,7 @@ static int rda_pendsv(int irq, FAR void *context, FAR void *arg)
 static int rda_dbgmonitor(int irq, FAR void *context, FAR void *arg)
 {
 	(void)irqsave();
-	_err("PANIC!!! Debug Monitor received\n");
+	lldbg("PANIC!!! Debug Monitor received\n");
 	PANIC();
 	return 0;
 }
@@ -194,7 +195,7 @@ static int rda_dbgmonitor(int irq, FAR void *context, FAR void *arg)
 static int rda_reserved(int irq, FAR void *context, FAR void *arg)
 {
 	(void)irqsave();
-	_err("PANIC!!! Reserved interrupt\n");
+	lldbg("PANIC!!! Reserved interrupt\n");
 	PANIC();
 	return 0;
 }
@@ -382,10 +383,13 @@ void up_irqinitialize(void)
 #ifdef CONFIG_DEBUG_FEATURES
 	irq_attach(RDA_IRQ_NMI, rda_nmi, NULL);
 #ifndef CONFIG_ARM_MPU
-	irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
+	//irq_attach(RDA_IRQ_MEMFAULT, up_memfault, NULL);
 #endif
 	irq_attach(RDA_IRQ_BUSFAULT, rda_busfault, NULL);
+	up_enable_irq(RDA_IRQ_BUSFAULT);
 	irq_attach(RDA_IRQ_USAGEFAULT, rda_usagefault, NULL);
+    up_enable_irq(RDA_IRQ_USAGEFAULT);
+
 	irq_attach(RDA_IRQ_PENDSV, rda_pendsv, NULL);
 	irq_attach(RDA_IRQ_DBGMONITOR, rda_dbgmonitor, NULL);
 	irq_attach(RDA_IRQ_RESERVED, rda_reserved, NULL);

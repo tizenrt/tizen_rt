@@ -261,7 +261,11 @@ void rtc_test(void) {
     }
 }
 
-
+void busfault_raise_test(void)
+{
+    int *p = (int *)0xffffffff;
+    *p = 1;
+}
 
 
 #if 0
@@ -274,6 +278,9 @@ WDOG_ID dog;
 #endif
 static void *hello_example(void *arg)
 {
+
+// busfault_raise_test();
+
 /*I2C TEST */
 	//i2c_test();
 
@@ -290,7 +297,7 @@ static void *hello_example(void *arg)
 	//spi_test();	
 
 /*I2S TEST*/
-	i2s_test();
+	//i2s_test();
 
 /*RTC TEST*/
 	//rtc_test();

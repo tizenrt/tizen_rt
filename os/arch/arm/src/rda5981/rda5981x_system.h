@@ -37,6 +37,15 @@ extern "C" {
 #define RDA_PADDR_OFST        (0x00001000UL)
 #define RDA_CODE_BASE         (RDA_ICACHE_BASE + RDA_PADDR_OFST)
 
+#define SCB_SHCSR_USGFAULTENA_Pos          18                                             /*!< SCB SHCSR: USGFAULTENA Position */
+#define SCB_SHCSR_USGFAULTENA_Msk          (1UL << SCB_SHCSR_USGFAULTENA_Pos)             /*!< SCB SHCSR: USGFAULTENA Mask */
+
+#define SCB_SHCSR_BUSFAULTENA_Pos          17                                             /*!< SCB SHCSR: BUSFAULTENA Position */
+#define SCB_SHCSR_BUSFAULTENA_Msk          (1UL << SCB_SHCSR_BUSFAULTENA_Pos)             /*!< SCB SHCSR: BUSFAULTENA Mask */
+
+#define SCB_SHCSR_MEMFAULTENA_Pos          16                                             /*!< SCB SHCSR: MEMFAULTENA Position */
+#define SCB_SHCSR_MEMFAULTENA_Msk          (1UL << SCB_SHCSR_MEMFAULTENA_Pos) 
+
 typedef enum IRQn {
 	/******  Cortex-M4 Processor Exceptions Numbers ***************************************************/
 	NonMaskableInt_IRQn           = -14,      /*!< 2 Non Maskable Interrupt                         */
@@ -173,6 +182,10 @@ extern void SystemInit(void);
  *         retrieved from cpu registers.
  */
 extern void SystemCoreClockUpdate(void);
+
+
+/*show nvic register value*/
+extern void Dump_NVIC(void);
 
 #ifdef __cplusplus
 }

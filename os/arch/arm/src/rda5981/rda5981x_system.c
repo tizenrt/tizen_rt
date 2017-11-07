@@ -24,6 +24,7 @@
 
 
 #include <stdint.h>
+#include <debug.h>
 #include "rda5981x_system.h"
 
 
@@ -178,12 +179,25 @@ void SystemInit(void)
 	SCB->VTOR  = RDA_CODE_BASE;                       /* vector table in flash      */
 	NVIC_SetPriorityGrouping(0x06);                   /* 1 bit for pre-emption pri  */
 
+    SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk); 
 }
 
-/**
- * @}
- */
+void Dump_NVIC(void)
+{
+    int i;
 
-/**
- * @}
- */
+    for( i = 0; i < 8; i++)
+    {
+        lldbg("Interrupt Set Enable Register %d: %08x\n", i, NVIC->ISER[i]);
+        lldbg("Interrupt Clear Enable Register %d: %08x\n", i, NVIC->ICER[i]);
+        lldbg("Interrupt Set Pending Register %d: %08x\n", i, NVIC->ISPR[i]);
+        lldbg("Interrupt Clear Pending Register %d : %08x\n",i, NVIC->ICPR[i]);
+        lldbg("Interrupt Clear Pending Register %d : %08x\n", i, NVIC->IABR[i]);
+        lldbg("=====================================\n\n");
+    } 
+   
+    lldbg("Software Trigger Interrupt Register %d : %08x\n", NVIC->STIR);
+}
+
+
+
