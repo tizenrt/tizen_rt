@@ -188,15 +188,15 @@ void Dump_NVIC(void)
 
     for( i = 0; i < 8; i++)
     {
-        lldbg("Interrupt Set Enable Register %d: %08x\n", i, NVIC->ISER[i]);
-        lldbg("Interrupt Clear Enable Register %d: %08x\n", i, NVIC->ICER[i]);
-        lldbg("Interrupt Set Pending Register %d: %08x\n", i, NVIC->ISPR[i]);
-        lldbg("Interrupt Clear Pending Register %d : %08x\n",i, NVIC->ICPR[i]);
-        lldbg("Interrupt Active bit Register %d : %08x\n", i, NVIC->IABR[i]);
+        lldbg("Interrupt Set Enable Register %d: 0x%08x\n", i, NVIC->ISER[i]);
+        lldbg("Interrupt Clear Enable Register %d: 0x%08x\n", i, NVIC->ICER[i]);
+        lldbg("Interrupt Set Pending Register %d: 0x%08x\n", i, NVIC->ISPR[i]);
+        lldbg("Interrupt Clear Pending Register %d : 0x%08x\n",i, NVIC->ICPR[i]);
+        lldbg("Interrupt Active bit Register %d : 0x%08x\n", i, NVIC->IABR[i]);
         lldbg("=====================================\n\n");
     } 
    
-    lldbg("Software Trigger Interrupt Register %d : %08x\n", NVIC->STIR);
+    lldbg("Software Trigger Interrupt Register %d : 0x%08x\n", NVIC->STIR);
 }
 
 

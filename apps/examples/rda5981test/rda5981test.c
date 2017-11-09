@@ -267,6 +267,47 @@ void busfault_raise_test(void)
     *p = 1;
 }
 
+void heap_allocate_test(void)
+{
+    int *p;
+    bool I_SRAM = 0;
+    bool D_SRAM = 0;
+
+    while(1)
+    {
+        p = (int*)malloc(16*1024);
+        
+        if(p == NULL)
+        {
+            printf("error\n");
+            return;
+        }
+
+        if( (unsigned int)p > 0x00180000)
+        {
+           printf("heap2 D_SRAM memory 0x%08x\n", p);
+           *p = 1;
+           if(D_SRAM == false)
+               D_SRAM = true;
+        }
+
+        else
+        {
+            printf("heap1 I_SRAM memory 0x%08x\n", p);
+            *p=1;
+
+                if(I_SRAM == false)
+                    I_SRAM = true;
+        }
+
+        if(I_SRAM && D_SRAM)
+        {
+            return;
+        }
+        
+    }
+
+}
 
 #if 0
 #define DELAY 10 * 10000
@@ -279,7 +320,9 @@ WDOG_ID dog;
 static void *hello_example(void *arg)
 {
 
-// busfault_raise_test();
+   heap_allocate_test();
+
+//  busfault_raise_test();
 
 /*I2C TEST */
 	//i2c_test();

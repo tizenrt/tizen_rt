@@ -69,7 +69,7 @@ config MM_REGIONS
 		mm_addregion(heap, start, end);
 
 config ARCH_HAVE_HEAP2
-	bool
+	bool "Heap2 Configure"
 	default n
 
 if ARCH_HAVE_HEAP2
