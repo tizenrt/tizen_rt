@@ -73,12 +73,12 @@
 
 int board_pwm_setup(void)
 {
-#ifdef CONFIG_RDA5981X_PWM
+#ifdef CONFIG_RDA5981_PWM
 	struct pwm_lowerhalf_s *pwm;
 	char path[10];
 	int ret;
 	int i;
-	for (i = 0; i < CONFIG_SIDK_RDA5981XT200_PWM_CHNUM; i++) {
+	for (i = 0; i < CONFIG_RDA5981_PWM_CHNUM; i++) {
 		pwm = rda5981x_pwminitialize(i);
 		if (!pwm) {
 			lldbg("Failed to get the RDA5981X PWM lower half\n");

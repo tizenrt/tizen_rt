@@ -205,8 +205,8 @@ void board_initialize(void)
 	//slsi_driver_initialize();
 #endif
 
-#ifdef CONFIG_S5J_PWM
-	//board_pwm_setup();
+#ifdef CONFIG_RDA5981_PWM
+	board_pwm_setup();
 #endif
 
 	board_gpio_initialize();

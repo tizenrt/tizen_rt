@@ -181,3 +181,7 @@ if ARCH_BOARD_SIDK_S5JT200
 source arch/arm/src/sidk_s5jt200/Kconfig
 endif
 
+if ARCH_BOARD_RDA5981
+source arch/arm/src/rda5981_board/Kconfig
+endif
+
