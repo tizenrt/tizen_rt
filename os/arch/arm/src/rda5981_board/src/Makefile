@@ -56,7 +56,7 @@
 DEPPATH = --dep-path .
 CFLAGS += -I$(TOPDIR)/sched
 ASRCS =
-CSRCS = rda5981_boot.c rda5981_tash.c
+CSRCS = rda5981_boot.c rda5981_tash.c rda5981_pwm.c
 
 
 # boardctl support

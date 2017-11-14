@@ -5,6 +5,17 @@
 
 if ARCH_BOARD_RDA5981
 
+
+
+config RDA5981_PWM_CHNUM
+    int "Number of PWM channel"
+    default 6
+
+    ---help---
+        Sets the number of pwm channel exposed RDA5981C
+        evaluation board
+
+
 choice
 	bool "Build for qemu hardware"
 	default QEMU_NONE
