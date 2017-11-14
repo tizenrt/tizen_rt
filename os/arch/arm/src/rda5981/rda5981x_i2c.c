@@ -315,14 +315,14 @@ static uint32_t rda5981x_i2c_setfrequency(FAR struct i2c_dev_s *dev,
 	struct rda5981x_i2cdev_s *priv = (struct rda5981x_i2cdev_s *)dev;
 	/* Set I2C frequency */
 	if (frequency != priv->frequency) {
-
-
-		uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
+        
+        uint32_t prescale = I2C_CLOCK_SOURCE / ((uint32_t)frequency * 5U) - 1U;
 		uint32_t reg_val;
 
 		reg_val = getreg32(priv->base + I2C_CR0) & ~(0xFFFFUL << 16);
 		putreg32(reg_val | (prescale << 16), priv->base + I2C_CR0);
 		priv->frequency = frequency;
+      
 	}
 	return 0;
 }
@@ -434,7 +434,7 @@ struct i2c_dev_s *rda5981x_i2cbus_initialize(int port)
 		return NULL;
 	}
 
-	if (port == 0) {
+	if (port == 1) {
 		priv        = &g_i2c0dev;
 		priv->base  = RDA_I2C0_BASE;
 		priv->frequency = I2C_DEFAULT_CLOCK;

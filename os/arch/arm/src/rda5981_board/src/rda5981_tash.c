@@ -305,8 +305,7 @@ int board_app_initialize(void)
 #endif
 
 #ifdef CONFIG_RDA5981_I2C
-	//rda5981x_i2c_register(0);
-	//rda5981x_i2c_register(1);
+	    rda5981x_i2c_register(1);
 #endif
 
 
