@@ -58,7 +58,8 @@ include $(APPDIR)/Make.defs
 
 ASRCS =
 CSRCS =
-MAINSRC = rda5981test.c rda_i2s_test.c
+MAINSRC = kernel_sample_main.c  mutex.c sem.c semtimed.c posixtimer.c testapp_mqueue_thread.c
+
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

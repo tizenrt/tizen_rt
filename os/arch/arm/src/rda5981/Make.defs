@@ -104,7 +104,7 @@ endif
 
 /*======================*/
 CMN_CSRCS += rda5981x_start.c rda5981x_irq.c  rda5981x_timerisr.c rda5981x_clockconfig.c rda5981x_system.c 
-CMN_CSRCS += rda5981x_mac.c
+CMN_CSRCS += rda5981x_mac.c sys_wrapper.c
 
 ifeq ($(CONFIG_ARCH_HAVE_HEAP2),y)
 CHIP_CSRCS+=rda5981x_allocateheap.c
