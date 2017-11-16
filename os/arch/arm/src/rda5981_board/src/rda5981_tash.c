@@ -308,11 +308,6 @@ int board_app_initialize(void)
 	    rda5981x_i2c_register(1);
 #endif
 
-#ifdef CONFIG_RDA5981_I2C
-	    rda5981x_i2c_register(1);
-#endif
-
-
 #if defined(CONFIG_RTC)
 	{
 		struct tm tp;
