@@ -120,7 +120,7 @@ int systemio_test_gpio(char *failstr)
 		iotbus_gpio_context_h cxt;
 		int num;
 	};
-	static struct gpio_s gpio[] = { {NULL, 12}, {NULL, 14} };
+	static struct gpio_s gpio[] = { {NULL, 37}, {NULL, 38} };
 	int totalGpios = sizeof(gpio) / sizeof(struct gpio_s);
 
 	/* open */
@@ -629,6 +629,7 @@ int sysio_main(int argc, char *argv[])
 	char *test_title;
 
 	g_debug = 0;
+
 	switch (argc) {
 	case 3:
 		g_debug = atoi(argv[2]);
