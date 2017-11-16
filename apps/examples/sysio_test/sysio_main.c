@@ -460,7 +460,11 @@ int systemio_test_spi(char *failstr)
 	struct iotbus_spi_config_s config = {
 		(char)8,
 		0,
-		12000000,
+#ifdef CONFIG_ARCH_CHIP_RDA5981C 
+		10000000,
+#else
+        12000000,
+#endif
 		0,
 	};
 
