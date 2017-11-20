@@ -310,8 +310,10 @@ int board_app_initialize(void)
 
 #if defined(CONFIG_RTC)
 	{
+#define CUSTOM_TIME  1256729737
 		struct tm tp;
 
+		rtc_write(CUSTOM_TIME); // Set RTC time to Wed, 28 Oct 2009 11:35:37
 		up_rtc_getdatetime(&tp);
 		lldbg("RTC getdatetime %d/%d/%d/%d/%d/%d\n",
 			  tp.tm_year + 1900, tp.tm_mon + 1,

@@ -76,6 +76,10 @@
 #include "../arch/arm/src/rda5981/rda5981x_watchdog.h"
 #include "../arch/arm/src/rda5981/rda5981x_pwm.h"
 
+#include <tinyara/rtc.h>
+#include <fcntl.h>
+
+
 static struct i2c_dev_s *i2c_dev;
 static struct i2c_config_s configs;
 
@@ -242,23 +246,108 @@ void spi_test(void)
 // RTC test
 #define CUSTOM_TIME  1256729737
 
-void rtc_test(void) {
-    char buffer[32] = {0};
-	up_rtc_initialize();
+
+
+int rtc_openDev(void)
+{
+	const char * devName = "/dev/rtc0";
+	int fd;
+	fd = open(devName, O_RDONLY);
+	if (fd < 0) {
+		printf("open %s failed\n", devName);
+		return -1;
+	}
+
+	return fd;
+}
+
+
+int rtc_setDate(int fd, struct rtc_time *currentTime)
+{
+	int ret;
 	
-    rtc_write(CUSTOM_TIME);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
+	ret = ioctl(fd, RTC_SET_TIME, currentTime);
+	if(ret < 0)
+	{
+		printf("rtc_setDate failed!\n");
+		return -1;
+	}	
+
+	return 0;
+}
+
+
+int rtc_getDateTime(int fd, struct rtc_time *currentTime)
+{
+	int ret;
+	
+	ret = ioctl(fd, RTC_RD_TIME, currentTime);
+	if(ret < 0)
+	{
+		printf("rtc_getDateTime failed!\n");
+		return -1;
+	}	
+
+	return 0;
+}
+
+
+void rtc_closeDev(int fd)
+{	
+	close(fd);
+}
+
+
+void convertTime(struct rtc_time *currentTime)
+{
+	currentTime->tm_mon = currentTime->tm_mon - 1; //convert month
+	currentTime->tm_year = currentTime->tm_year - 1900; //convert year
+}
+
+
+void rtc_test(void) {
+   // char buffer[32] = {0};
+	struct rtc_time currentTime,newTime;
+	int fd;
+	
+	//up_rtc_initialize();
+    //rtc_write(CUSTOM_TIME);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
+
+	fd = rtc_openDev();
+	if(fd <0)
+	{
+		return;
+	}
+
+	//set time // Set RTC time to Wed, 28 Oct 2009 11:35:37
+	currentTime.tm_sec = 37;
+	currentTime.tm_min = 35;
+	currentTime.tm_hour = 11;
+	currentTime.tm_mday = 28;
+	currentTime.tm_mon = 10;
+	currentTime.tm_year = 2009;
+
+	convertTime(&currentTime);
+
+	rtc_setDate(fd,&currentTime);
 
     while (true) {
-        time_t seconds;
+        //time_t seconds;
 
         /* Delay 1s using systick timer */
         usleep(1000*1000);
 
         /* Get RTC timer */
-        seconds = time(NULL);
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S %p", localtime(&seconds));
-        printf("[%ld] %s\r\n", seconds, buffer);
-    }
+        //seconds = time(NULL);
+        //strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S %p", localtime(&seconds));
+        //printf("[%ld] %s\r\n", seconds, buffer);
+		rtc_getDateTime(fd,&newTime);
+
+		printf("Current time: %u-%u-%u-%u-%u-%u\n",
+			newTime.tm_year,newTime.tm_mon,newTime.tm_mday,newTime.tm_hour,newTime.tm_min,newTime.tm_sec);	
+    }	
+
+	rtc_closeDev(fd);
 }
 
 void busfault_raise_test(void)

@@ -112,88 +112,13 @@ volatile bool g_rtc_enabled = false;
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-#if 0 //zhang
-struct rtc_regvals_s {
-	uint8_t bcdsec;
-	uint8_t bcdmin;
-	uint8_t bcdhour;
-	uint8_t bcdday;
-#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
-	uint8_t bcddayweek;
-#endif
-	uint8_t bcdmon;
-	uint16_t bcdyear;
-};
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-static uint32_t rtc_bin2bcd(int value)
-{
-	uint32_t hundreds;
-	uint32_t tens;
-
-	hundreds = tens = 0;
-
-	while (value >= 100) {
-		hundreds++;
-		value -= 100;
-	}
-
-	while (value >= 10) {
-		tens++;
-		value -= 10;
-	}
-
-	return (hundreds << 8) | (tens << 4) | value;
-}
-
-static int rtc_bcd2bin(uint32_t value)
-{
-	uint32_t tens = ((value >> 4) & 0xf) * 10;
-	uint32_t hundreds = ((value >> 8) & 0xf) * 100;
-	return (int)(hundreds + tens + (value & 0xf));
-}
-
-static void rtc_breakout(FAR const struct tm *tm,
-						 FAR struct rtc_regvals_s *regvals)
-{
-	regvals->bcdsec     = rtc_bin2bcd(tm->tm_sec);
-	regvals->bcdmin     = rtc_bin2bcd(tm->tm_min);
-	regvals->bcdhour    = rtc_bin2bcd(tm->tm_hour);
-	regvals->bcdday     = rtc_bin2bcd(tm->tm_mday);
-#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
-	regvals->bcddayweek = rtc_bin2bcd(tm->tm_wday + 1);
-#endif
-	regvals->bcdmon     = rtc_bin2bcd(tm->tm_mon + 1);
-	regvals->bcdyear    = rtc_bin2bcd(tm->tm_year);
-}
-
-
-#if defined(CONFIG_RTC_ALARM)
-static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
-{
-	if (getreg32(RDA5981X_RTC_INTP) & RTC_INTP_ALARM) {
-		/* Clear pending flags */
-		putreg32(RTC_INTP_ALARM, RDA5981X_RTC_INTP);
-
-		/* Disable alarm */
-		modifyreg32(RDA5981X_RTC_RTCALM, RTC_RTCALM_ALMEN_MASK,
-					RTC_RTCALM_ALMEN_DISABLE);
-
-		/* Alarm callback */
-		g_alarmcb();
-		g_alarmcb = NULL;
-	}
-
-	return OK;
-}
-#endif
-#endif //zhang
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+time_t rtc_read(void);
+void rtc_write(time_t t);
+
+
 /****************************************************************************
  * Name: up_rtc_getdatetime
  *
@@ -218,37 +143,15 @@ static int rtc_alarm_handler(int irq, void *context, FAR void *arg)
  ****************************************************************************/
 int up_rtc_getdatetime(FAR struct tm *tp)
 {
-#if 0
-	irqstate_t flags;
-	struct rtc_regvals_s regvals;
+	time_t t = rtc_read();
 
-	flags = irqsave();
+	printf("up_rtc_getdatetime is %u\n",t);
 
-	/* read bcd counters */
-	do {
-		regvals.bcdsec     = getreg32(RDA5981X_RTC_BCDSEC);
-		regvals.bcdmin     = getreg32(RDA5981X_RTC_BCDMIN);
-		regvals.bcdhour    = getreg32(RDA5981X_RTC_BCDHOUR);
-		regvals.bcdday     = getreg32(RDA5981X_RTC_BCDDAY);
-#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
-		regvals.bcddayweek = getreg32(RDA5981X_RTC_BCDDAYWEEK);
-#endif
-		regvals.bcdmon     = getreg32(RDA5981X_RTC_BCDMON);
-		regvals.bcdyear    = getreg32(RDA5981X_RTC_BCDYEAR);
-	} while (regvals.bcdsec != getreg32(RDA5981X_RTC_BCDSEC));
+	if(tp)
+	{
+		tp = gmtime_r(&t,tp);
+	}
 
-	irqrestore(flags);
-
-	tp->tm_sec  = rtc_bcd2bin(regvals.bcdsec);
-	tp->tm_min  = rtc_bcd2bin(regvals.bcdmin);
-	tp->tm_hour = rtc_bcd2bin(regvals.bcdhour);
-	tp->tm_mday = rtc_bcd2bin(regvals.bcdday);
-#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
-	tp->tm_wday = rtc_bcd2bin(regvals.bcddayweek) - 1;
-#endif
-	tp->tm_mon  = rtc_bcd2bin(regvals.bcdmon) - 1;
-	tp->tm_year = rtc_bcd2bin(regvals.bcdyear);
-#endif
 	return OK;
 }
 
@@ -270,13 +173,16 @@ int up_rtc_getdatetime(FAR struct tm *tp)
 int up_rtc_setdatetime(FAR struct tm *tm)
 {
 	irqstate_t flags;
-	//struct rtc_regvals_s regvals;
+	time_t t = 0;
 
-	//rtc_breakout(tm, &regvals);
+	printf("up_rtc_setdatetime\n");
 
 	flags = irqsave();
 
-	//write
+	t = mktime(tm);
+	printf("up_rtc_setdatetime t is %u\n",t);
+	usleep(1000*1000);
+	rtc_write(t);
 
 	irqrestore(flags);
 
@@ -415,13 +321,20 @@ void rtc_write(time_t t)
  ****************************************************************************/
 int up_rtc_initialize(void)
 {
+	int i=10;
+	while(i>0)
+	{
+		up_lowputc('X');
+		i--;
+	}
+	
 	uint32_t start_time;
 	/* Make sure us_ticker is running */
 	start_time = us_ticker_read();
 	/* To fix compiling warning */
 	start_time = start_time;
 	/* Record the ticks */
-	round_ticks = RTC_TIMER_INITVAL_REG;
+	round_ticks = getreg32(RTC_TIMER_INITVAL_REG);
 	is_rtc_enabled = 1;
 
 	return OK;
