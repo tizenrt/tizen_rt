@@ -298,56 +298,68 @@ void rtc_closeDev(int fd)
 }
 
 
-void convertTime(struct rtc_time *currentTime)
+void convertTime(struct rtc_time *currentTime, bool setflage)
 {
-	currentTime->tm_mon = currentTime->tm_mon - 1; //convert month
-	currentTime->tm_year = currentTime->tm_year - 1900; //convert year
+	if(currentTime)
+	{
+		if(setflage)
+		{
+			currentTime->tm_mon = currentTime->tm_mon - 1; //convert month
+			currentTime->tm_year = currentTime->tm_year - 1900; //convert year
+		}
+		else
+		{
+			currentTime->tm_mon = currentTime->tm_mon + 1; //convert month
+			currentTime->tm_year = currentTime->tm_year + 1900; //convert year
+		}
+	}
+
 }
 
 
-void rtc_test(void) {
+void rtc_test(void) 
+{
    // char buffer[32] = {0};
 	struct rtc_time currentTime,newTime;
 	int fd;
 	
-	//up_rtc_initialize();
-    //rtc_write(CUSTOM_TIME);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
-
 	fd = rtc_openDev();
 	if(fd <0)
 	{
 		return;
 	}
 
-	//set time // Set RTC time to Wed, 28 Oct 2009 11:35:37
+	// Set RTC time to Wed, 28 Oct 2009 11:35:37
 	currentTime.tm_sec = 37;
 	currentTime.tm_min = 35;
 	currentTime.tm_hour = 11;
 	currentTime.tm_mday = 28;
 	currentTime.tm_mon = 10;
 	currentTime.tm_year = 2009;
-
-	convertTime(&currentTime);
-
+	convertTime(&currentTime,true);
+	
 	rtc_setDate(fd,&currentTime);
 
-    while (true) {
-        //time_t seconds;
-
+    while (true) 
+	{
         /* Delay 1s using systick timer */
         usleep(1000*1000);
 
         /* Get RTC timer */
+		//time_t seconds;
         //seconds = time(NULL);
         //strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S %p", localtime(&seconds));
         //printf("[%ld] %s\r\n", seconds, buffer);
-		rtc_getDateTime(fd,&newTime);
 
+		rtc_getDateTime(fd,&newTime);
+		convertTime(&newTime,false); //get time
 		printf("Current time: %u-%u-%u-%u-%u-%u\n",
 			newTime.tm_year,newTime.tm_mon,newTime.tm_mday,newTime.tm_hour,newTime.tm_min,newTime.tm_sec);	
     }	
 
 	rtc_closeDev(fd);
+	
+	return;
 }
 
 void busfault_raise_test(void)

@@ -144,9 +144,7 @@ void rtc_write(time_t t);
 int up_rtc_getdatetime(FAR struct tm *tp)
 {
 	time_t t = rtc_read();
-
-	printf("up_rtc_getdatetime is %u\n",t);
-
+	//printf("up_rtc_getdatetime is %u\n",t);
 	if(tp)
 	{
 		tp = gmtime_r(&t,tp);
@@ -175,15 +173,9 @@ int up_rtc_setdatetime(FAR struct tm *tm)
 	irqstate_t flags;
 	time_t t = 0;
 
-	printf("up_rtc_setdatetime\n");
-
 	flags = irqsave();
-
 	t = mktime(tm);
-	printf("up_rtc_setdatetime t is %u\n",t);
-	usleep(1000*1000);
 	rtc_write(t);
-
 	irqrestore(flags);
 
 	return OK;
@@ -214,9 +206,7 @@ int up_rtc_settime(FAR const struct timespec *tp)
 }
 
 
-
 //RDA CODE
-
 void rtc_base_update(void)
 {
 	if (is_rtc_enabled) {
@@ -321,13 +311,6 @@ void rtc_write(time_t t)
  ****************************************************************************/
 int up_rtc_initialize(void)
 {
-	int i=10;
-	while(i>0)
-	{
-		up_lowputc('X');
-		i--;
-	}
-	
 	uint32_t start_time;
 	/* Make sure us_ticker is running */
 	start_time = us_ticker_read();
